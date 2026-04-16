@@ -1,0 +1,512 @@
+[2026-04-15 14:37:43]
+Subject : FW: [Scan] 2026-04-15 14:20
+Error   : Attachment '2026-04-15 14-20.pdf': TesseractNotFoundError: C:\Program Files\Tesseract-OCR\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Traceback (most recent call last):
+  File "C:\Users\dawson.h\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pytesseract\pytesseract.py", line 275, in run_tesseract
+    proc = subprocess.Popen(cmd_args, **subprocess_args())
+  File "C:\Users\dawson.h\AppData\Local\Python\pythoncore-3.14-64\Lib\subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dawson.h\AppData\Local\Python\pythoncore-3.14-64\Lib\subprocess.py", line 1553, in _execute_child
+    hp, ht, pid, tid = _winapi.CreateProcess(executable, args,
+                       ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+                             # no special security
+                             ^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+                             cwd,
+                             ^^^^
+                             startupinfo)
+                             ^^^^^^^^^^^^
+FileNotFoundError: [WinError 2] The system cannot find the file specified
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\dawson.h\desktop\ticket-to-excel-automation\ticket_processor.py", line 731, in process_email
+    ticket_data = extract_ticket_data_ocr(images)
+  File "C:\Users\dawson.h\desktop\ticket-to-excel-automation\ticket_processor.py", line 436, in extract_ticket_data_ocr
+    full_text = "\n".join(
+        pytesseract.image_to_string(img, config="--psm 6 --oem 3")
+        for img in images
+    )
+  File "C:\Users\dawson.h\desktop\ticket-to-excel-automation\ticket_processor.py", line 437, in <genexpr>
+    pytesseract.image_to_string(img, config="--psm 6 --oem 3")
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dawson.h\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pytesseract\pytesseract.py", line 486, in image_to_string
+    return {
+           ~
+    ...<2 lines>...
+        Output.STRING: lambda: run_and_get_output(*args),
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    }[output_type]()
+    ~~~~~~~~~~~~~~^^
+  File "C:\Users\dawson.h\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pytesseract\pytesseract.py", line 489, in <lambda>
+    Output.STRING: lambda: run_and_get_output(*args),
+                           ~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\dawson.h\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pytesseract\pytesseract.py", line 352, in run_and_get_output
+    run_tesseract(**kwargs)
+    ~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\dawson.h\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pytesseract\pytesseract.py", line 280, in run_tesseract
+    raise TesseractNotFoundError()
+pytesseract.pytesseract.TesseractNotFoundError: C:\Program Files\Tesseract-OCR\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+
+------------------------------------------------------------
+[2026-04-15 14:38:23]
+Subject : FW: [Scan] 2026-04-15 14:20
+Error   : Attachment '2026-04-15 14-20.pdf': TesseractNotFoundError: C:\Program Files\Tesseract-OCR\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+Traceback (most recent call last):
+  File "C:\Users\dawson.h\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pytesseract\pytesseract.py", line 275, in run_tesseract
+    proc = subprocess.Popen(cmd_args, **subprocess_args())
+  File "C:\Users\dawson.h\AppData\Local\Python\pythoncore-3.14-64\Lib\subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dawson.h\AppData\Local\Python\pythoncore-3.14-64\Lib\subprocess.py", line 1553, in _execute_child
+    hp, ht, pid, tid = _winapi.CreateProcess(executable, args,
+                       ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+                             # no special security
+                             ^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+                             cwd,
+                             ^^^^
+                             startupinfo)
+                             ^^^^^^^^^^^^
+FileNotFoundError: [WinError 2] The system cannot find the file specified
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\dawson.h\desktop\ticket-to-excel-automation\ticket_processor.py", line 731, in process_email
+    ticket_data = extract_ticket_data_ocr(images)
+  File "C:\Users\dawson.h\desktop\ticket-to-excel-automation\ticket_processor.py", line 436, in extract_ticket_data_ocr
+    full_text = "\n".join(
+        pytesseract.image_to_string(img, config="--psm 6 --oem 3")
+        for img in images
+    )
+  File "C:\Users\dawson.h\desktop\ticket-to-excel-automation\ticket_processor.py", line 437, in <genexpr>
+    pytesseract.image_to_string(img, config="--psm 6 --oem 3")
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dawson.h\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pytesseract\pytesseract.py", line 486, in image_to_string
+    return {
+           ~
+    ...<2 lines>...
+        Output.STRING: lambda: run_and_get_output(*args),
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    }[output_type]()
+    ~~~~~~~~~~~~~~^^
+  File "C:\Users\dawson.h\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pytesseract\pytesseract.py", line 489, in <lambda>
+    Output.STRING: lambda: run_and_get_output(*args),
+                           ~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\dawson.h\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pytesseract\pytesseract.py", line 352, in run_and_get_output
+    run_tesseract(**kwargs)
+    ~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\dawson.h\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pytesseract\pytesseract.py", line 280, in run_tesseract
+    raise TesseractNotFoundError()
+pytesseract.pytesseract.TesseractNotFoundError: C:\Program Files\Tesseract-OCR\tesseract.exe is not installed or it's not in your PATH. See README file for more information.
+
+------------------------------------------------------------
+[2026-04-15 14:44:13]
+Subject : FW: [Scan] 2026-04-15 14:20
+Error   : Attachment '2026-04-15 14-20.pdf': HTTPError: 403 Client Error: Forbidden for url: https://graph.microsoft.com/v1.0/users/help@mjhughes.com/messages/AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAAAk9AAA=/reply
+Traceback (most recent call last):
+  File "C:\Users\dawson.h\desktop\ticket-to-excel-automation\ticket_processor.py", line 754, in process_email
+    send_reply_email(
+    ~~~~~~~~~~~~~~~~^
+        client,
+        ^^^^^^^
+    ...<2 lines>...
+        qr_data["job_number"],
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\dawson.h\desktop\ticket-to-excel-automation\ticket_processor.py", line 306, in send_reply_email
+    client.post(url, json=payload)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dawson.h\desktop\ticket-to-excel-automation\ticket_processor.py", line 193, in post
+    resp.raise_for_status()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\dawson.h\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\requests\models.py", line 1028, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 403 Client Error: Forbidden for url: https://graph.microsoft.com/v1.0/users/help@mjhughes.com/messages/AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAAAk9AAA=/reply
+
+------------------------------------------------------------
+[2026-04-15 14:58:14]
+Subject : FW: [Scan] 2026-04-15 14:20
+Error   : Attachment '2026-04-15 14-20.pdf': PatternError: look-behind requires fixed-width pattern
+Traceback (most recent call last):
+  File "C:\Users\dawson.h\desktop\ticket-to-excel-automation\ticket_processor.py", line 750, in process_email
+    ticket_data = extract_ticket_data_ocr(images)
+  File "C:\Users\dawson.h\desktop\ticket-to-excel-automation\ticket_processor.py", line 447, in extract_ticket_data_ocr
+    "net_tons":      _ocr_net_tons(full_text),
+                     ~~~~~~~~~~~~~^^^^^^^^^^^
+  File "C:\Users\dawson.h\desktop\ticket-to-excel-automation\ticket_processor.py", line 545, in _ocr_net_tons
+    m = re.search(pattern, text, re.IGNORECASE)
+  File "C:\Users\dawson.h\AppData\Local\Python\pythoncore-3.14-64\Lib\re\__init__.py", line 177, in search
+    return _compile(pattern, flags).search(string)
+           ~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\dawson.h\AppData\Local\Python\pythoncore-3.14-64\Lib\re\__init__.py", line 350, in _compile
+    p = _compiler.compile(pattern, flags)
+  File "C:\Users\dawson.h\AppData\Local\Python\pythoncore-3.14-64\Lib\re\_compiler.py", line 766, in compile
+    code = _code(p, flags)
+  File "C:\Users\dawson.h\AppData\Local\Python\pythoncore-3.14-64\Lib\re\_compiler.py", line 599, in _code
+    _compile(code, p.data, flags)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dawson.h\AppData\Local\Python\pythoncore-3.14-64\Lib\re\_compiler.py", line 160, in _compile
+    raise PatternError("look-behind requires fixed-width pattern")
+re.PatternError: look-behind requires fixed-width pattern
+
+------------------------------------------------------------
+[2026-04-15 14:59:38]
+Subject : FW: [Scan] 2026-04-15 14:20
+Error   : Attachment '2026-04-15 14-20.pdf': PermissionError: [Errno 13] Permission denied: 'materials_log.xlsx'
+Traceback (most recent call last):
+  File "C:\Users\dawson.h\desktop\ticket-to-excel-automation\ticket_processor.py", line 766, in process_email
+    write_to_excel(qr_data, ticket_data)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dawson.h\desktop\ticket-to-excel-automation\ticket_processor.py", line 603, in write_to_excel
+    workbook.save(excel_path)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "C:\Users\dawson.h\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\openpyxl\workbook\workbook.py", line 386, in save
+    save_workbook(self, filename)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\dawson.h\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\openpyxl\writer\excel.py", line 291, in save_workbook
+    archive = ZipFile(filename, 'w', ZIP_DEFLATED, allowZip64=True)
+  File "C:\Users\dawson.h\AppData\Local\Python\pythoncore-3.14-64\Lib\zipfile\__init__.py", line 1453, in __init__
+    self.fp = io.open(file, filemode)
+              ~~~~~~~^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'materials_log.xlsx'
+
+------------------------------------------------------------
+[2026-04-15 15:19:16]
+Subject : FW: [Scan] 2026-04-15 14:20
+Error   : Attachment '2026-04-15 14-20.pdf': PermissionError: [Errno 13] Permission denied: 'materials_log.xlsx'
+Traceback (most recent call last):
+  File "C:\Users\dawson.h\desktop\ticket-to-excel-automation\ticket_processor.py", line 837, in process_email
+    write_to_excel(qr_data, ticket_data)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dawson.h\desktop\ticket-to-excel-automation\ticket_processor.py", line 674, in write_to_excel
+    workbook.save(excel_path)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "C:\Users\dawson.h\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\openpyxl\workbook\workbook.py", line 386, in save
+    save_workbook(self, filename)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\dawson.h\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\openpyxl\writer\excel.py", line 291, in save_workbook
+    archive = ZipFile(filename, 'w', ZIP_DEFLATED, allowZip64=True)
+  File "C:\Users\dawson.h\AppData\Local\Python\pythoncore-3.14-64\Lib\zipfile\__init__.py", line 1453, in __init__
+    self.fp = io.open(file, filemode)
+              ~~~~~~~^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'materials_log.xlsx'
+
+------------------------------------------------------------
+[2026-04-15 15:33:12]
+Subject : FW: [Scan] 2026-04-15 15:31
+Error   : Attachment '2026-04-15 15-31.pdf': PermissionError: [Errno 13] Permission denied: 'materials_log.xlsx'
+Traceback (most recent call last):
+  File "C:\Users\dawson.h\desktop\ticket-to-excel-automation\ticket_processor.py", line 871, in process_email
+    write_to_excel(qr_data, ticket_data)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dawson.h\desktop\ticket-to-excel-automation\ticket_processor.py", line 706, in write_to_excel
+    workbook.save(excel_path)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "C:\Users\dawson.h\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\openpyxl\workbook\workbook.py", line 386, in save
+    save_workbook(self, filename)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\dawson.h\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\openpyxl\writer\excel.py", line 291, in save_workbook
+    archive = ZipFile(filename, 'w', ZIP_DEFLATED, allowZip64=True)
+  File "C:\Users\dawson.h\AppData\Local\Python\pythoncore-3.14-64\Lib\zipfile\__init__.py", line 1453, in __init__
+    self.fp = io.open(file, filemode)
+              ~~~~~~~^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'materials_log.xlsx'
+
+------------------------------------------------------------
+[2026-04-15 16:22:57]
+Subject : FW: [Scan] 2026-04-15 16:20
+Error   : Attachment '2026-04-15 16-20.pdf': ValueError: No QR code matching XXXX-YYYY-CCCCCC-CC found in PDF.
+Traceback (most recent call last):
+  File "C:\Users\dawson.h\desktop\ticket-to-excel-automation\ticket_processor.py", line 1003, in process_email
+    raise ValueError(
+        "No QR code matching XXXX-YYYY-CCCCCC-CC found in PDF."
+    )
+ValueError: No QR code matching XXXX-YYYY-CCCCCC-CC found in PDF.
+
+------------------------------------------------------------
+[2026-04-15 16:23:50]
+Subject : FW: [Scan] 2026-04-15 16:20
+Error   : Attachment '2026-04-15 16-20.pdf': ValueError: No QR code matching XXXX-YYYY-CCCCCC-CC found in PDF.
+Traceback (most recent call last):
+  File "C:\Users\dawson.h\desktop\ticket-to-excel-automation\ticket_processor.py", line 1003, in process_email
+    raise ValueError(
+        "No QR code matching XXXX-YYYY-CCCCCC-CC found in PDF."
+    )
+ValueError: No QR code matching XXXX-YYYY-CCCCCC-CC found in PDF.
+
+------------------------------------------------------------
+[2026-04-16 08:38:51]
+Subject : FW: [Scan] 2026-04-15 16:06
+Error   : TICKET FLAGGED FOR REVIEW: FW: [Scan] 2026-04-15 16:06 — OCR confidence too low (2 check(s) failed: 'Product' label not found in OCR text; 5-digit ticket number not found in top quarter of text). Check error_log.txt for details.
+------------------------------------------------------------
+[2026-04-16 08:41:04]
+Subject : FW: [Scan] 2026-04-15 16:06
+Error   : TICKET FLAGGED FOR REVIEW: FW: [Scan] 2026-04-15 16:06 — OCR confidence too low (2 check(s) failed: 'Product' label not found in OCR text; 5-digit ticket number not found in top quarter of text). Check error_log.txt for details.
+------------------------------------------------------------
+[2026-04-16 08:45:21]
+Subject : FW: [Scan] 2026-04-15 16:06
+Error   : REVIEW REQUIRED: FW: [Scan] 2026-04-15 16:06 - 2026-04-16 08:45:21 - Failed checks: 'Product' label not found in OCR text; 5-digit ticket number not found in top quarter of text
+------------------------------------------------------------
+[2026-04-16 08:48:29]
+Subject : FW: [Scan] 2026-04-15 16:06
+Error   : REVIEW REQUIRED: FW: [Scan] 2026-04-15 16:06 - 2026-04-16 08:48:29 - Failed checks: 'Product' label not found in OCR text; 5-digit ticket number not found in top quarter of text
+------------------------------------------------------------
+[2026-04-16 08:48:31]
+Subject : FW: [Scan] 2026-04-15 16:06
+Error   : Attachment '2026-04-15 16-06.pdf': HTTPError: 404 Client Error: Not Found for url: https://graph.microsoft.com/v1.0/users/help@mjhughes.com/messages/AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAAAlDAAA=
+Traceback (most recent call last):
+  File "C:\Users\dawson.h\desktop\ticket-to-excel-automation\ticket_processor.py", line 1299, in process_email
+    mark_email_as_read(client, email_id)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dawson.h\desktop\ticket-to-excel-automation\ticket_processor.py", line 338, in mark_email_as_read
+    client.patch(url, json={"isRead": True})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dawson.h\desktop\ticket-to-excel-automation\ticket_processor.py", line 219, in patch
+    resp.raise_for_status()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\dawson.h\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\requests\models.py", line 1028, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 404 Client Error: Not Found for url: https://graph.microsoft.com/v1.0/users/help@mjhughes.com/messages/AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAAAlDAAA=
+
+------------------------------------------------------------
+[2026-04-16 08:52:32]
+Subject : FW: [Scan] 2026-04-15 16:06
+Error   : REVIEW REQUIRED: FW: [Scan] 2026-04-15 16:06 - 2026-04-16 08:52:32 - Failed checks: 'Product' label not found in OCR text; 5-digit ticket number not found in top quarter of text
+------------------------------------------------------------
+[2026-04-16 08:52:34]
+Subject : FW: [Scan] 2026-04-15 16:06
+Error   : Attachment '2026-04-15 16-06.pdf': HTTPError: 404 Client Error: Not Found for url: https://graph.microsoft.com/v1.0/users/help@mjhughes.com/messages/AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACSzAAA=
+Traceback (most recent call last):
+  File "C:\Users\dawson.h\desktop\ticket-to-excel-automation\ticket_processor.py", line 1299, in process_email
+    mark_email_as_read(client, email_id)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dawson.h\desktop\ticket-to-excel-automation\ticket_processor.py", line 338, in mark_email_as_read
+    client.patch(url, json={"isRead": True})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dawson.h\desktop\ticket-to-excel-automation\ticket_processor.py", line 219, in patch
+    resp.raise_for_status()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\dawson.h\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\requests\models.py", line 1028, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 404 Client Error: Not Found for url: https://graph.microsoft.com/v1.0/users/help@mjhughes.com/messages/AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACSzAAA=
+
+------------------------------------------------------------
+[2026-04-16 08:54:47]
+Subject : FW: [Scan] 2026-04-15 16:06
+Error   : REVIEW REQUIRED: FW: [Scan] 2026-04-15 16:06 - 2026-04-16 08:54:47 - Failed checks: 'Product' label not found in OCR text; 5-digit ticket number not found in top quarter of text
+------------------------------------------------------------
+[2026-04-16 09:04:25]
+Subject : FW: [Scan] 2026-04-15 15:31
+Error   : REVIEW REQUIRED: FW: [Scan] 2026-04-15 15:31 - 2026-04-16 09:04:25 - Failed checks: valid complete date not found; 5-digit ticket number not found in top quarter of text
+------------------------------------------------------------
+[2026-04-16 09:07:37]
+Subject : FW: [Scan] 2026-04-15 14:20
+Error   : DUPLICATE TICKET: 16800 - FW: [Scan] 2026-04-15 14:20 - 2026-04-16 09:07:37
+------------------------------------------------------------
+[2026-04-16 09:13:12]
+Subject : FW: [Scan] 2026-04-15 14:20
+Error   : DUPLICATE TICKET: 16800 - FW: [Scan] 2026-04-15 14:20 - 2026-04-16 09:13:12
+------------------------------------------------------------
+[2026-04-16 09:14:53]
+Subject : FW: [Scan] 2026-04-16 08:57
+Error   : REVIEW REQUIRED: FW: [Scan] 2026-04-16 08:57 - 2026-04-16 09:14:53 - Failed checks: valid complete date not found; 'Product' label not found in OCR text; facility name could not be extracted; 'Net' not found — weight table may not have been read
+------------------------------------------------------------
+[2026-04-16 09:18:17]
+Subject : REVIEW REQUIRED - FW: [Scan] 2026-04-16 08:57
+Error   : REVIEW REQUIRED: REVIEW REQUIRED - FW: [Scan] 2026-04-16 08:57 - 2026-04-16 09:18:17 - Failed checks: valid complete date not found; 'Product' label not found in OCR text; facility name could not be extracted; 'Net' not found — weight table may not have been read
+------------------------------------------------------------
+[2026-04-16 09:19:59]
+Subject : FW: [Scan] 2026-04-15 16:06
+Error   : REVIEW REQUIRED: FW: [Scan] 2026-04-15 16:06 - 2026-04-16 09:19:59 - Failed checks: 'Product' label not found in OCR text; 5-digit ticket number not found in top quarter of text
+------------------------------------------------------------
+[2026-04-16 09:20:57]
+Subject : FW: [Scan] 2026-04-15 16:24
+Error   : REVIEW REQUIRED: FW: [Scan] 2026-04-15 16:24 - 2026-04-16 09:20:57 - Failed checks: valid complete date not found
+------------------------------------------------------------
+[2026-04-16 09:24:03]
+Subject : REVIEW REQUIRED - FW: [Scan] 2026-04-15 16:24
+Error   : REVIEW REQUIRED: REVIEW REQUIRED - FW: [Scan] 2026-04-15 16:24 - 2026-04-16 09:24:03 - Failed checks: valid complete date not found; 5-digit ticket number not found in top quarter of text
+------------------------------------------------------------
+[2026-04-16 09:43:55]
+Subject : REVIEW REQUIRED - REVIEW REQUIRED - FW: [Scan] 2026-04-15 16:24
+Error   : REVIEW REQUIRED: REVIEW REQUIRED - REVIEW REQUIRED - FW: [Scan] 2026-04-15 16:24 - 2026-04-16 09:43:55 - Failed checks: date not found on header line; 5-digit ticket number not found on header line
+------------------------------------------------------------
+[2026-04-16 10:57:15]
+Subject : FW: [Scan] 2026-04-16 10:37
+Error   : Attachment '2026-04-16 10-37.pdf': ValueError: No QR code matching XXXX-YYYY-CCCCCC-CC found in PDF.
+Traceback (most recent call last):
+  File "C:\Users\dawson.h\desktop\ticket-to-excel-automation\ticket_processor.py", line 1581, in process_email
+    raise ValueError(
+        "No QR code matching XXXX-YYYY-CCCCCC-CC found in PDF."
+    )
+ValueError: No QR code matching XXXX-YYYY-CCCCCC-CC found in PDF.
+
+------------------------------------------------------------
+[2026-04-16 10:57:21]
+Subject : FW: [Scan] 2026-04-16 10:37 1
+Error   : Attachment '2026-04-16 10-37 1.pdf': ValueError: No QR code matching XXXX-YYYY-CCCCCC-CC found in PDF.
+Traceback (most recent call last):
+  File "C:\Users\dawson.h\desktop\ticket-to-excel-automation\ticket_processor.py", line 1581, in process_email
+    raise ValueError(
+        "No QR code matching XXXX-YYYY-CCCCCC-CC found in PDF."
+    )
+ValueError: No QR code matching XXXX-YYYY-CCCCCC-CC found in PDF.
+
+------------------------------------------------------------
+[2026-04-16 11:06:45]
+Subject : FW: [Scan] 2026-04-16 10:37
+Error   : Attachment '2026-04-16 10-37.pdf': ValueError: No QR code matching XXXX-YYYY-CCCCCC-CC found in PDF.
+Traceback (most recent call last):
+  File "C:\Users\dawson.h\Desktop\ticket-to-excel-automation\ticket_processor.py", line 1626, in process_email
+    raise ValueError(
+        "No QR code matching XXXX-YYYY-CCCCCC-CC found in PDF."
+    )
+ValueError: No QR code matching XXXX-YYYY-CCCCCC-CC found in PDF.
+
+------------------------------------------------------------
+[2026-04-16 11:06:48]
+Subject : ticket 17583
+Error   : Empty field: Material
+------------------------------------------------------------
+[2026-04-16 11:06:51]
+Subject : FW: [Scan] 2026-04-16 10:37 1
+Error   : Attachment '2026-04-16 10-37 1.pdf': ValueError: No QR code matching XXXX-YYYY-CCCCCC-CC found in PDF.
+Traceback (most recent call last):
+  File "C:\Users\dawson.h\Desktop\ticket-to-excel-automation\ticket_processor.py", line 1626, in process_email
+    raise ValueError(
+        "No QR code matching XXXX-YYYY-CCCCCC-CC found in PDF."
+    )
+ValueError: No QR code matching XXXX-YYYY-CCCCCC-CC found in PDF.
+
+------------------------------------------------------------
+[2026-04-16 11:12:57]
+Subject : FW: [Scan] 2026-04-16 10:37
+Error   : Attachment '2026-04-16 10-37.pdf': ValueError: No QR code matching XXXX-YYYY-CCCCCC-CC found in PDF.
+Traceback (most recent call last):
+  File "C:\Users\dawson.h\desktop\ticket-to-excel-automation\ticket_processor.py", line 1670, in process_email
+    raise ValueError(
+        "No QR code matching XXXX-YYYY-CCCCCC-CC found in PDF."
+    )
+ValueError: No QR code matching XXXX-YYYY-CCCCCC-CC found in PDF.
+
+------------------------------------------------------------
+[2026-04-16 11:12:58]
+Subject : FW: [Scan] 2026-04-16 10:37 1
+Error   : Attachment '2026-04-16 10-37 1.pdf': ValueError: No QR code matching XXXX-YYYY-CCCCCC-CC found in PDF.
+Traceback (most recent call last):
+  File "C:\Users\dawson.h\desktop\ticket-to-excel-automation\ticket_processor.py", line 1670, in process_email
+    raise ValueError(
+        "No QR code matching XXXX-YYYY-CCCCCC-CC found in PDF."
+    )
+ValueError: No QR code matching XXXX-YYYY-CCCCCC-CC found in PDF.
+
+------------------------------------------------------------
+[2026-04-16 11:16:45]
+Subject : FW: [Scan] 2026-04-16 10:37
+Error   : Attachment '2026-04-16 10-37.pdf': ValueError: No QR code matching XXXX-YYYY-CCCCCC-CC found in PDF.
+Traceback (most recent call last):
+  File "C:\Users\dawson.h\desktop\ticket-to-excel-automation\ticket_processor.py", line 1733, in process_email
+    raise ValueError(
+        "No QR code matching XXXX-YYYY-CCCCCC-CC found in PDF."
+    )
+ValueError: No QR code matching XXXX-YYYY-CCCCCC-CC found in PDF.
+
+------------------------------------------------------------
+[2026-04-16 11:16:48]
+Subject : FW: [Scan] 2026-04-16 10:37 1
+Error   : Attachment '2026-04-16 10-37 1.pdf': ValueError: No QR code matching XXXX-YYYY-CCCCCC-CC found in PDF.
+Traceback (most recent call last):
+  File "C:\Users\dawson.h\desktop\ticket-to-excel-automation\ticket_processor.py", line 1733, in process_email
+    raise ValueError(
+        "No QR code matching XXXX-YYYY-CCCCCC-CC found in PDF."
+    )
+ValueError: No QR code matching XXXX-YYYY-CCCCCC-CC found in PDF.
+
+------------------------------------------------------------
+[2026-04-16 11:19:32]
+Subject : FW: [Scan] 2026-04-16 10:37
+Error   : REVIEW REQUIRED: FW: [Scan] 2026-04-16 10:37 - 2026-04-16 11:19:32 - Failed checks: 5-digit ticket number not found on header line
+------------------------------------------------------------
+[2026-04-16 11:19:40]
+Subject : FW: [Scan] 2026-04-16 10:37 1
+Error   : REVIEW REQUIRED: FW: [Scan] 2026-04-16 10:37 1 - 2026-04-16 11:19:40 - Failed checks: material/product label not found (expected one of: ['Product:', 'Product'])
+------------------------------------------------------------
+[2026-04-16 11:26:01]
+Subject : REVIEW REQUIRED - FW: [Scan] 2026-04-16 10:37
+Error   : REVIEW REQUIRED: REVIEW REQUIRED - FW: [Scan] 2026-04-16 10:37 - 2026-04-16 11:26:01 - Failed checks: 5-digit ticket number not found on header line or upper-right region
+------------------------------------------------------------
+[2026-04-16 11:26:10]
+Subject : REVIEW REQUIRED - FW: [Scan] 2026-04-16 10:37 1
+Error   : REVIEW REQUIRED: REVIEW REQUIRED - FW: [Scan] 2026-04-16 10:37 1 - 2026-04-16 11:26:10 - Failed checks: material/product label not found (expected one of: ['Product:', 'Product.', 'Product :', 'Product', 'product:', 'product.', 'PRODUCT', 'Prod:', 'Prod.', 'prod'])
+------------------------------------------------------------
+[2026-04-16 11:29:12]
+Subject : REVIEW REQUIRED - REVIEW REQUIRED - FW: [Scan] 2026-04-16 10:37
+Error   : REVIEW REQUIRED: REVIEW REQUIRED - REVIEW REQUIRED - FW: [Scan] 2026-04-16 10:37 - 2026-04-16 11:29:12 - Failed checks: 5-digit ticket number not found on header line or upper-right region
+------------------------------------------------------------
+[2026-04-16 11:29:17]
+Subject : REVIEW REQUIRED - REVIEW REQUIRED - FW: [Scan] 2026-04-16 10:37 1
+Error   : REVIEW REQUIRED: REVIEW REQUIRED - REVIEW REQUIRED - FW: [Scan] 2026-04-16 10:37 1 - 2026-04-16 11:29:17 - Failed checks: material/product label not found (expected one of: ['Product:', 'Product.', 'Product :', 'Product', 'product:', 'product.', 'PRODUCT', 'Prod:', 'Prod.', 'prod'])
+------------------------------------------------------------
+[2026-04-16 11:33:11]
+Subject : REVIEW REQUIRED - REVIEW REQUIRED - FW: [Scan] 2026-04-16 10:37
+Error   : REVIEW REQUIRED: REVIEW REQUIRED - REVIEW REQUIRED - FW: [Scan] 2026-04-16 10:37 - 2026-04-16 11:33:11 - Failed checks: 5-digit ticket number not found on header line or upper-right region
+------------------------------------------------------------
+[2026-04-16 11:33:16]
+Subject : REVIEW REQUIRED - REVIEW REQUIRED - FW: [Scan] 2026-04-16 10:37 1
+Error   : REVIEW REQUIRED: REVIEW REQUIRED - REVIEW REQUIRED - FW: [Scan] 2026-04-16 10:37 1 - 2026-04-16 11:33:16 - Failed checks: material/product label not found (expected one of: ['Product:', 'Product.', 'Product :', 'Product', 'product:', 'product.', 'PRODUCT', 'Prod:', 'Prod.', 'prod'])
+------------------------------------------------------------
+[2026-04-16 11:37:32]
+Subject : REVIEW REQUIRED - REVIEW REQUIRED - FW: [Scan] 2026-04-16 10:37 1
+Error   : REVIEW REQUIRED: REVIEW REQUIRED - REVIEW REQUIRED - FW: [Scan] 2026-04-16 10:37 1 - 2026-04-16 11:37:32 - Failed checks: material/product label not found (expected one of: ['Product:', 'Product.', 'Product :', 'Product', 'product:', 'product.', 'PRODUCT', 'Prod:', 'Prod.', 'prod'])
+------------------------------------------------------------
+[2026-04-16 13:52:52]
+Subject : ticket 17583
+Error   : Empty field: Material
+------------------------------------------------------------
+[2026-04-16 13:56:24]
+Subject : ticket 17583
+Error   : Empty field: Material
+------------------------------------------------------------
+[2026-04-16 14:01:38]
+Subject : ticket 17583
+Error   : Empty field: Material
+------------------------------------------------------------
+[2026-04-16 14:02:38]
+Subject : Ticket 17583 -  - 8/19/2025
+Error   : DUPLICATE TICKET: 17583 - Ticket 17583 -  - 8/19/2025 - 2026-04-16 14:02:38
+------------------------------------------------------------
+[2026-04-16 14:03:32]
+Subject : Ticket 17583 -  - 8/19/2025
+Error   : DUPLICATE TICKET: 17583 - Ticket 17583 -  - 8/19/2025 - 2026-04-16 14:03:32
+------------------------------------------------------------
+[2026-04-16 14:07:22]
+Subject : Ticket 17583 -  - 8/19/2025
+Error   : DUPLICATE TICKET: 17583 - Ticket 17583 -  - 8/19/2025 - 2026-04-16 14:07:22
+------------------------------------------------------------
+[2026-04-16 14:09:28]
+Subject : ticket 17583
+Error   : Empty field: Material
+------------------------------------------------------------
+[2026-04-16 14:42:44]
+Subject : ticket 17583
+Error   : Empty field: Material
+------------------------------------------------------------

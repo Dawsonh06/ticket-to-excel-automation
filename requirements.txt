@@ -1,0 +1,38 @@
+# ============================================================
+# Ticket Processing Automation – Python dependencies
+# Install with:  pip install -r requirements.txt
+# ============================================================
+
+# Anthropic Claude API – AI-powered ticket field extraction
+anthropic>=0.29.0
+
+# Microsoft Authentication Library – client-credentials OAuth2 flow
+msal>=1.24.0
+
+# HTTP client – all Graph API calls
+requests>=2.31.0
+
+# Load credentials from .env file
+python-dotenv>=1.0.0
+
+# PDF rendering – converts PDF pages to images (no poppler required)
+PyMuPDF>=1.23.0
+
+# Image processing – required by pytesseract and pyzbar
+Pillow>=10.0.0
+
+# OCR engine wrapper – extracts text from ticket images
+# Requires Tesseract OCR to be installed separately:
+#   Windows : https://github.com/UB-Mannheim/tesseract/wiki
+#   macOS   : brew install tesseract
+#   Linux   : sudo apt install tesseract-ocr
+pytesseract>=0.3.10
+
+# QR / barcode decoder – more reliable than cv2.QRCodeDetector, no external DLLs
+zxing-cpp>=2.0.0
+
+# OpenCV – still used for image utility operations
+opencv-python>=4.8.0
+
+# Excel workbook read/write – openpyxl handles .xlsx without Microsoft Office
+openpyxl>=3.1.2

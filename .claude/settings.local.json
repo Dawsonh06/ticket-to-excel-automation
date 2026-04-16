@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//usr/**)",
+      "Read(//c/Users/dawson.h/AppData/Local/Programs/**)"
+    ]
+  }
+}

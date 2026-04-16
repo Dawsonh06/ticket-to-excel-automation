@@ -1,0 +1,5 @@
+Box: (2500, 0, 3761, 300) | page size 3761x1654
+Pass1 (digits): 17637
+Pass2 (full):
+_C
+1763/7 ~—

@@ -1,0 +1,15 @@
+Box: (2800, 0, 3761, 1654) | page size 3761x1654
+Pass1 (digits): 
+Pass2 (full):
+17637
+ray
+aaa
+27.22 Op go
+11.90
+15.31
+~
+ot
+ON
+a Y
+mn
+—

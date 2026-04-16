@@ -1,0 +1,6 @@
+Box: (2000, 0, 3761, 400) | page size 3761x1654
+Pass1 (digits): 17637
+Pass2 (full):
+iber Co., LLC
+17637
+, ape

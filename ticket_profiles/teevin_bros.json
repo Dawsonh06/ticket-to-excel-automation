@@ -1,0 +1,48 @@
+{
+  "supplier_name": "Teevin Bros Land & Timber Co., LLC",
+  "detection_keywords": ["Teevin", "Teevin Bros"],
+  "layout": {
+    "company_name_line": 1,
+    "date_and_ticket_line": 2,
+    "time_line": 3,
+    "date_position": "first_token",
+    "ticket_position": "second_token",
+    "ticket_number_extraction": {
+      "method": "region_ocr",
+      "description": "Ticket number is printed in bold in the upper-right area. Crop2 (x=53%-100%, y=0-24%) confirmed visible. Full-text --psm 6 OCR is used; first standalone 5-digit number is extracted.",
+      "region": {
+        "x_start_pct": 0.53,
+        "y_start_pct": 0.00,
+        "x_end_pct":   1.00,
+        "y_end_pct":   0.24
+      },
+      "tesseract_config": "--oem 3 --psm 6"
+    }
+  },
+  "labels": {
+    "facility": ["Location:", "Location"],
+    "customer": ["Customer:", "Customer."],
+    "order":    ["Order:", "Order."],
+    "material": ["Product:", "Product.", "Product :", "Product", "product:", "product.", "PRODUCT", "Prod:", "Prod.", "prod", "Material:", "Material.", "Material", "material:", "material", "MATERIAL", "Mat:", "Mat.", "Item:", "Item", "Description:", "Description"],
+    "net_row":  "Net"
+  },
+  "weight_table": {
+    "columns": ["Pounds", "Tons", "Metric"],
+    "tons_column_index": 1
+  },
+  "ocr_corrections": {
+    "3)4-0":   "3/4-0",
+    "3)4":     "3/4",
+    "378-0":   "3/4-0",
+    "3/4-Q\"": "3/4-0\"",
+    "3/4-Q":   "3/4-0",
+    "Orcer":   "Order",
+    "Tors":    "Tons",
+    "Bradiey": "Bradley",
+    "Sradiey": "Bradley"
+  },
+  "confidence_checks": [
+    "valid_date_on_line_2",
+    "five_digit_ticket_on_line_2"
+  ]
+}
