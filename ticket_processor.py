@@ -9,6 +9,7 @@ and marks emails as read.
 Azure App Registration permissions required (Application, not Delegated):
     - Mail.Read
     - Mail.ReadWrite
+    - Mail.Send
     - Files.ReadWrite.All
     - Sites.ReadWrite.All
 
@@ -92,7 +93,9 @@ ANTHROPIC_API_KEY   = (os.environ.get("ANTHROPIC_API_KEY") or os.getenv("ANTHROP
 _tesseract_cmd = os.getenv("TESSERACT_CMD", r"C:\Program Files\Tesseract-OCR\tesseract.exe")
 pytesseract.pytesseract.tesseract_cmd = _tesseract_cmd
 
-MAILBOX            = "help@mjhughes.com"
+MAILBOX              = "help@mjhughes.com"
+SUMMARY_RECIPIENT    = "dawson.h@mjhughes.com"   # destination for run summary emails
+_PROCESSED_FOLDER_NAME = "Processed"             # mailbox folder for archived tickets
 _JOB_NUMBER        = "2601"                       # Currently configured job
 _EXCEL_FILENAME    = f"ticket_tracker_{_JOB_NUMBER}.xlsx"
 EXCEL_FILE         = r"C:\Users\dawson.h\AppData\Local\Temp\ticket_tracker_2601.xlsx"
@@ -594,6 +597,118 @@ def move_email_to_review_folder(client: GraphClient, message_id: str) -> str:
     new_id = moved["id"]
     logging.info(f"Moved email {message_id} to 'REVIEW REQUIRED' folder (new id={new_id}).")
     return new_id
+
+
+def get_or_create_processed_folder(client: GraphClient) -> str:
+    """Return the Exchange folder ID for 'Processed', creating it if needed."""
+    list_url = (
+        f"{GRAPH_BASE}/users/{MAILBOX}/mailFolders"
+        f"?$filter=displayName eq '{_PROCESSED_FOLDER_NAME}'&$select=id,displayName"
+    )
+    data    = client.get(list_url).json()
+    folders = data.get("value", [])
+
+    if folders:
+        folder_id = folders[0]["id"]
+        logging.debug(
+            f"Found existing mail folder '{_PROCESSED_FOLDER_NAME}' (id={folder_id})."
+        )
+        return folder_id
+
+    create_url = f"{GRAPH_BASE}/users/{MAILBOX}/mailFolders"
+    created    = client.post(create_url, json={"displayName": _PROCESSED_FOLDER_NAME}).json()
+    folder_id  = created["id"]
+    logging.info(f"Created mail folder '{_PROCESSED_FOLDER_NAME}' (id={folder_id}).")
+    return folder_id
+
+
+def move_email_to_processed_folder(
+    client: GraphClient, message_id: str, subject: str
+) -> None:
+    """Move a fully-processed email to the 'Processed' folder.
+
+    Creates the folder if it does not already exist.  Only called for emails
+    that completed without review flags or errors.
+    """
+    folder_id = get_or_create_processed_folder(client)
+    url       = f"{GRAPH_BASE}/users/{MAILBOX}/messages/{message_id}/move"
+    client.post(url, json={"destinationId": folder_id})
+    logging.info(f"Archived: {subject!r} → Processed folder")
+
+
+def send_run_summary_email(
+    client: GraphClient,
+    processed_count: int,
+    review_count: int,
+    duplicate_count: int,
+    error_count: int,
+    flagged_items: "list[tuple[str, list[str]]]",
+    error_subjects: "list[str]",
+) -> None:
+    """Send a plain-text run summary email to SUMMARY_RECIPIENT.
+
+    Sent from SUMMARY_RECIPIENT's own mailbox so it does not depend on
+    help@mjhughes.com having Mail.Send permission.  Any failure is logged
+    and silently swallowed — a summary email problem must never fail the run.
+    """
+    now      = datetime.now()
+    now_str  = now.strftime("%Y-%m-%d %H:%M:%S")
+    subj_ts  = now.strftime("%Y-%m-%d %H:%M")
+    subject  = f"Ticket Processor Run Summary - {subj_ts}"
+    sp_path  = (
+        f"/Shared Documents/{SHAREPOINT_FOLDER}"
+        f"/{_JOB_NUMBER}/{_EXCEL_FILENAME}"
+    )
+
+    lines: list[str] = [
+        f"Run completed at {now_str}",
+        "",
+        "Results:",
+        f"- Tickets processed successfully: {processed_count}",
+        f"- Tickets flagged for review: {review_count}",
+        f"- Duplicate tickets detected: {duplicate_count}",
+        f"- Errors: {error_count}",
+        "",
+        "Flagged for review:",
+    ]
+    if flagged_items:
+        for subj, reasons in flagged_items:
+            reason_str = "; ".join(reasons) if reasons else "flagged for review"
+            lines.append(f"- {subj}: {reason_str}")
+    else:
+        lines.append("(none)")
+
+    lines += ["", "Errors:"]
+    if error_subjects:
+        for subj in error_subjects:
+            lines.append(f"- {subj}")
+    else:
+        lines.append("(none)")
+
+    lines += [
+        "",
+        f"Excel file updated: {_EXCEL_FILENAME}",
+        f"SharePoint location: {sp_path}",
+    ]
+
+    body    = "\r\n".join(lines)
+    url     = f"{GRAPH_BASE}/users/{SUMMARY_RECIPIENT}/sendMail"
+    payload = {
+        "message": {
+            "subject": subject,
+            "body": {"contentType": "Text", "content": body},
+            "toRecipients": [
+                {"emailAddress": {"address": SUMMARY_RECIPIENT}}
+            ],
+        },
+        "saveToSentItems": False,
+    }
+
+    try:
+        client.post(url, json=payload)
+        logging.info(f"Run summary email sent to {SUMMARY_RECIPIENT}.")
+    except Exception as exc:
+        logging.warning(f"Could not send run summary email: {exc}")
 
 
 # ============================================================
@@ -2494,7 +2609,7 @@ def process_email(
     email: dict,
     profiles: list[TicketProfile],
     toc_materials: dict,
-) -> Optional[list[str]]:
+) -> Optional[dict]:
     """Process one email end-to-end.
 
     For each PDF attachment:
@@ -2540,6 +2655,8 @@ def process_email(
             # last_success       : (qr_data, ticket_data) from the last clean ticket
             all_ticket_numbers: list[str]          = []
             any_review_needed:  bool               = False
+            duplicate_count:    int                = 0
+            review_reasons:     list[str]          = []
             last_success:       Optional[tuple]    = None
 
             for page_num, page_image in enumerate(images, start=1):
@@ -2718,6 +2835,10 @@ def process_email(
                         f"— entire page flagged"
                     )
                     any_review_needed = True
+                    review_reasons.append(
+                        f"Page {page_num}: {bad_count} of {total_count} "
+                        "ticket(s) missing ticket number"
+                    )
                     continue   # skip Phase 3 — no Excel writes, no PDF upload
 
                 # ── Phase 3: All tickets have ticket numbers — write and upload ──
@@ -2749,13 +2870,16 @@ def process_email(
                                     toc_materials=toc_materials,
                                 )
                                 any_review_needed = True
+                                duplicate_count  += 1
+                                review_reasons.append(f"Duplicate ticket: {tn}")
                             else:
                                 logging.info(f"{res['tag']} Writing to Excel...")
                                 write_to_excel(qr_d, td, notes=notes, toc_materials=toc_materials)
                         except AmbiguousTabError as amb_exc:
                             logging.warning(str(amb_exc))
                             any_review_needed = True
-                            write_succeeded = False
+                            write_succeeded   = False
+                            review_reasons.append(str(amb_exc))
 
                         if write_succeeded:
                             all_ticket_numbers.append(tn)
@@ -2818,13 +2942,23 @@ def process_email(
                     logging.warning(f"  Subject rename not applied: {e}")
                 logging.info("  Marking email as read...")
                 mark_email_as_read(client, email_id)
+                try:
+                    move_email_to_processed_folder(client, email_id, subject)
+                except Exception as e:
+                    logging.warning(f"  Could not archive email to Processed folder: {e}")
 
             logging.info(
                 f"  Done: '{subject}' — "
                 f"{len(all_ticket_numbers)} ticket(s) written, "
                 f"review_needed={any_review_needed}"
             )
-            return all_ticket_numbers
+            return {
+                "tickets":         all_ticket_numbers,
+                "review_needed":   any_review_needed,
+                "subject":         subject,
+                "duplicate_count": duplicate_count,
+                "review_reasons":  review_reasons,
+            }
 
         except Exception as exc:
             detail = f"{type(exc).__name__}: {exc}\n{traceback.format_exc()}"
@@ -2849,10 +2983,11 @@ def main() -> None:
         5. Uploads the modified Excel back to SharePoint and deletes the temp copy
     """
     configure_logging()
+    run_start = datetime.now()
 
     logging.info("=" * 55)
     logging.info("Ticket Processing Automation — starting")
-    logging.info(f"Run time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    logging.info(f"Run time: {run_start.strftime('%Y-%m-%d %H:%M:%S')}")
     logging.info("=" * 55)
 
     # Fail fast if any required credential is missing
@@ -2898,8 +3033,12 @@ def main() -> None:
     # ── Process emails ────────────────────────────────────────────────────────
     emails = get_unread_emails_with_pdf(client)
 
-    successes, failures = 0, 0
-    processed_tickets: list[str] = []   # non-empty ticket numbers from fully processed emails
+    successes, failures  = 0, 0
+    review_count         = 0
+    total_duplicates     = 0
+    processed_tickets:   list[str]                     = []
+    flagged_items:       list[tuple[str, list[str]]]   = []
+    error_subjects:      list[str]                     = []
 
     if not emails:
         logging.info("No unread emails with PDF attachments. Nothing to do.")
@@ -2908,10 +3047,17 @@ def main() -> None:
             result = process_email(client, email, profiles, toc_materials)
             if result is None:
                 failures += 1
+                error_subjects.append(email.get("subject", "(unknown)"))
             else:
                 successes += 1
-                if result:   # non-empty = fully written to Excel with a ticket number
-                    processed_tickets.extend(result)
+                if result["tickets"]:
+                    processed_tickets.extend(result["tickets"])
+                if result["review_needed"]:
+                    review_count += 1
+                    flagged_items.append(
+                        (result["subject"], result["review_reasons"])
+                    )
+                total_duplicates += result["duplicate_count"]
 
         # Batch outlier detection — runs after all tickets are written
         if processed_tickets:
@@ -2931,6 +3077,17 @@ def main() -> None:
             f"CRITICAL: Failed to upload Excel to SharePoint: {exc}. "
             f"Local copy saved at {EXCEL_FILE}. Upload manually."
         )
+
+    # ── Send run summary email ────────────────────────────────────────────────
+    send_run_summary_email(
+        client,
+        processed_count  = len(processed_tickets),
+        review_count     = review_count,
+        duplicate_count  = total_duplicates,
+        error_count      = failures,
+        flagged_items    = flagged_items,
+        error_subjects   = error_subjects,
+    )
 
     logging.info("=" * 55)
     logging.info(
