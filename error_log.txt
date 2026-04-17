@@ -510,3 +510,19 @@ Error   : Empty field: Material
 Subject : ticket 17583
 Error   : Empty field: Material
 ------------------------------------------------------------
+[2026-04-16 14:52:36]
+Subject : REVIEW REQUIRED - REVIEW REQUIRED - FW: [Scan] 2026-04-16 08:57
+Error   : REVIEW REQUIRED: REVIEW REQUIRED - REVIEW REQUIRED - FW: [Scan] 2026-04-16 08:57 - 2026-04-16 14:52:36 - Failed checks: date not found on header line
+------------------------------------------------------------
+[2026-04-16 15:01:01]
+Subject : FW: [Scan] 2026-04-15 15:31
+Error   : REVIEW REQUIRED: FW: [Scan] 2026-04-15 15:31 - 2026-04-16 15:01:01 - Failed checks: date not found on header line
+------------------------------------------------------------
+[2026-04-16 15:01:06]
+Subject : REVIEW REQUIRED - REVIEW REQUIRED - REVIEW REQUIRED - FW: [Scan] 2026-04-15 16:24
+Error   : REVIEW REQUIRED: REVIEW REQUIRED - REVIEW REQUIRED - REVIEW REQUIRED - FW: [Scan] 2026-04-15 16:24 - 2026-04-16 15:01:06 - Failed checks: date not found on header line
+------------------------------------------------------------
+[2026-04-16 16:12:47]
+Subject : ticket 
+Error   : Empty field: Ticket #
+------------------------------------------------------------

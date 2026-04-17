@@ -4,12 +4,11 @@ Ticket Processing Automation
 Connects to the help@mjhughes.com Exchange mailbox via Microsoft Graph API,
 processes PDF scanned tickets, extracts QR codes and OCR data, logs entries
 to an Excel workbook organised by cost code, uploads PDFs to SharePoint,
-sends confirmation replies, and marks emails as read.
+and marks emails as read.
 
 Azure App Registration permissions required (Application, not Delegated):
     - Mail.Read
     - Mail.ReadWrite
-    - Mail.Send
     - Files.ReadWrite.All
     - Sites.ReadWrite.All
 
@@ -40,6 +39,7 @@ import json
 import base64
 import difflib
 import logging
+import statistics
 import traceback
 from dataclasses import dataclass
 from datetime import datetime
@@ -93,14 +93,20 @@ _tesseract_cmd = os.getenv("TESSERACT_CMD", r"C:\Program Files\Tesseract-OCR\tes
 pytesseract.pytesseract.tesseract_cmd = _tesseract_cmd
 
 MAILBOX            = "help@mjhughes.com"
-EXCEL_FILE             = "materials_log.xlsx"
+_JOB_NUMBER        = "2601"                       # Currently configured job
+_EXCEL_FILENAME    = f"ticket_tracker_{_JOB_NUMBER}.xlsx"
+EXCEL_FILE         = r"C:\Users\dawson.h\AppData\Local\Temp\ticket_tracker_2601.xlsx"
 ERROR_LOG              = "error_log.txt"
 KNOWN_FACILITIES_FILE  = "known_facilities.txt"
 TICKET_PROFILES_DIR    = "ticket_profiles"
 UNKNOWN_SUPPLIERS_LOG  = "unknown_suppliers.txt"
 OCR_DEBUG          = os.getenv("OCR_DEBUG", "").lower() in ("1", "true", "yes")
 SHAREPOINT_HOST    = "vancouvermjhughes.sharepoint.com"
-SHAREPOINT_FOLDER  = "MJHughes OPEN JOBS"   # Folder inside Shared Documents
+SHAREPOINT_FOLDER  = "MJHughes OPEN JOBS"   # Top-level folder inside Shared Documents
+# Per-job folder layout:
+#   /MJHughes OPEN JOBS/{job_number}/                        ← job root
+#   /MJHughes OPEN JOBS/{job_number}/Ticket Scans/           ← PDFs go here
+#   /MJHughes OPEN JOBS/{job_number}/ticket_tracker_NNN.xlsx ← Excel workbook
 
 GRAPH_BASE         = "https://graph.microsoft.com/v1.0"
 GRAPH_SCOPES       = ["https://graph.microsoft.com/.default"]
@@ -288,18 +294,20 @@ QR_PATTERN = re.compile(
     re.IGNORECASE,
 )
 
-# Excel column headers (order must match the row values built in write_to_excel)
-EXCEL_COLUMNS = [
-    "Job Number",
-    "Location",
-    "Date",
-    "Facility",
-    "Customer",
-    "Material",
-    "Ticket Number",
-    "Net Quantity (Tons)",
-    "Flag",
-]
+# ── Excel column mapping for ticket_tracker_2601.xlsx ───────────────────────
+# Columns A-F and J are written by this script; G, H, I, K are human-filled.
+_COL_TICKET_DATE = 1   # A — date from the ticket
+_COL_LOGGED_DATE = 2   # B — date this script ran
+_COL_FACILITY    = 3   # C — quarry / source facility
+_COL_MATERIAL    = 4   # D — material / product description
+_COL_TICKET_NUM  = 5   # E — 5-digit ticket number
+_COL_QTY_TN      = 6   # F — net quantity in tons
+_COL_NOTES       = 10  # J — helper notes (flags, outlier warnings, etc.)
+_DATA_START_ROW  = 9   # rows 1-8 are the pre-built header; data starts here
+_WRITTEN_COLS    = [_COL_TICKET_DATE, _COL_LOGGED_DATE, _COL_FACILITY,
+                    _COL_MATERIAL, _COL_TICKET_NUM, _COL_QTY_TN, _COL_NOTES]
+
+_TOC_TAB_NAME = "TOC"   # never read or written to; skipped in all tab scans
 
 
 # ============================================================
@@ -478,34 +486,6 @@ def get_attachment_content(client: GraphClient, message_id: str, attachment_id: 
     return base64.b64decode(data["contentBytes"])
 
 
-def send_reply_email(
-    client: GraphClient,
-    message_id: str,
-    ticket_number: str,
-    job_number: str,
-) -> None:
-    """Reply to the original email confirming the ticket was processed."""
-    url = f"{GRAPH_BASE}/users/{MAILBOX}/messages/{message_id}/reply"
-
-    confirmation_text = (
-        f"Ticket {ticket_number} for job {job_number} has been "
-        "processed and filed successfully."
-    )
-
-    payload = {
-        "message": {
-            "body": {
-                "contentType": "Text",
-                "content": confirmation_text,
-            }
-        },
-        "comment": confirmation_text,
-    }
-
-    client.post(url, json=payload)
-    logging.info(f"Sent confirmation reply for ticket {ticket_number} / job {job_number}.")
-
-
 def mark_email_as_read(client: GraphClient, message_id: str) -> None:
     """
     Mark an email as read.
@@ -526,43 +506,6 @@ def mark_email_as_unread(client: GraphClient, message_id: str) -> None:
     url = f"{GRAPH_BASE}/users/{MAILBOX}/messages/{message_id}"
     client.patch(url, json={"isRead": False})
     logging.info(f"Marked email {message_id} as unread (flagged for review).")
-
-
-def send_review_reply(
-    client: GraphClient,
-    message_id: str,
-    subject: str,
-    body_override: str = "",
-    sender_email: str = "",
-) -> None:
-    """Reply to an email that requires manual review.
-
-    Uses /sendMail (not /reply) to avoid the 403 Forbidden error that the
-    /reply endpoint returns when the mailbox lacks the required delegation.
-
-    Args:
-        body_override:  If supplied, send this text instead of the default
-                        rescan message.  Used for unknown-supplier notifications.
-        sender_email:   The original sender's address.  If supplied the message
-                        is addressed directly to them; otherwise no To recipient
-                        is set and the send may be suppressed by Exchange.
-    """
-    url  = f"{GRAPH_BASE}/users/{MAILBOX}/sendMail"
-    body = body_override or (
-        f"Ticket from {subject} could not be processed automatically due to poor "
-        "scan quality. Please rescan and resubmit the ticket for processing. "
-        "If this issue persists, contact your administrator."
-    )
-    message: dict = {
-        "subject": f"Re: {subject}",
-        "body": {"contentType": "Text", "content": body},
-    }
-    if sender_email:
-        message["toRecipients"] = [
-            {"emailAddress": {"address": sender_email}}
-        ]
-    client.post(url, json={"message": message, "saveToSentItems": True})
-    logging.info(f"Sent review-required reply for: {subject!r}")
 
 
 def rename_email_subject(
@@ -593,35 +536,6 @@ def rename_email_subject(
     url = f"{GRAPH_BASE}/users/{MAILBOX}/messages/{message_id}"
     client.patch(url, json={"subject": new_subject})
     logging.info(f"Renamed email {message_id} subject to: {new_subject!r}")
-
-
-def send_duplicate_reply(
-    client: GraphClient,
-    message_id: str,
-    ticket_number: str,
-    subject: str = "",
-    sender_email: str = "",
-) -> None:
-    """Reply to an email whose ticket number already exists in the Excel log.
-
-    Uses /sendMail (not /reply) to avoid the 403 Forbidden error that the
-    /reply endpoint returns when the mailbox lacks the required delegation.
-    """
-    url  = f"{GRAPH_BASE}/users/{MAILBOX}/sendMail"
-    body = (
-        f"Ticket {ticket_number} appears to be a duplicate and has been flagged "
-        "for review. Please verify this ticket has not already been submitted."
-    )
-    message: dict = {
-        "subject": f"Re: {subject}" if subject else f"Duplicate ticket {ticket_number}",
-        "body": {"contentType": "Text", "content": body},
-    }
-    if sender_email:
-        message["toRecipients"] = [
-            {"emailAddress": {"address": sender_email}}
-        ]
-    client.post(url, json={"message": message, "saveToSentItems": True})
-    logging.info(f"Sent duplicate-ticket reply for ticket {ticket_number}.")
 
 
 def flag_email_category(client: GraphClient, message_id: str) -> None:
@@ -1094,7 +1008,10 @@ def extract_ticket_data_ocr(images: list, profiles: list[TicketProfile], subject
     if ANTHROPIC_API_KEY:
         logging.info(f"  Using AI extraction for: {_label}")
         try:
-            ai_fields = extract_fields_with_ai(full_text, profile.supplier_name)
+            ai_fields = extract_fields_with_ai(
+                full_text, profile.supplier_name,
+                image=images[0] if images else None,
+            )
             ticket_data.update(ai_fields)
             ai_used = True
         except Exception as ai_exc:
@@ -1125,32 +1042,50 @@ def extract_ticket_data_ocr(images: list, profiles: list[TicketProfile], subject
 
 REVIEW_REQUIRED = "REVIEW REQUIRED"
 
+
+class AmbiguousTabError(Exception):
+    """Raised when multiple Excel tabs match a QR code and AI cannot choose one."""
+
+
 # ============================================================
 # AI FIELD EXTRACTION
 # ============================================================
 _AI_MODEL  = "claude-sonnet-4-6"
 _AI_PROMPT = """\
-You are extracting structured data from a scanned material delivery ticket.
-The text below was produced by Tesseract OCR and may contain character-level
-errors caused by scan quality (e.g. "Bradiey" = "Bradley", "3)4-0" = "3/4-0").
+You are given both the original ticket image and raw OCR text extracted from it.
+Use both to extract fields — the image is the authoritative source for values
+that OCR may have missed or misread.
 
-Extract exactly these six fields:
+The ticket number is a bold 5-digit number printed in the upper-right corner of
+the ticket image.  Look at the image directly for this field if the OCR text
+does not contain it clearly.
 
-  ticket_number  — 5-digit bold number printed near the top-right corner
-  date           — delivery date, normalised to MM/DD/YYYY
-  facility       — quarry / pit / source location printed after the
-                   "Location:" label.  NEVER a customer or contractor name.
-                   Must not contain "MJ Hughes" or "Hughes Construction".
-  customer       — company receiving the material, printed after "Customer:"
-  material       — description of what was delivered.
-                   The material/product field may be labeled as any of these
-                   on the ticket: Product, Product., Material, Material:,
-                   Item, Description, Mat, Prod. They all refer to the same
-                   thing — extract the text after whichever label appears.
-                   Include sizing notation (e.g. "3/4-0\"").
-                   Exclude leading numeric product codes and quantity values.
-  net_tons       — decimal number from the Tons column on the Net weight row.
-                   Return the number only, no units.
+OCR text may contain character-level errors from scan quality \
+(e.g. "Bradiey" = "Bradley", "3)4-0" = "3/4-0").
+
+Extract exactly these seven fields:
+
+  ticket_number    — 5-digit bold number visible in the upper-right corner of
+                     the ticket image.  Read this from the image directly.
+  date             — delivery date, normalised to MM/DD/YYYY
+  facility         — quarry / pit / source location printed after the
+                     "Location:" label.  NEVER a customer or contractor name.
+                     Must not contain "MJ Hughes" or "Hughes Construction".
+  customer         — company receiving the material, printed after "Customer:"
+  material         — description of what was delivered.
+                     The material/product field may be labeled as any of these
+                     on the ticket: Product, Product., Material, Material:,
+                     Item, Description, Mat, Prod. They all refer to the same
+                     thing — extract the text after whichever label appears.
+                     Include sizing notation (e.g. "3/4-0\"").
+                     Exclude leading numeric product codes and quantity values.
+  net_tons         — decimal number from the Tons column on the Net weight row.
+                     Return the number only, no units.
+  qr_sticker_text  — the short text label printed on the QR code sticker itself.
+                     It appears rotated 90 degrees on the right side of the
+                     ticket beside or below the QR code (e.g. "Class 2 RipRap",
+                     "Aggregate Base", "3/4-0 Crushed").  Look at the image
+                     directly for this text.  Return null if not visible.
 
 Rules:
   • Correct obvious OCR errors based on context.
@@ -1163,24 +1098,64 @@ OCR TEXT:
 {ocr_text}"""
 
 
-def extract_fields_with_ai(ocr_text: str, supplier_name: str) -> dict:
-    """Send OCR text to Claude and return extracted ticket fields.
+def extract_fields_with_ai(
+    ocr_text: str,
+    supplier_name: str,
+    image: "Optional[Image.Image]" = None,
+) -> dict:
+    """Send OCR text — and optionally the ticket image — to Claude for field extraction.
 
-    Returns a dict with string values (or None) for the keys:
-        ticket_number, date, facility, customer, material, net_tons
+    When *image* is provided it is resized to max 1500 px on the longest side,
+    base64-encoded as JPEG, and sent as a vision content block alongside the
+    OCR text.  This lets Claude read fields (such as the bold upper-right ticket
+    number) that OCR may have missed entirely.
 
-    Raises on API error or if the response is not valid JSON — the caller
-    must catch and fall back to regex extraction.
+    Returns a dict with string values for the keys:
+        ticket_number, date, facility, customer, material, net_tons,
+        qr_sticker_text
+
+    Raises on API error or invalid JSON — caller falls back to regex extraction.
     """
-    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
-    prompt = _AI_PROMPT.format(
+    ai_client   = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+    prompt_text = _AI_PROMPT.format(
         supplier_name=supplier_name,
         ocr_text=ocr_text,
     )
-    response = client.messages.create(
+
+    if image is not None:
+        # Downscale to keep the payload manageable (~300 KB at q=85 for a typical ticket)
+        img_copy = image.copy()
+        max_side = 1500
+        if max(img_copy.size) > max_side:
+            ratio    = max_side / max(img_copy.size)
+            new_size = (int(img_copy.size[0] * ratio), int(img_copy.size[1] * ratio))
+            img_copy = img_copy.resize(new_size, Image.LANCZOS)
+        buf = io.BytesIO()
+        img_copy.convert("RGB").save(buf, format="JPEG", quality=85)
+        b64_data = base64.b64encode(buf.getvalue()).decode("ascii")
+        content = [
+            {
+                "type": "image",
+                "source": {
+                    "type":       "base64",
+                    "media_type": "image/jpeg",
+                    "data":       b64_data,
+                },
+            },
+            {
+                "type": "text",
+                "text": prompt_text,
+            },
+        ]
+        logging.info("  AI extraction: vision mode (image + OCR text)")
+    else:
+        content = prompt_text
+        logging.info("  AI extraction: text-only mode (no image supplied)")
+
+    response = ai_client.messages.create(
         model=_AI_MODEL,
         max_tokens=512,
-        messages=[{"role": "user", "content": prompt}],
+        messages=[{"role": "user", "content": content}],
     )
     raw_json = response.content[0].text.strip()
 
@@ -1195,7 +1170,10 @@ def extract_fields_with_ai(ocr_text: str, supplier_name: str) -> dict:
 
     # Normalise: convert null → "" and coerce all values to str.
     # Log any field that was null before normalisation so we have a record.
-    required_keys = {"ticket_number", "date", "facility", "customer", "material", "net_tons"}
+    required_keys = {
+        "ticket_number", "date", "facility", "customer",
+        "material", "net_tons", "qr_sticker_text",
+    }
     for key in required_keys:
         val = data.get(key)
         if val is None:
@@ -1203,6 +1181,36 @@ def extract_fields_with_ai(ocr_text: str, supplier_name: str) -> dict:
         data[key] = str(val).strip() if val is not None else ""
 
     return data
+
+
+def _verify_material_match(anticipated: str, actual: str) -> bool:
+    """Ask Claude API whether anticipated and actual materials refer to the same thing.
+
+    Sends a short YES/NO prompt.  Returns True when the answer starts with YES.
+    Raises on API error — callers catch and skip verification rather than flagging.
+    """
+    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+    prompt = (
+        f"The anticipated material description is: {anticipated}\n"
+        f"The material extracted from this ticket is: {actual}\n"
+        "Do these refer to the same material? Consider common "
+        "abbreviations, alternate names, and partial matches.\n"
+        "Examples of matches: 'rip rap class 2' matches '808 "
+        "Bradley Rock Rip Rap', 'boulders' matches 'Fish Boulder', "
+        "'topsoil' matches 'Topsoil'\n"
+        "Reply with only YES or NO."
+    )
+    response = client.messages.create(
+        model=_AI_MODEL,
+        max_tokens=10,
+        messages=[{"role": "user", "content": prompt}],
+    )
+    answer = response.content[0].text.strip().upper()
+    logging.info(
+        f"  Material verification: anticipated={anticipated!r} "
+        f"actual={actual!r} → {answer}"
+    )
+    return answer.startswith("YES")
 
 
 # Matches a complete date with two separators: M/D/YYYY, MM/DD/YY, M-D-YYYY, etc.
@@ -1682,32 +1690,95 @@ def _ocr_customer(text: str, profile: TicketProfile) -> str:
 # ============================================================
 # EXCEL OPERATIONS
 # ============================================================
+def _load_toc_materials() -> dict:
+    """Read the TOC tab and return a QR-code → anticipated-material lookup dict.
+
+    Scans every cell in the TOC tab for a value matching the QR code pattern
+    (XXXX-YYYY-CCCCCC-CC).  The anticipated material for each row is read from
+    column K (11th column, 0-based index 10).  Blank values and "??" are skipped.
+
+    Called once at startup; the returned dict is passed through the call chain
+    so it is available for every ticket processed in the run.
+
+    Returns an empty dict if the workbook is missing, the TOC tab does not
+    exist, or no QR codes can be found in the sheet.
+    """
+    excel_path = Path(EXCEL_FILE)
+    if not excel_path.exists():
+        logging.warning("_load_toc_materials: workbook not found — skipping.")
+        return {}
+
+    try:
+        workbook = openpyxl.load_workbook(excel_path, read_only=True, data_only=True)
+    except Exception as exc:
+        logging.warning(f"_load_toc_materials: could not open workbook: {exc}")
+        return {}
+
+    if _TOC_TAB_NAME not in workbook.sheetnames:
+        logging.warning(f"_load_toc_materials: tab '{_TOC_TAB_NAME}' not found.")
+        workbook.close()
+        return {}
+
+    toc    = workbook[_TOC_TAB_NAME]
+    lookup: dict[str, str] = {}
+
+    for row in toc.iter_rows(values_only=True):
+        # Scan every cell in this row for a QR code match
+        qr_key: Optional[str] = None
+        for cell_val in row:
+            if cell_val is None:
+                continue
+            m = QR_PATTERN.search(str(cell_val).strip())
+            if m:
+                qr_key = m.group(0).upper()
+                break
+
+        if qr_key is None:
+            continue
+
+        # Column K is the 11th column — index 10 when 0-based
+        mat_raw = row[10] if len(row) > 10 else None
+        if mat_raw is None:
+            continue
+        anticipated = str(mat_raw).strip()
+        if anticipated and anticipated.lower() not in ("??", "n/a", ""):
+            lookup[qr_key] = anticipated
+
+    workbook.close()
+    logging.info(f"TOC materials loaded: {len(lookup)} entry/entries.")
+    return lookup
+
+
+def _append_note(existing: str, new: str) -> str:
+    """Append *new* to *existing* using ' | ' as the separator.
+
+    Returns *new* alone when *existing* is empty, *existing* alone when
+    *new* is empty, and the joined string when both are non-empty.
+    """
+    if existing and new:
+        return f"{existing} | {new}"
+    return existing or new
+
+
 def _find_duplicate_ticket(ticket_number: str) -> Optional[str]:
-    """Search all tabs in materials_log.xlsx for an existing ticket number.
+    """Search all tabs in the Excel workbook for an existing ticket number.
 
-    Scans every sheet (skipping the header row) and looks at the
-    "Ticket Number" column.  Returns the name of the first sheet where
-    the ticket number is found, or None if no match exists.
-
-    Args:
-        ticket_number: The extracted ticket number string to look up.
-
-    Returns:
-        Sheet name string if a duplicate is found, else None.
+    Scans every sheet starting at _DATA_START_ROW and checks column E
+    (Ticket #).  Returns the tab name where the ticket is found, or None.
     """
     excel_path = Path(EXCEL_FILE)
     if not excel_path.exists() or not ticket_number:
         return None
 
-    ticket_col_idx = EXCEL_COLUMNS.index("Ticket Number")  # 0-based
-
     workbook = openpyxl.load_workbook(excel_path, read_only=True, data_only=True)
     try:
         for sheet_name in workbook.sheetnames:
+            if sheet_name == _TOC_TAB_NAME:
+                continue
             sheet = workbook[sheet_name]
-            for row in sheet.iter_rows(min_row=2, values_only=True):
-                if len(row) > ticket_col_idx:
-                    cell_val = row[ticket_col_idx]
+            for row in sheet.iter_rows(min_row=_DATA_START_ROW, values_only=True):
+                if len(row) >= _COL_TICKET_NUM:
+                    cell_val = row[_COL_TICKET_NUM - 1]   # iter_rows is 0-based via values_only
                     if cell_val and str(cell_val).strip() == str(ticket_number).strip():
                         return sheet_name
     finally:
@@ -1716,205 +1787,372 @@ def _find_duplicate_ticket(ticket_number: str) -> Optional[str]:
     return None
 
 
-def write_to_excel(qr_data: dict, ticket_data: dict, flag: str = "") -> None:
+def _pick_tab_with_ai(
+    matching_tabs: list,
+    qr_raw: str,
+    sticker_text: str,
+    material: str,
+    toc_materials: dict,
+) -> Optional[object]:
+    """Ask Claude to choose among multiple tabs that all share the same QR suffix.
+
+    Reads B4 (QR Description) and B5 (QR Short Desc.) from each candidate tab
+    and presents them alongside the ticket's sticker text, extracted material,
+    and TOC anticipated material.
+
+    Returns the selected worksheet, or None when the AI answer cannot be parsed
+    as a valid tab number.
     """
-    Write one row of ticket data into the Excel workbook.
+    if not ANTHROPIC_API_KEY:
+        return None
 
-    - Opens materials_log.xlsx if it exists, or creates it.
-    - Looks for a sheet named after the full cost code (e.g. "123456-78").
-    - Creates the sheet with styled headers if it doesn't exist.
-    - Appends the new row and saves.
+    ai_client  = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+    tab_lines: list[str] = []
 
-    Args:
-        flag: Optional flag value written to the last "Flag" column.
-              Pass "DUPLICATE TICKET" to highlight the entire row orange.
-              Leave empty for normal rows (REVIEW REQUIRED cells get yellow).
+    for i, ws in enumerate(matching_tabs, start=1):
+        desc       = str(ws["B4"].value or "").strip()
+        short_desc = str(ws["B5"].value or "").strip()
+        anticipated = toc_materials.get(qr_raw.strip().upper(), "")
+        tab_lines.append(
+            f"Tab {i} (name: {ws.title!r}): "
+            f"QR Description={desc!r}, "
+            f"Short Desc={short_desc!r}, "
+            f"Anticipated Material={anticipated!r}"
+        )
+
+    prompt = (
+        f"A ticket has QR code sticker text: {sticker_text!r}\n"
+        f"and extracted material: {material!r}\n\n"
+        f"There are {len(matching_tabs)} possible tabs this ticket could belong to:\n"
+        + "\n".join(tab_lines)
+        + "\n\nWhich tab number does this ticket belong to?\n"
+        "Reply with only the tab number (1, 2, etc.) and nothing else."
+    )
+
+    try:
+        response = ai_client.messages.create(
+            model=_AI_MODEL,
+            max_tokens=10,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        answer = response.content[0].text.strip()
+        logging.info(
+            f"  Tab disambiguation: Claude answered {answer!r} "
+            f"for QR {qr_raw!r} "
+            f"(candidates: {[ws.title for ws in matching_tabs]})"
+        )
+        idx = int(answer) - 1   # 1-based → 0-based
+        if 0 <= idx < len(matching_tabs):
+            return matching_tabs[idx]
+    except Exception as exc:
+        logging.warning(f"  Tab disambiguation AI call failed: {exc}")
+
+    return None
+
+
+def _find_tab_for_qr(
+    workbook,
+    qr_raw: str,
+    ticket_data: Optional[dict] = None,
+    toc_materials: Optional[dict] = None,
+) -> Optional[object]:
+    """Find the pre-built tab whose B3 cost code matches the QR code suffix.
+
+    Each data tab has a cost code in cell B3 (e.g. "0010-015436-10").
+    The QR code string looks like "2601-0010-015436-10".  A tab matches
+    when qr_raw ends with the value in its B3 cell (case-insensitive).
+
+    Single match:
+        Returns the matching worksheet immediately.
+
+    Multiple matches:
+        Calls Claude with the ticket's qr_sticker_text, extracted material,
+        and each tab's B4/B5 descriptions to pick the right one.
+        Logs the AI selection.
+        Raises AmbiguousTabError when AI cannot determine — the caller should
+        flag the ticket for manual review.
+
+    No match:
+        Returns None.
+
+    All tabs are pre-built by humans — this function never creates new tabs.
+    Skips the TOC tab.
+    """
+    qr_upper      = qr_raw.strip().upper()
+    matching_tabs = []
+
+    for ws in workbook.worksheets:
+        if ws.title == _TOC_TAB_NAME:
+            continue
+        b3 = ws["B3"].value
+        if b3 is None:
+            continue
+        b3_str = str(b3).strip().upper()
+        if b3_str and qr_upper.endswith(b3_str):
+            matching_tabs.append(ws)
+
+    if not matching_tabs:
+        return None
+
+    if len(matching_tabs) == 1:
+        return matching_tabs[0]
+
+    # Multiple tabs share the same cost-code suffix — need AI disambiguation
+    logging.info(
+        f"  Multiple tabs matched QR {qr_raw!r}: "
+        + ", ".join(repr(ws.title) for ws in matching_tabs)
+        + " — asking Claude to disambiguate"
+    )
+
+    td   = ticket_data   or {}
+    toc  = toc_materials or {}
+    sticker_text = td.get("qr_sticker_text", "") or ""
+    material     = td.get("material",        "") or ""
+
+    selected = _pick_tab_with_ai(matching_tabs, qr_raw, sticker_text, material, toc)
+
+    if selected is not None:
+        logging.info(
+            f"  Multiple tabs matched QR {qr_raw!r} — AI selected tab "
+            f"{selected.title!r} based on material {material!r}"
+        )
+        return selected
+
+    raise AmbiguousTabError(
+        f"REVIEW REQUIRED: Multiple tabs match QR code {qr_raw!r} and material "
+        "could not be matched. Please assign manually."
+    )
+
+
+def _next_data_row(sheet) -> int:
+    """Return the index of the first empty row in the data area (row 9 onwards).
+
+    Uses column E (Ticket #) as the sentinel — a row is considered occupied
+    if that cell has a value.
+    """
+    for row_idx in range(_DATA_START_ROW, sheet.max_row + 2):
+        if sheet.cell(row=row_idx, column=_COL_TICKET_NUM).value is None:
+            return row_idx
+    return _DATA_START_ROW
+
+
+def write_to_excel(qr_data: dict, ticket_data: dict, notes: str = "", toc_materials: Optional[dict] = None) -> None:
+    """Write one ticket row into ticket_tracker_2601.xlsx.
+
+    - Opens the existing workbook (raises FileNotFoundError if absent).
+    - Finds the pre-built tab whose B3 cost code matches the QR code suffix.
+    - If no tab matches, logs a warning and returns without writing.
+    - Finds the first empty data row (row 9+) and writes to the mapped columns.
+    - Does NOT touch rows 1-8 (pre-built header), the TOC tab, or columns
+      G, H, I, K (those are human-filled).
+
+    Column mapping:
+        A (_COL_TICKET_DATE) — ticket date
+        B (_COL_LOGGED_DATE) — today's date (script run date)
+        C (_COL_FACILITY)    — facility / quarry
+        D (_COL_MATERIAL)    — material description
+        E (_COL_TICKET_NUM)  — 5-digit ticket number
+        F (_COL_QTY_TN)      — net tons
+        J (_COL_NOTES)       — helper notes / flags
+
+    Highlighting:
+        notes="DUPLICATE TICKET" → all written cells orange
+        empty required field     → that cell yellow + warning logged
     """
     excel_path = Path(EXCEL_FILE)
-    cost_code  = qr_data["cost_code"]
+    if not excel_path.exists():
+        raise FileNotFoundError(
+            f"Excel workbook not found: {excel_path}\n"
+            "Place ticket_tracker_2601.xlsx at that path before running."
+        )
 
-    # Load or create the workbook
-    if excel_path.exists():
-        workbook = openpyxl.load_workbook(excel_path)
+    workbook = openpyxl.load_workbook(excel_path)
+    qr_raw   = qr_data.get("raw", "")
+    sheet    = _find_tab_for_qr(workbook, qr_raw, ticket_data, toc_materials)
+
+    if sheet is None:
+        logging.warning(
+            f"WARNING: No matching tab found for QR code {qr_raw!r}. "
+            "Please create a tab for this cost code manually."
+        )
+        workbook.close()
+        return
+
+    tab_name = sheet.title
+    row_idx  = _next_data_row(sheet)
+    today    = datetime.now().strftime("%m/%d/%Y")
+
+    # Write to the mapped columns only
+    sheet.cell(row=row_idx, column=_COL_TICKET_DATE).value = ticket_data.get("date", "")
+    sheet.cell(row=row_idx, column=_COL_LOGGED_DATE).value = today
+    sheet.cell(row=row_idx, column=_COL_FACILITY).value    = ticket_data.get("facility", "")
+    sheet.cell(row=row_idx, column=_COL_MATERIAL).value    = ticket_data.get("material", "")
+    sheet.cell(row=row_idx, column=_COL_TICKET_NUM).value  = ticket_data.get("ticket_number", "")
+    sheet.cell(row=row_idx, column=_COL_QTY_TN).value      = ticket_data.get("net_tons", "")
+    if notes:
+        sheet.cell(row=row_idx, column=_COL_NOTES).value = notes
+
+    # Highlighting
+    _orange = PatternFill(start_color="FFA500", end_color="FFA500", fill_type="solid")
+    _yellow = PatternFill(start_color="FFFF00", end_color="FFFF00", fill_type="solid")
+
+    if "DUPLICATE" in notes:
+        for col in _WRITTEN_COLS:
+            sheet.cell(row=row_idx, column=col).fill = _orange
     else:
-        workbook = Workbook()
-        # Remove the auto-created blank "Sheet" that Workbook() adds
-        if "Sheet" in workbook.sheetnames:
-            del workbook["Sheet"]
-        logging.info(f"Created new workbook: {EXCEL_FILE}")
-
-    # Get the correct cost-code tab, creating it if needed
-    if cost_code in workbook.sheetnames:
-        sheet = workbook[cost_code]
-    else:
-        sheet = workbook.create_sheet(title=cost_code)
-        _add_sheet_headers(sheet)
-        logging.info(f"Created new tab for cost code: {cost_code}")
-
-    # Build the row in the same order as EXCEL_COLUMNS
-    row = [
-        qr_data["job_number"],
-        qr_data["location"],
-        ticket_data.get("date", ""),
-        ticket_data.get("facility", ""),
-        ticket_data.get("customer", ""),
-        ticket_data.get("material", ""),
-        ticket_data.get("ticket_number", ""),
-        ticket_data.get("net_tons", ""),
-        flag,   # Flag column — "DUPLICATE TICKET" or blank
-    ]
-
-    sheet.append(row)
-    last_row = sheet.max_row
-
-    if flag == "DUPLICATE TICKET":
-        # Highlight entire row orange so duplicates are visually distinct
-        # from both normal rows and low-confidence rows (red).
-        _orange = PatternFill(start_color="FFA500", end_color="FFA500", fill_type="solid")
-        for col_idx in range(1, len(EXCEL_COLUMNS) + 1):
-            sheet.cell(row=last_row, column=col_idx).fill = _orange
-    else:
-        # Single pass: yellow for REVIEW REQUIRED values AND empty data cells.
-        # The Flag column is skipped — it is intentionally blank on normal rows.
-        _yellow       = PatternFill(start_color="FFFF00", end_color="FFFF00", fill_type="solid")
+        # Yellow highlight for any required field that came back empty
         ticket_number = ticket_data.get("ticket_number", "N/A")
+        required = {
+            _COL_TICKET_DATE: "Ticket Date",
+            _COL_FACILITY:    "Facility",
+            _COL_MATERIAL:    "Material",
+            _COL_TICKET_NUM:  "Ticket #",
+            _COL_QTY_TN:      "Quantity TN",
+        }
+        for col, field_name in required.items():
+            if not sheet.cell(row=row_idx, column=col).value:
+                sheet.cell(row=row_idx, column=col).fill = _yellow
+                logging.warning(f"  WARNING: Empty field '{field_name}' for ticket {ticket_number}")
+                log_error(f"ticket {ticket_number}", f"Empty field: {field_name}")
 
-        for col_idx, (col_name, value) in enumerate(zip(EXCEL_COLUMNS, row), start=1):
-            if value == REVIEW_REQUIRED:
-                sheet.cell(row=last_row, column=col_idx).fill = _yellow
-            elif col_name != "Flag" and (value is None or value == ""):
-                sheet.cell(row=last_row, column=col_idx).fill = _yellow
-                msg = f"Empty field '{col_name}' for ticket {ticket_number}"
-                logging.warning(f"  WARNING: {msg}")
-                log_error(f"ticket {ticket_number}", f"Empty field: {col_name}")
+        # Yellow-highlight col J when a material mismatch was flagged
+        if "Correct material?" in notes:
+            sheet.cell(row=row_idx, column=_COL_NOTES).fill = _yellow
 
     workbook.save(excel_path)
     logging.info(
         f"Excel: wrote ticket {ticket_data.get('ticket_number', 'N/A')} "
-        f"to tab '{cost_code}' in {EXCEL_FILE}."
+        f"to tab {tab_name!r} row {row_idx}."
     )
-
-
-def write_flagged_row_to_excel(qr_data: Optional[dict]) -> None:
-    """Write a REVIEW REQUIRED row with a red background for a low-confidence scan.
-
-    If the QR code was readable the row is written to the cost-code tab and
-    Job Number / Location are filled from QR data.  If the QR code also
-    failed every column gets REVIEW_REQUIRED and the row goes to a dedicated
-    "REVIEW REQUIRED" tab.
-    """
-    excel_path = Path(EXCEL_FILE)
-
-    if excel_path.exists():
-        workbook = openpyxl.load_workbook(excel_path)
-    else:
-        workbook = Workbook()
-        if "Sheet" in workbook.sheetnames:
-            del workbook["Sheet"]
-
-    sheet_name = qr_data["cost_code"] if qr_data else "REVIEW REQUIRED"
-
-    if sheet_name in workbook.sheetnames:
-        sheet = workbook[sheet_name]
-    else:
-        sheet = workbook.create_sheet(title=sheet_name)
-        _add_sheet_headers(sheet)
-
-    if qr_data:
-        # QR was readable: populate Job Number and Location from QR data.
-        # Date gets REVIEW REQUIRED so the row is easy to find.
-        # All other data fields are left blank — do not write partial OCR data.
-        row = [
-            qr_data["job_number"],  # Job Number
-            qr_data["location"],    # Location
-            REVIEW_REQUIRED,        # Date
-            "",                     # Facility
-            "",                     # Customer
-            "",                     # Material
-            "",                     # Ticket Number
-            "",                     # Net Quantity (Tons)
-            "",                     # Flag — blank; red fill identifies these rows
-        ]
-    else:
-        # QR also failed — no reliable data at all.
-        # Flag column intentionally left blank; red fill is the visual indicator.
-        row = [REVIEW_REQUIRED] * (len(EXCEL_COLUMNS) - 1) + [""]
-
-    sheet.append(row)
-
-    # Highlight entire row in red
-    _red = PatternFill(start_color="FF0000", end_color="FF0000", fill_type="solid")
-    last_row = sheet.max_row
-    for col_idx in range(1, len(EXCEL_COLUMNS) + 1):
-        sheet.cell(row=last_row, column=col_idx).fill = _red
-
-    workbook.save(excel_path)
-    logging.info(
-        f"Excel: low-confidence review row written to tab '{sheet_name}' in {EXCEL_FILE}."
-    )
-
-
-def _add_sheet_headers(sheet) -> None:
-    """Write styled column headers to a freshly created cost-code sheet."""
-    sheet.append(EXCEL_COLUMNS)
-
-    # Dark-blue header row with white bold text
-    fill = PatternFill(start_color="1F3864", end_color="1F3864", fill_type="solid")
-    font = Font(color="FFFFFF", bold=True)
-
-    for cell in sheet[1]:
-        cell.fill = cell.fill if False else fill   # apply fill to every header cell
-        cell.fill = fill
-        cell.font = font
-        cell.alignment = Alignment(horizontal="center")
-
-    # Set sensible column widths (one entry per column in EXCEL_COLUMNS order)
-    widths = [14, 12, 14, 35, 35, 35, 16, 22, 20]
-    for col_idx, width in enumerate(widths, start=1):
-        sheet.column_dimensions[get_column_letter(col_idx)].width = width
 
 
 # ============================================================
 # SHAREPOINT UPLOAD
 # ============================================================
+def _ensure_sharepoint_folder(
+    client: GraphClient,
+    site_id: str,
+    drive_id: str,
+    folder_path: str,
+) -> bool:
+    """Ensure a folder exists in SharePoint at the given drive-relative path.
+
+    Makes no change if the folder already exists.  Creates the immediate
+    folder (parent must already exist) when a 404 is returned.  Logs on
+    creation.  Treats a 409 on creation as "already exists" (race-safe).
+
+    Returns:
+        True  — folder was just created.
+        False — folder already existed (or a 409 race resolved to exists).
+
+    Raises on any other HTTP error.
+    """
+    check_url = (
+        f"{GRAPH_BASE}/sites/{site_id}/drives/{drive_id}"
+        f"/root:/{folder_path}"
+    )
+    try:
+        client.get(check_url)
+        return False   # folder already exists
+    except requests.exceptions.HTTPError as exc:
+        if exc.response is not None and exc.response.status_code == 404:
+            pass  # does not exist — fall through to create
+        else:
+            raise
+
+    # Split into parent path and the new folder name
+    if "/" in folder_path:
+        parent_path, folder_name = folder_path.rsplit("/", 1)
+        create_url = (
+            f"{GRAPH_BASE}/sites/{site_id}/drives/{drive_id}"
+            f"/root:/{parent_path}:/children"
+        )
+    else:
+        folder_name = folder_path
+        create_url  = (
+            f"{GRAPH_BASE}/sites/{site_id}/drives/{drive_id}/root/children"
+        )
+
+    try:
+        client.post(create_url, json={
+            "name": folder_name,
+            "folder": {},
+            "@microsoft.graph.conflictBehavior": "fail",
+        })
+        logging.info(f"Created folder: {folder_path}")
+        return True
+    except requests.exceptions.HTTPError as exc:
+        # 409 = folder was created between our check and our create (race) — fine
+        if exc.response is not None and exc.response.status_code == 409:
+            logging.debug(f"Folder already exists (concurrent creation): {folder_path}")
+            return False
+        else:
+            raise
+
+
+def _ensure_job_folder_structure(
+    client: GraphClient,
+    site_id: str,
+    drive_id: str,
+    job_number: str,
+) -> None:
+    """Ensure the standard two-level folder layout exists for a job.
+
+    Creates these paths if they do not already exist:
+        /MJHughes OPEN JOBS/{job_number}/
+        /MJHughes OPEN JOBS/{job_number}/Ticket Scans/
+
+    Logs a single "Created folder structure for new job: {job_number}" message
+    when either folder had to be created.  Silent when both already exist.
+    """
+    job_path   = f"{SHAREPOINT_FOLDER}/{job_number}"
+    scans_path = f"{job_path}/Ticket Scans"
+
+    job_created   = _ensure_sharepoint_folder(client, site_id, drive_id, job_path)
+    scans_created = _ensure_sharepoint_folder(client, site_id, drive_id, scans_path)
+
+    if job_created or scans_created:
+        logging.info(f"Created folder structure for new job: {job_number}")
+
+
 def upload_to_sharepoint(
     client: GraphClient,
     pdf_bytes: bytes,
     job_number: str,
-    ticket_number: str,
-    date_str: str,
+    ticket_numbers: list[str],
 ) -> str:
-    """
-    Upload the PDF to the configured SharePoint folder.
+    """Upload a ticket PDF to the job's Ticket Scans folder on SharePoint.
 
-    File naming convention: [JobNumber]-[TicketNumber]-[Date].pdf
-    Date is sanitised (slashes/spaces removed) to produce a safe filename.
+    Destination path:
+        /Shared Documents/MJHughes OPEN JOBS/{job_number}/Ticket Scans/{filename}
+
+    The job folder and Ticket Scans subfolder are created automatically if
+    they do not already exist.
+
+    File naming convention: "Tickets, [TicketNumber1], [TicketNumber2].pdf"
+    Single ticket example : Tickets, 16800.pdf
+    Multi-ticket example  : Tickets, 16800, 16801, 16802.pdf
 
     Returns:
         The SharePoint web URL of the uploaded file.
     """
-    # Build a safe date token for the filename
-    if date_str:
-        safe_date = re.sub(r'[/\\\s\.\-]', '', date_str)
-    else:
-        safe_date = datetime.now().strftime("%Y%m%d")
+    filename = "Tickets, " + ", ".join(ticket_numbers) + ".pdf"
 
-    filename = f"{job_number}-{ticket_number}-{safe_date}.pdf"
-
-    # Resolve the SharePoint site and document library
     site_id  = _sharepoint_site_id(client)
     drive_id = _sharepoint_drive_id(client, site_id)
 
-    # Graph API path: PUT /sites/{site}/drives/{drive}/root:/{folder}/{file}:/content
+    # Ensure /MJHughes OPEN JOBS/{job_number}/Ticket Scans/ exists
+    _ensure_job_folder_structure(client, site_id, drive_id, job_number)
+
+    scans_path = f"{SHAREPOINT_FOLDER}/{job_number}/Ticket Scans"
     upload_url = (
         f"{GRAPH_BASE}/sites/{site_id}/drives/{drive_id}"
-        f"/root:/{SHAREPOINT_FOLDER}/{filename}:/content"
+        f"/root:/{scans_path}/{filename}:/content"
     )
+    response = client.put_binary(upload_url, pdf_bytes, content_type="application/pdf")
+    web_url  = response.json().get("webUrl", "(unknown)")
 
-    response  = client.put_binary(upload_url, pdf_bytes, content_type="application/pdf")
-    web_url   = response.json().get("webUrl", "(unknown)")
-
-    logging.info(f"SharePoint: uploaded '{filename}' → {web_url}")
+    logging.info(f"Uploaded PDF to SharePoint: {scans_path}/{filename}")
     return web_url
 
 
@@ -1946,30 +2184,337 @@ def _sharepoint_drive_id(client: GraphClient, site_id: str) -> str:
     return drives[0]["id"]
 
 
+def _download_excel_from_sharepoint(client: GraphClient) -> None:
+    """Download the configured job's Excel workbook from SharePoint to a local temp path.
+
+    SharePoint path:
+        /Shared Documents/MJHughes OPEN JOBS/{_JOB_NUMBER}/{_EXCEL_FILENAME}
+
+    Raises on any HTTP or IO error — the caller treats this as fatal and aborts
+    the run so tickets are never processed against a stale or missing workbook.
+    """
+    site_id  = _sharepoint_site_id(client)
+    drive_id = _sharepoint_drive_id(client, site_id)
+
+    url = (
+        f"{GRAPH_BASE}/sites/{site_id}/drives/{drive_id}"
+        f"/root:/{SHAREPOINT_FOLDER}/{_JOB_NUMBER}/{_EXCEL_FILENAME}:/content"
+    )
+
+    response = client.get(url)   # raises on 4xx / 5xx
+
+    temp_path = Path(EXCEL_FILE)
+    temp_path.parent.mkdir(parents=True, exist_ok=True)
+    temp_path.write_bytes(response.content)
+
+    logging.info(
+        f"Downloaded {_EXCEL_FILENAME} from SharePoint "
+        f"({len(response.content):,} bytes → {temp_path})"
+    )
+
+
+def _upload_excel_to_sharepoint(client: GraphClient) -> None:
+    """Upload the temp Excel workbook back to SharePoint, overwriting the existing file.
+
+    SharePoint path:
+        /Shared Documents/MJHughes OPEN JOBS/{_JOB_NUMBER}/{_EXCEL_FILENAME}
+
+    Raises on any HTTP or IO error — the caller logs a CRITICAL message and
+    keeps the local temp copy so the data is not lost.
+    """
+    temp_path = Path(EXCEL_FILE)
+    if not temp_path.exists():
+        raise FileNotFoundError(
+            f"Temp Excel file not found for upload: {temp_path}"
+        )
+
+    site_id  = _sharepoint_site_id(client)
+    drive_id = _sharepoint_drive_id(client, site_id)
+
+    url = (
+        f"{GRAPH_BASE}/sites/{site_id}/drives/{drive_id}"
+        f"/root:/{SHAREPOINT_FOLDER}/{_JOB_NUMBER}/{_EXCEL_FILENAME}:/content"
+    )
+
+    data = temp_path.read_bytes()
+    client.put_binary(
+        url, data,
+        content_type=(
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        ),
+    )
+
+    logging.info(
+        f"Uploaded {_EXCEL_FILENAME} to SharePoint ({len(data):,} bytes)"
+    )
+
+
+# ============================================================
+# BATCH OUTLIER DETECTION
+# ============================================================
+def _check_batch_outliers(ticket_numbers: list[str]) -> None:
+    """Flag ticket numbers that differ significantly from the batch median.
+
+    Ticket numbers are sequential — within a single run they should cluster
+    near each other.  A ticket that differs from the median by more than 2000
+    is treated as a likely OCR misread and highlighted in Excel.
+
+    Also detects the specific leading-digit-drop pattern (e.g. "07637" instead
+    of "17637") where the leading "1" is silently dropped by OCR.
+
+    Skips silently when fewer than 2 numeric ticket numbers are available.
+    """
+    if len(ticket_numbers) < 2:
+        return
+
+    # Convert to int — skip any non-numeric values
+    numeric: list[tuple[int, str]] = []
+    for tn in ticket_numbers:
+        try:
+            numeric.append((int(tn), tn))
+        except (ValueError, TypeError):
+            pass
+
+    if len(numeric) < 2:
+        return
+
+    values     = [n for n, _ in numeric]
+    median_val = statistics.median(values)
+    outliers   = [(val, tn) for val, tn in numeric if abs(val - median_val) > 2000]
+
+    if not outliers:
+        logging.info(
+            f"Batch outlier check: {len(numeric)} ticket(s), "
+            f"median={int(median_val)}, no outliers detected."
+        )
+        return
+
+    # Determine the most common leading digit to spot the drop pattern
+    leading_digits    = [tn[0] for _, tn in numeric if tn]
+    most_common_start = max(set(leading_digits), key=leading_digits.count) if leading_digits else ""
+
+    # Update Excel: yellow ticket-number cell + note in Helper Notes column (J)
+    excel_path = Path(EXCEL_FILE)
+    _yellow    = PatternFill(start_color="FFFF00", end_color="FFFF00", fill_type="solid")
+
+    workbook = openpyxl.load_workbook(excel_path) if excel_path.exists() else None
+
+    for val, tn in outliers:
+        diff = abs(val - int(median_val))
+        logging.warning(
+            f"WARNING: Ticket number {tn} may be a misread — differs from batch "
+            f"median {int(median_val)} by {diff}. "
+            f"Please verify against original PDF."
+        )
+
+        # Leading-digit-drop: starts with 0 while the rest of the batch starts with 1
+        if tn.startswith("0") and most_common_start == "1":
+            suggested = "1" + tn[1:]
+            logging.warning(
+                f"Possible misread: {tn} may be {suggested} (leading digit dropped)"
+            )
+
+        if workbook is None:
+            continue
+
+        for sheet in workbook.worksheets:
+            if sheet.title == _TOC_TAB_NAME:
+                continue
+            for row_cells in sheet.iter_rows(min_row=_DATA_START_ROW):
+                if len(row_cells) < _COL_TICKET_NUM:
+                    continue
+                cell = row_cells[_COL_TICKET_NUM - 1]
+                if cell.value and str(cell.value).strip() == tn:
+                    cell.fill = _yellow
+                    notes_cell = row_cells[_COL_NOTES - 1]
+                    existing   = str(notes_cell.value or "").strip()
+                    notes_cell.value = (
+                        f"{existing} | VERIFY TICKET NUMBER - outlier detected" if existing
+                        else "VERIFY TICKET NUMBER - outlier detected"
+                    )
+
+    if workbook is not None:
+        workbook.save(excel_path)
+        logging.info(
+            f"Batch outlier check: flagged {len(outliers)} ticket(s) "
+            f"(median={int(median_val)})."
+        )
+
+
+# ============================================================
+# TICKET BOUNDARY DETECTION
+# ============================================================
+def detect_ticket_boundaries(image: "Image.Image", page_num: int) -> list[dict]:
+    """Use Claude vision to detect how many tickets appear on a page.
+
+    Sends the page image (resized to ≤1500 px) to Claude and asks it to
+    return each ticket's vertical extent as a percentage of image height.
+
+    Returns a list of dicts with keys: ticket (int), top_pct (float),
+    bottom_pct (float).
+
+    Falls back to [{"ticket": 1, "top_pct": 0, "bottom_pct": 100}] when:
+      - ANTHROPIC_API_KEY is not set
+      - The API call raises
+      - The response cannot be parsed as a valid list
+    """
+    _FALLBACK = [{"ticket": 1, "top_pct": 0, "bottom_pct": 100}]
+
+    if not ANTHROPIC_API_KEY:
+        return _FALLBACK
+
+    img_copy = image.copy()
+    max_side = 1500
+    if max(img_copy.size) > max_side:
+        ratio    = max_side / max(img_copy.size)
+        new_size = (int(img_copy.size[0] * ratio), int(img_copy.size[1] * ratio))
+        img_copy = img_copy.resize(new_size, Image.LANCZOS)
+
+    buf = io.BytesIO()
+    img_copy.convert("RGB").save(buf, format="JPEG", quality=85)
+    b64_data = base64.b64encode(buf.getvalue()).decode("ascii")
+
+    prompt = (
+        "This image may contain one or more material delivery "
+        "tickets on a single page. Each ticket has a header "
+        "with the supplier company name at the top.\n\n"
+        "Count how many tickets are on this page and provide "
+        "the approximate pixel coordinates of each ticket as "
+        "a percentage of the total image height.\n\n"
+        "Return ONLY a JSON array like this:\n"
+        "[\n"
+        "  {\"ticket\": 1, \"top_pct\": 0, \"bottom_pct\": 48},\n"
+        "  {\"ticket\": 2, \"top_pct\": 50, \"bottom_pct\": 100}\n"
+        "]\n\n"
+        "If there is only one ticket return:\n"
+        "[{\"ticket\": 1, \"top_pct\": 0, \"bottom_pct\": 100}]\n\n"
+        "No other text, no markdown, no explanation."
+    )
+
+    try:
+        ai_client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+        response  = ai_client.messages.create(
+            model=_AI_MODEL,
+            max_tokens=256,
+            messages=[{
+                "role": "user",
+                "content": [
+                    {
+                        "type": "image",
+                        "source": {
+                            "type":       "base64",
+                            "media_type": "image/jpeg",
+                            "data":       b64_data,
+                        },
+                    },
+                    {"type": "text", "text": prompt},
+                ],
+            }],
+        )
+        raw = response.content[0].text.strip()
+
+        # Strip accidental markdown fences
+        if raw.startswith("```"):
+            raw = re.sub(r"^```[a-z]*\n?", "", raw)
+            raw = re.sub(r"\n?```$",        "", raw)
+
+        parsed = json.loads(raw)
+
+        if not isinstance(parsed, list) or not parsed:
+            logging.warning(
+                f"  Page {page_num}: boundary detection returned "
+                f"unexpected format: {raw!r} — using full-page fallback"
+            )
+            return _FALLBACK
+
+        validated: list[dict] = []
+        for item in parsed:
+            if not isinstance(item, dict):
+                continue
+            validated.append({
+                "ticket":     int(item.get("ticket",     len(validated) + 1)),
+                "top_pct":    float(item.get("top_pct",    0)),
+                "bottom_pct": float(item.get("bottom_pct", 100)),
+            })
+
+        if not validated:
+            return _FALLBACK
+
+        logging.info(f"  Page {page_num}: Claude detected {len(validated)} ticket(s)")
+        for b in validated:
+            logging.info(
+                f"    Ticket {b['ticket']}: "
+                f"top={b['top_pct']}%  bottom={b['bottom_pct']}%"
+            )
+        return validated
+
+    except Exception as exc:
+        logging.warning(
+            f"  Page {page_num}: boundary detection failed ({exc}) "
+            "— treating page as single ticket."
+        )
+        return _FALLBACK
+
+
+def _crop_ticket_region(
+    image: "Image.Image",
+    top_pct: float,
+    bottom_pct: float,
+    overlap_pct: float = 2.0,
+) -> "Image.Image":
+    """Crop a ticket region from a page image using percentage coordinates.
+
+    Adds *overlap_pct* percentage points above and below the specified bounds
+    to avoid clipping edge content.  Result is clamped to image dimensions.
+    """
+    w, h   = image.size
+    top    = max(0, int(h * (top_pct    - overlap_pct) / 100))
+    bottom = min(h, int(h * (bottom_pct + overlap_pct) / 100))
+    return image.crop((0, top, w, bottom))
+
+
+def _pil_image_to_pdf_bytes(image: "Image.Image") -> bytes:
+    """Encode a PIL Image as a single-page PDF and return the raw bytes.
+
+    PIL's built-in PDF writer is used (no extra dependencies).  The image is
+    converted to RGB first because PIL's PDF encoder requires that mode.
+    """
+    if image.mode != "RGB":
+        image = image.convert("RGB")
+    buf = io.BytesIO()
+    image.save(buf, format="PDF")
+    return buf.getvalue()
+
+
 # ============================================================
 # PER-EMAIL PROCESSING PIPELINE
 # ============================================================
-def process_email(client: GraphClient, email: dict, profiles: list[TicketProfile]) -> bool:
-    """
-    Process one email end-to-end:
-        1. Download PDF attachment
-        2. Convert PDF to images
-        3. Extract QR code → job/location/cost-code
-        4. Extract ticket data via OCR
-        5. Write row to Excel
-        6. Upload PDF to SharePoint
-        7. Send confirmation reply
-        8. Mark email as read
+def process_email(
+    client: GraphClient,
+    email: dict,
+    profiles: list[TicketProfile],
+    toc_materials: dict,
+) -> Optional[list[str]]:
+    """Process one email end-to-end.
 
-    Returns True on full success, False if any step fails.
-    The email is intentionally NOT marked as read on failure so it
-    will be retried the next time this script runs.
+    For each PDF attachment:
+      1. Download and render to page images.
+      2. Ask Claude to detect how many tickets are on each page.
+      3. Crop each ticket region (with 2 % overlap) and process
+         independently: QR extraction → OCR → confidence check →
+         material verification → duplicate check → Excel write →
+         SharePoint PDF upload.
+      4. After all tickets on all pages are handled, send one email
+         reply, rename the subject, and mark as read (or flag for
+         review if any ticket needed human attention).
+
+    Returns:
+        list[str]  — ticket numbers from fully-written rows (may be empty
+                     when all tickets were review-flagged or duplicates).
+        None       — unhandled exception; email stays unread for retry.
     """
-    subject      = email.get("subject", "(no subject)")
-    email_id     = email["id"]
-    sender_email = (
-        email.get("from", {}).get("emailAddress", {}).get("address", "")
-    )
+    subject  = email.get("subject", "(no subject)")
+    email_id = email["id"]
 
     logging.info(f"{'='*55}")
     logging.info(f"Processing: '{subject}'")
@@ -1989,241 +2534,306 @@ def process_email(client: GraphClient, email: dict, profiles: list[TicketProfile
             if not images:
                 raise ValueError("PDF rendered 0 pages.")
 
-            # ---- 3. QR code extraction ------------------------------------------
-            logging.info("  Scanning for QR code...")
-            qr_data = extract_qr_code(images)
-            if not qr_data:
-                logging.warning(
-                    f"  QR DETECTION FAILED: {subject!r} — "
-                    f"OpenCV and OCR fallback both returned no match across {len(images)} page(s)"
-                )
-                raise ValueError(
-                    "No QR code matching XXXX-YYYY-CCCCCC-CC found in PDF."
-                )
-            logging.info(
-                f"  QR → Job: {qr_data['job_number']}  "
-                f"Location: {qr_data['location']}  "
-                f"Cost Code: {qr_data['cost_code']}"
-            )
+            # ---- 3. Detect ticket boundaries per page; process each crop --------
+            # all_ticket_numbers : ticket numbers from rows successfully written
+            # any_review_needed  : True when at least one ticket needs human review
+            # last_success       : (qr_data, ticket_data) from the last clean ticket
+            all_ticket_numbers: list[str]          = []
+            any_review_needed:  bool               = False
+            last_success:       Optional[tuple]    = None
 
-            # ---- 4. OCR extraction and profile detection ------------------------
-            logging.info("  Running OCR...")
-            ticket_data = extract_ticket_data_ocr(images, profiles, subject=subject)
+            for page_num, page_image in enumerate(images, start=1):
 
-            # Handle unknown supplier — no matching profile found
-            if ticket_data.get("_no_profile_match"):
-                company_name = ticket_data.get("_company_name", "unknown")
-                error_msg = (
-                    f"UNKNOWN TICKET FORMAT: {company_name}. "
-                    "No profile found. Please create a profile for this supplier."
-                )
-                logging.warning(f"  {error_msg}")
-                log_error(subject, error_msg)
-                reply_body = (
-                    f"A ticket was received from an unrecognised supplier "
-                    f"({company_name}). No processing profile exists for this "
-                    "format. Please contact your administrator to add a profile "
-                    "for this supplier."
+                boundaries = detect_ticket_boundaries(page_image, page_num)
+
+                # ── Phase 1: Extract all ticket data for this page ──────────────
+                # Process every ticket crop before making any write/upload
+                # decisions.  Results are stored and evaluated together so that a
+                # single missing ticket number causes the ENTIRE page to be
+                # flagged rather than partial writes.
+                page_results: list[dict] = []
+
+                for boundary in boundaries:
+                    t_idx   = boundary["ticket"]
+                    top_pct = boundary["top_pct"]
+                    bot_pct = boundary["bottom_pct"]
+                    tag     = f"  [p{page_num}/t{t_idx}]"
+
+                    res: dict = {
+                        "tag":           tag,
+                        "qr_data":       None,
+                        "ticket_data":   None,
+                        "material_note": "",
+                        "is_duplicate":  False,
+                        "duplicate_tab": None,
+                        "failed":        False,
+                        "fail_reason":   "",
+                        "crop_img":      None,
+                    }
+
+                    # Single full-page ticket: skip the crop and use the full image
+                    if len(boundaries) == 1 and top_pct <= 0 and bot_pct >= 100:
+                        crop_imgs = [page_image]
+                        res["crop_img"] = page_image
+                        logging.info(f"{tag} Single full-page ticket — no crop needed")
+                    else:
+                        crop = _crop_ticket_region(page_image, top_pct, bot_pct)
+                        crop_imgs = [crop]
+                        res["crop_img"] = crop
+                        logging.info(
+                            f"{tag} Cropped: top={top_pct}%  bottom={bot_pct}%  "
+                            f"({crop.size[0]}×{crop.size[1]} px)"
+                        )
+
+                    # QR code extraction
+                    logging.info(f"{tag} Scanning for QR code...")
+                    qr_data = extract_qr_code(crop_imgs)
+                    if not qr_data:
+                        logging.warning(
+                            f"{tag} QR DETECTION FAILED — no QR code found in region"
+                        )
+                        res["failed"]      = True
+                        res["fail_reason"] = "QR code not found"
+                        page_results.append(res)
+                        continue
+
+                    res["qr_data"] = qr_data
+                    logging.info(
+                        f"{tag} QR → Job: {qr_data['job_number']}  "
+                        f"Location: {qr_data['location']}  "
+                        f"Cost Code: {qr_data['cost_code']}"
+                    )
+
+                    # OCR + AI extraction
+                    logging.info(f"{tag} Running OCR...")
+                    ticket_data = extract_ticket_data_ocr(
+                        crop_imgs, profiles, subject=subject
+                    )
+
+                    # Unknown supplier
+                    if ticket_data.get("_no_profile_match"):
+                        company_name = ticket_data.get("_company_name", "unknown")
+                        err = (
+                            f"UNKNOWN TICKET FORMAT: {company_name}. "
+                            "No profile found. "
+                            "Please create a profile for this supplier."
+                        )
+                        logging.warning(f"{tag} {err}")
+                        log_error(subject, err)
+                        res["failed"]      = True
+                        res["fail_reason"] = err
+                        page_results.append(res)
+                        continue
+
+                    # OCR confidence failure
+                    if not ticket_data.get("_ocr_confidence_passed", True):
+                        failed_checks = ticket_data.get("_failed_checks", [])
+                        logging.warning(f"{tag} TICKET FLAGGED FOR REVIEW:")
+                        for chk in failed_checks:
+                            logging.warning(f"{tag}   - {chk}")
+                        log_error(
+                            subject,
+                            f"REVIEW REQUIRED: {subject} — "
+                            + ("; ".join(failed_checks) or "unknown"),
+                        )
+                        res["failed"]      = True
+                        res["fail_reason"] = (
+                            "; ".join(failed_checks) or "OCR confidence failed"
+                        )
+                        res["ticket_data"] = ticket_data
+                        page_results.append(res)
+                        continue
+
+                    res["ticket_data"] = ticket_data
+                    ticket_number = ticket_data.get("ticket_number", "")
+                    logging.info(
+                        f"{tag} OCR → Ticket: {ticket_number or 'N/A'}  "
+                        f"Date: {ticket_data.get('date', 'N/A')}  "
+                        f"Facility: {ticket_data.get('facility', 'N/A')}  "
+                        f"Net Tons: {ticket_data.get('net_tons', 'N/A')}"
+                    )
+
+                    # Material verification against TOC
+                    material_note = ""
+                    if toc_materials and qr_data:
+                        qr_raw_upper = qr_data.get("raw", "").strip().upper()
+                        anticipated  = toc_materials.get(qr_raw_upper, "")
+                        actual_mat   = ticket_data.get("material", "")
+                        if anticipated and actual_mat:
+                            try:
+                                if not _verify_material_match(anticipated, actual_mat):
+                                    material_note = (
+                                        f"Correct material? "
+                                        f"Anticipated: {anticipated} "
+                                        f"| Found: {actual_mat}"
+                                    )
+                                    logging.warning(
+                                        f"{tag} WARNING: Material mismatch for "
+                                        f"ticket {ticket_number} — "
+                                        f"Anticipated: {anticipated} "
+                                        f"| Found: {actual_mat}"
+                                    )
+                            except Exception as ve:
+                                logging.warning(
+                                    f"{tag} Material verification skipped: {ve}"
+                                )
+                    res["material_note"] = material_note
+
+                    # Duplicate ticket check
+                    duplicate_tab = _find_duplicate_ticket(ticket_number)
+                    if duplicate_tab:
+                        logging.warning(
+                            f"{tag} DUPLICATE TICKET: {ticket_number!r} already "
+                            f"in tab '{duplicate_tab}'"
+                        )
+                        log_error(
+                            subject,
+                            f"DUPLICATE TICKET: {ticket_number} - {subject} - "
+                            + datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                        )
+                        res["is_duplicate"]  = True
+                        res["duplicate_tab"] = duplicate_tab
+
+                    page_results.append(res)
+
+                # ── Phase 2: Whole-page review gate ─────────────────────────────
+                # Rule: if ANY ticket on the page is missing its ticket number
+                # (extraction failed for any reason OR OCR returned an empty
+                # string), do NOT write any rows for this page and flag the
+                # email for review.  Other missing fields (facility, material,
+                # etc.) still write with yellow highlighting per normal rules.
+                failed_on_page    = [r for r in page_results if r["failed"]]
+                missing_tn_on_page = [
+                    r for r in page_results
+                    if not r["failed"]
+                    and not (r.get("ticket_data") or {}).get("ticket_number")
+                ]
+                bad_count   = len(failed_on_page) + len(missing_tn_on_page)
+                total_count = len(page_results)
+
+                if bad_count > 0:
+                    logging.warning(
+                        f"REVIEW REQUIRED: {bad_count} of {total_count} "
+                        f"ticket(s) on page {page_num} missing ticket number "
+                        f"— entire page flagged"
+                    )
+                    any_review_needed = True
+                    continue   # skip Phase 3 — no Excel writes, no PDF upload
+
+                # ── Phase 3: All tickets have ticket numbers — write and upload ──
+                for res in page_results:
+                    qr_d     = res["qr_data"]
+                    td       = res["ticket_data"]
+                    tn       = td.get("ticket_number", "")
+                    notes    = res["material_note"]
+                    job      = qr_d["job_number"]
+                    crop_img = res["crop_img"]
+
+                    # Unknown job — skip Excel write, warn; PDF still uploaded below
+                    if job.upper() != _JOB_NUMBER.upper():
+                        logging.warning(
+                            f"{res['tag']} WARNING: New job number {job!r} detected. "
+                            f"No Excel file found at /MJHughes OPEN JOBS/{job}/"
+                            f"ticket_tracker_{job}.xlsx. "
+                            "Please create the tracker for this job manually."
+                        )
+                    else:
+                        # Known job — write to Excel
+                        write_succeeded = True
+                        try:
+                            if res["is_duplicate"]:
+                                logging.info(f"{res['tag']} Writing duplicate row to Excel...")
+                                write_to_excel(
+                                    qr_d, td,
+                                    notes=_append_note("DUPLICATE TICKET", notes),
+                                    toc_materials=toc_materials,
+                                )
+                                any_review_needed = True
+                            else:
+                                logging.info(f"{res['tag']} Writing to Excel...")
+                                write_to_excel(qr_d, td, notes=notes, toc_materials=toc_materials)
+                        except AmbiguousTabError as amb_exc:
+                            logging.warning(str(amb_exc))
+                            any_review_needed = True
+                            write_succeeded = False
+
+                        if write_succeeded:
+                            all_ticket_numbers.append(tn)
+                            last_success = (qr_d, td)
+
+                    # Upload one crop PDF per ticket regardless of job match
+                    if crop_img is not None:
+                        try:
+                            logging.info(
+                                f"{res['tag']} Uploading crop PDF to SharePoint "
+                                f"(ticket: {tn})..."
+                            )
+                            crop_pdf = _pil_image_to_pdf_bytes(crop_img)
+                            upload_to_sharepoint(client, crop_pdf, job, [tn])
+                        except Exception as sp_exc:
+                            logging.warning(
+                                f"{res['tag']} PDF upload failed (will continue): "
+                                f"{sp_exc}"
+                            )
+
+            # ---- Email-level operations (once per attachment) -------------------
+            if any_review_needed:
+                # At least one ticket needs human review — flag the whole email
+                logging.info(
+                    f"  Flagging email for review "
+                    f"({len(all_ticket_numbers)} ticket(s) written, "
+                    f"review flag set)."
                 )
                 try:
-                    logging.info("  Sending unknown-supplier reply...")
-                    send_review_reply(client, email_id, subject, body_override=reply_body, sender_email=sender_email)
-                except Exception as reply_exc:
-                    logging.warning(f"  Reply not sent (will continue): {reply_exc}")
-                try:
-                    logging.info("  Flagging email with 'REVIEW REQUIRED' category...")
                     flag_email_category(client, email_id)
-                except Exception as cat_exc:
-                    logging.warning(f"  Category flag not applied (will continue): {cat_exc}")
+                except Exception as e:
+                    logging.warning(f"  Category flag not applied: {e}")
                 try:
-                    logging.info("  Renaming email subject...")
                     rename_email_subject(
-                        client, email_id, f"REVIEW REQUIRED - {subject}",
+                        client, email_id,
+                        f"REVIEW REQUIRED - {subject}",
                         current_subject=subject,
                     )
-                except Exception as rename_exc:
-                    logging.warning(f"  Subject rename not applied (will continue): {rename_exc}")
+                except Exception as e:
+                    logging.warning(f"  Subject rename not applied: {e}")
                 moved_email_id = email_id
                 try:
-                    logging.info("  Moving email to 'REVIEW REQUIRED' folder...")
                     moved_email_id = move_email_to_review_folder(client, email_id)
-                except Exception as move_exc:
-                    logging.warning(f"  Email move not completed (will continue): {move_exc}")
-                logging.info("  Marking email as unread in 'REVIEW REQUIRED' folder...")
+                except Exception as e:
+                    logging.warning(f"  Email move not completed: {e}")
                 mark_email_as_unread(client, moved_email_id)
-                return True   # handled; left unread for human review
 
-            if not ticket_data.get("_ocr_confidence_passed", True):
-                # OCR quality too low — flag the entire ticket for review
-                failed_checks = ticket_data.get("_failed_checks", [])
-                failed_detail = "; ".join(failed_checks) if failed_checks else "unknown"
-                timestamp    = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                error_msg    = (
-                    f"REVIEW REQUIRED: {subject} - {timestamp} - "
-                    f"Failed checks: {failed_detail}"
-                )
-                logging.warning(f"  TICKET FLAGGED FOR REVIEW: {subject!r}")
-                for check in failed_checks:
-                    logging.warning(f"    - {check}")
-                log_error(subject, error_msg)
-
-                # Send a rescan-request reply (best-effort — don't let a send
-                # failure prevent the remaining steps from completing)
-                try:
-                    logging.info("  Sending review-required reply...")
-                    send_review_reply(client, email_id, subject, sender_email=sender_email)
-                except Exception as reply_exc:
-                    logging.warning(f"  Review reply not sent (will continue): {reply_exc}")
-
-                # Add "REVIEW REQUIRED" category in Exchange (best-effort)
-                try:
-                    logging.info("  Flagging email with 'REVIEW REQUIRED' category...")
-                    flag_email_category(client, email_id)
-                except Exception as cat_exc:
-                    logging.warning(f"  Category flag not applied (will continue): {cat_exc}")
-
-                # Rename subject before moving so the folder shows the new name.
-                try:
-                    logging.info("  Renaming email subject...")
-                    rename_email_subject(
-                        client, email_id, f"REVIEW REQUIRED - {subject}",
-                        current_subject=subject,
-                    )
-                except Exception as rename_exc:
-                    logging.warning(f"  Subject rename not applied (will continue): {rename_exc}")
-
-                # Move email to the "REVIEW REQUIRED" folder (best-effort).
-                # Capture the new ID — Exchange assigns a new message ID after
-                # a move, so the original inbox ID is no longer valid.
-                moved_email_id = email_id   # fallback: use original if move fails
-                try:
-                    logging.info("  Moving email to 'REVIEW REQUIRED' folder...")
-                    moved_email_id = move_email_to_review_folder(client, email_id)
-                except Exception as move_exc:
-                    logging.warning(f"  Email move not completed (will continue): {move_exc}")
-
-                # Mark as unread using the post-move ID so the message stands out
-                # in the REVIEW REQUIRED folder.  If the move failed we still have
-                # the original inbox ID as a best-effort fallback.
-                logging.info("  Marking email as unread in 'REVIEW REQUIRED' folder...")
-                mark_email_as_unread(client, moved_email_id)
-                return True   # processed; left unread in review folder for human attention
-
-            ticket_number = ticket_data.get("ticket_number", "")
-            logging.info(
-                f"  OCR → Ticket: {ticket_number or 'N/A'}  "
-                f"Date: {ticket_data.get('date', 'N/A')}  "
-                f"Facility: {ticket_data.get('facility', 'N/A')}  "
-                f"Customer: {ticket_data.get('customer', 'N/A')}  "
-                f"Net Tons: {ticket_data.get('net_tons', 'N/A')}"
-            )
-
-            # ---- 5. Duplicate ticket check --------------------------------------
-            duplicate_tab = _find_duplicate_ticket(ticket_number)
-            if duplicate_tab:
-                logging.warning(
-                    f"  DUPLICATE TICKET detected: {ticket_number!r} "
-                    f"already exists in tab '{duplicate_tab}'"
-                )
-                timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                log_error(
-                    subject,
-                    f"DUPLICATE TICKET: {ticket_number} - {subject} - {timestamp}",
-                )
-
-                # Write full row with orange highlight and Flag = "DUPLICATE TICKET"
-                logging.info("  Writing duplicate row to Excel...")
-                write_to_excel(qr_data, ticket_data, flag="DUPLICATE TICKET")
-
-                # Send duplicate-notice reply (best-effort)
-                try:
-                    logging.info("  Sending duplicate-ticket reply...")
-                    send_duplicate_reply(client, email_id, ticket_number, subject=subject, sender_email=sender_email)
-                except Exception as reply_exc:
-                    logging.warning(f"  Duplicate reply not sent (will continue): {reply_exc}")
-
-                # Rename subject before moving so the folder shows the new name.
-                try:
-                    logging.info("  Renaming email subject...")
-                    _material = ticket_data.get("material", "")
-                    _date     = ticket_data.get("date", "")
-                    rename_email_subject(
-                        client,
-                        email_id,
-                        f"DUPLICATE - Ticket {ticket_number} - {_material} - {_date}",
-                    )
-                except Exception as rename_exc:
-                    logging.warning(f"  Subject rename not applied (will continue): {rename_exc}")
-
-                # Move to REVIEW REQUIRED folder and mark unread (best-effort)
-                moved_email_id = email_id
-                try:
-                    logging.info("  Moving duplicate email to 'REVIEW REQUIRED' folder...")
-                    moved_email_id = move_email_to_review_folder(client, email_id)
-                except Exception as move_exc:
-                    logging.warning(f"  Email move not completed (will continue): {move_exc}")
-
-                logging.info("  Marking duplicate email as unread in 'REVIEW REQUIRED' folder...")
-                mark_email_as_unread(client, moved_email_id)
-                return True   # processed; left unread in review folder for human attention
-
-            # ---- 6. Write to Excel ----------------------------------------------
-            logging.info("  Writing to Excel...")
-            write_to_excel(qr_data, ticket_data)
-
-            # ---- 7. Upload PDF to SharePoint ------------------------------------
-            # SHAREPOINT UPLOAD DISABLED - RESUME LATER
-            # logging.info("  Uploading to SharePoint...")
-            # upload_to_sharepoint(
-            #     client,
-            #     pdf_bytes,
-            #     qr_data["job_number"],
-            #     ticket_data.get("ticket_number", "UNKNOWN"),
-            #     ticket_data.get("date", ""),
-            # )
-
-            # ---- 8. Rename email subject ----------------------------------------
-            try:
-                logging.info("  Renaming email subject...")
+            elif last_success:
+                # All tickets processed cleanly — rename subject and mark as read
+                qr_data, ticket_data = last_success
+                ticket_number        = ticket_data.get("ticket_number", "")
                 _material = ticket_data.get("material", "")
                 _date     = ticket_data.get("date", "")
-                rename_email_subject(
-                    client,
-                    email_id,
-                    f"Ticket {ticket_number} - {_material} - {_date}",
-                )
-            except Exception as rename_exc:
-                logging.warning(f"  Subject rename not applied (will continue): {rename_exc}")
+                try:
+                    rename_email_subject(
+                        client, email_id,
+                        f"Ticket {ticket_number} - {_material} - {_date}",
+                    )
+                except Exception as e:
+                    logging.warning(f"  Subject rename not applied: {e}")
+                logging.info("  Marking email as read...")
+                mark_email_as_read(client, email_id)
 
-            # ---- 9. Send confirmation reply (best-effort) -----------------------
-            try:
-                logging.info("  Sending confirmation email...")
-                send_reply_email(
-                    client,
-                    email_id,
-                    ticket_number or "UNKNOWN",
-                    qr_data["job_number"],
-                )
-            except Exception as reply_exc:
-                logging.warning(
-                    f"  Confirmation email not sent (will continue): {reply_exc}"
-                )
-
-            # ---- 10. Mark as read -----------------------------------------------
-            logging.info("  Marking email as read...")
-            mark_email_as_read(client, email_id)
-
-            logging.info(f"  Done: '{subject}'")
-            return True
+            logging.info(
+                f"  Done: '{subject}' — "
+                f"{len(all_ticket_numbers)} ticket(s) written, "
+                f"review_needed={any_review_needed}"
+            )
+            return all_ticket_numbers
 
         except Exception as exc:
             detail = f"{type(exc).__name__}: {exc}\n{traceback.format_exc()}"
             logging.error(f"  FAILED on '{att_name}': {exc}")
             log_error(subject, f"Attachment '{att_name}': {detail}")
-            return False   # Email stays unread → will retry next run
+            return None    # Email stays unread → will retry next run
 
     # No PDF attachments were processed (shouldn't happen given the filter above)
-    return False
+    return None
 
 
 # ============================================================
@@ -2232,11 +2842,11 @@ def process_email(client: GraphClient, email: dict, profiles: list[TicketProfile
 def main() -> None:
     """
     Main driver:
-        - Validates .env credentials
-        - Authenticates with Graph API
-        - Fetches unread emails with PDF attachments
-        - Processes each one
-        - Reports summary counts
+        1. Validates .env credentials
+        2. Authenticates with Graph API
+        3. Downloads ticket_tracker_2601.xlsx from SharePoint to a temp path
+        4. Fetches unread emails with PDF attachments and processes each one
+        5. Uploads the modified Excel back to SharePoint and deletes the temp copy
     """
     configure_logging()
 
@@ -2266,23 +2876,61 @@ def main() -> None:
     profiles = load_ticket_profiles()
     logging.info(f"Loaded {len(profiles)} ticket profile(s).")
 
-    # Authenticate
+    # Authenticate with Microsoft Graph API
     client = GraphClient()
 
-    # Fetch target emails
+    # ── Download Excel from SharePoint ───────────────────────────────────────
+    # Abort the entire run if this fails — never process tickets against a
+    # stale or locally-cached workbook.
+    try:
+        _download_excel_from_sharepoint(client)
+    except Exception as exc:
+        logging.error(
+            f"Cannot download {_EXCEL_FILENAME} from SharePoint: {exc}. "
+            "Aborting — no tickets will be processed."
+        )
+        return
+
+    # Load anticipated materials from the TOC tab (reads the downloaded file)
+    toc_materials = _load_toc_materials()
+    logging.info(f"Loaded {len(toc_materials)} TOC anticipated material entry/entries.")
+
+    # ── Process emails ────────────────────────────────────────────────────────
     emails = get_unread_emails_with_pdf(client)
+
+    successes, failures = 0, 0
+    processed_tickets: list[str] = []   # non-empty ticket numbers from fully processed emails
 
     if not emails:
         logging.info("No unread emails with PDF attachments. Nothing to do.")
-        return
+    else:
+        for email in emails:
+            result = process_email(client, email, profiles, toc_materials)
+            if result is None:
+                failures += 1
+            else:
+                successes += 1
+                if result:   # non-empty = fully written to Excel with a ticket number
+                    processed_tickets.extend(result)
 
-    # Process each email, track outcomes
-    successes, failures = 0, 0
-    for email in emails:
-        if process_email(client, email, profiles):
-            successes += 1
-        else:
-            failures += 1
+        # Batch outlier detection — runs after all tickets are written
+        if processed_tickets:
+            logging.info(
+                f"Running batch outlier detection on "
+                f"{len(processed_tickets)} ticket(s): {processed_tickets}"
+            )
+            _check_batch_outliers(processed_tickets)
+
+    # ── Upload Excel back to SharePoint ───────────────────────────────────────
+    try:
+        _upload_excel_to_sharepoint(client)
+        Path(EXCEL_FILE).unlink(missing_ok=True)
+        logging.info(f"Deleted local temp copy: {EXCEL_FILE}")
+    except Exception as exc:
+        logging.critical(
+            f"CRITICAL: Failed to upload Excel to SharePoint: {exc}. "
+            f"Local copy saved at {EXCEL_FILE}. Upload manually."
+        )
 
     logging.info("=" * 55)
     logging.info(

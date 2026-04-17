@@ -11,10 +11,10 @@
       "method": "region_ocr",
       "description": "Ticket number is printed in bold in the upper-right area. Crop2 (x=53%-100%, y=0-24%) confirmed visible. Full-text --psm 6 OCR is used; first standalone 5-digit number is extracted.",
       "region": {
-        "x_start_pct": 0.53,
+        "x_start_pct": 0.40,
         "y_start_pct": 0.00,
         "x_end_pct":   1.00,
-        "y_end_pct":   0.24
+        "y_end_pct":   0.30
       },
       "tesseract_config": "--oem 3 --psm 6"
     }

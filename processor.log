@@ -2793,3 +2793,776 @@ ValueError: No QR code matching XXXX-YYYY-CCCCCC-CC found in PDF.
 2026-04-16 14:50:02,484 [INFO] =======================================================
 2026-04-16 14:50:02,484 [INFO] Complete — success: 1  failed: 0  (failed emails remain unread for retry)
 2026-04-16 14:50:02,484 [INFO] =======================================================
+2026-04-16 14:52:31,360 [INFO] =======================================================
+2026-04-16 14:52:31,360 [INFO] Ticket Processing Automation — starting
+2026-04-16 14:52:31,360 [INFO] Run time: 2026-04-16 14:52:31
+2026-04-16 14:52:31,360 [INFO] =======================================================
+2026-04-16 14:52:31,361 [INFO] Credentials loaded from: C:\Users\dawson.h\Desktop\ticket-to-excel-automation\.env
+2026-04-16 14:52:31,361 [INFO] AZURE_TENANT_ID starts with: 'b4ed'
+2026-04-16 14:52:31,362 [INFO] Loaded ticket profile: 'Teevin Bros Land & Timber Co., LLC' (teevin_bros.json)
+2026-04-16 14:52:31,362 [INFO] Loaded 1 ticket profile(s).
+2026-04-16 14:52:32,123 [INFO] Authenticated with Microsoft Graph API.
+2026-04-16 14:52:34,123 [INFO] Found 4 unread email(s) with PDF attachments.
+2026-04-16 14:52:34,125 [INFO] =======================================================
+2026-04-16 14:52:34,125 [INFO] Processing: 'REVIEW REQUIRED - REVIEW REQUIRED - FW: [Scan] 2026-04-16 08:57'
+2026-04-16 14:52:34,125 [INFO]   Downloading '2026-04-16 08-57.pdf'...
+2026-04-16 14:52:34,657 [INFO]   Rendering PDF pages...
+2026-04-16 14:52:34,880 [INFO]   Scanning for QR code...
+2026-04-16 14:52:35,014 [INFO]   QR → Job: 2501  Location: 0510  Cost Code: 312323-21
+2026-04-16 14:52:35,015 [INFO]   Running OCR...
+2026-04-16 14:52:36,542 [INFO]   Detected profile: 'Teevin Bros Land & Timber Co., LLC'
+2026-04-16 14:52:36,927 [WARNING]   OCR confidence FAILED: date not found on header line
+2026-04-16 14:52:36,927 [WARNING] OCR confidence check failed (1 check(s) failed). Ticket will be flagged for manual review.
+2026-04-16 14:52:36,928 [WARNING]   TICKET FLAGGED FOR REVIEW: 'REVIEW REQUIRED - REVIEW REQUIRED - FW: [Scan] 2026-04-16 08:57'
+2026-04-16 14:52:36,928 [WARNING]     - date not found on header line
+2026-04-16 14:52:36,928 [ERROR] Error logged → 'REVIEW REQUIRED - REVIEW REQUIRED - FW: [Scan] 2026-04-16 08:57': REVIEW REQUIRED: REVIEW REQUIRED - REVIEW REQUIRED - FW: [Scan] 2026-04-16 08:57 - 2026-04-16 14:52:36 - Failed checks: date not found on header line
+2026-04-16 14:52:36,928 [INFO]   Sending review-required reply...
+2026-04-16 14:52:37,283 [WARNING]   Review reply not sent (will continue): 403 Client Error: Forbidden for url: https://graph.microsoft.com/v1.0/users/help@mjhughes.com/sendMail
+2026-04-16 14:52:37,284 [INFO]   Flagging email with 'REVIEW REQUIRED' category...
+2026-04-16 14:52:37,991 [INFO] Flagged email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTHAAA= with category 'REVIEW REQUIRED'.
+2026-04-16 14:52:37,991 [INFO]   Renaming email subject...
+2026-04-16 14:52:37,991 [WARNING]   Skipping rename — subject already starts with 'REVIEW REQUIRED': 'REVIEW REQUIRED - REVIEW REQUIRED - FW: [Scan] 2026-04-16 08:57'
+2026-04-16 14:52:37,991 [INFO]   Moving email to 'REVIEW REQUIRED' folder...
+2026-04-16 14:52:38,731 [INFO] Moved email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTHAAA= to 'REVIEW REQUIRED' folder (new id=AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAWCJAACf5kq4dgz5QZHK1WIWgeP-AAAAAuyAAAA=).
+2026-04-16 14:52:38,731 [INFO]   Marking email as unread in 'REVIEW REQUIRED' folder...
+2026-04-16 14:52:39,252 [INFO] Marked email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAWCJAACf5kq4dgz5QZHK1WIWgeP-AAAAAuyAAAA= as unread (flagged for review).
+2026-04-16 14:52:39,255 [INFO] =======================================================
+2026-04-16 14:52:39,255 [INFO] Processing: 'Ticket 17637 - 3/4-0" - 8/20/2025'
+2026-04-16 14:52:39,256 [INFO]   Downloading '2026-04-16 10-37.pdf'...
+2026-04-16 14:52:39,784 [INFO]   Rendering PDF pages...
+2026-04-16 14:52:39,996 [INFO]   Scanning for QR code...
+2026-04-16 14:52:40,120 [INFO]   QR → Job: 2501  Location: 0510  Cost Code: 312323-21
+2026-04-16 14:52:40,120 [INFO]   Running OCR...
+2026-04-16 14:52:41,655 [INFO]   Detected profile: 'Teevin Bros Land & Timber Co., LLC'
+2026-04-16 14:52:42,022 [INFO]   Using AI extraction for: Ticket 17637 - 3/4-0" - 8/20/2025
+2026-04-16 14:52:48,268 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-16 14:52:48,281 [INFO]   AI extraction result: {"ticket_number": "07637", "date": "08/20/2025", "facility": "Bradley Quarry", "customer": "MJ Hughes Construction", "material": "3/4-0\"", "net_tons": "16.88"}
+2026-04-16 14:52:48,282 [INFO]   OCR → Ticket: 07637  Date: 08/20/2025  Facility: Bradley Quarry  Customer: MJ Hughes Construction  Net Tons: 16.88
+2026-04-16 14:52:48,284 [INFO]   Writing to Excel...
+2026-04-16 14:52:48,286 [INFO] Created new tab for cost code: 312323-21
+2026-04-16 14:52:48,300 [INFO] Excel: wrote ticket 07637 to tab '312323-21' in materials_log.xlsx.
+2026-04-16 14:52:48,300 [INFO]   Renaming email subject...
+2026-04-16 14:52:48,808 [INFO] Renamed email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTCAAA= subject to: 'Ticket 07637 - 3/4-0" - 08/20/2025'
+2026-04-16 14:52:48,809 [INFO]   Sending confirmation email...
+2026-04-16 14:52:49,120 [WARNING]   Confirmation email not sent (will continue): 403 Client Error: Forbidden for url: https://graph.microsoft.com/v1.0/users/help@mjhughes.com/messages/AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTCAAA=/reply
+2026-04-16 14:52:49,122 [INFO]   Marking email as read...
+2026-04-16 14:52:49,528 [INFO] Marked email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTCAAA= as read.
+2026-04-16 14:52:49,529 [INFO]   Done: 'Ticket 17637 - 3/4-0" - 8/20/2025'
+2026-04-16 14:52:49,530 [INFO] =======================================================
+2026-04-16 14:52:49,531 [INFO] Processing: 'Ticket 17583 - 3/4-0" - 08/19/2025'
+2026-04-16 14:52:49,531 [INFO]   Downloading '2026-04-16 10-36.pdf'...
+2026-04-16 14:52:50,027 [INFO]   Rendering PDF pages...
+2026-04-16 14:52:50,215 [INFO]   Scanning for QR code...
+2026-04-16 14:52:50,321 [INFO]   QR → Job: 2501  Location: 0510  Cost Code: 312323-21
+2026-04-16 14:52:50,321 [INFO]   Running OCR...
+2026-04-16 14:52:51,708 [INFO]   Detected profile: 'Teevin Bros Land & Timber Co., LLC'
+2026-04-16 14:52:51,708 [INFO]   Using AI extraction for: Ticket 17583 - 3/4-0" - 08/19/2025
+2026-04-16 14:52:53,471 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-16 14:52:53,473 [INFO]   AI extraction result: {"ticket_number": "17583", "date": "08/19/2025", "facility": "Bradley Quarry", "customer": "MJ Hughes Construction", "material": "3/4-0\"", "net_tons": "17.40"}
+2026-04-16 14:52:53,473 [INFO]   OCR → Ticket: 17583  Date: 08/19/2025  Facility: Bradley Quarry  Customer: MJ Hughes Construction  Net Tons: 17.40
+2026-04-16 14:52:53,483 [INFO]   Writing to Excel...
+2026-04-16 14:52:53,498 [INFO] Excel: wrote ticket 17583 to tab '312323-21' in materials_log.xlsx.
+2026-04-16 14:52:53,499 [INFO]   Renaming email subject...
+2026-04-16 14:52:53,868 [INFO] Renamed email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTFAAA= subject to: 'Ticket 17583 - 3/4-0" - 08/19/2025'
+2026-04-16 14:52:53,868 [INFO]   Sending confirmation email...
+2026-04-16 14:52:54,184 [WARNING]   Confirmation email not sent (will continue): 403 Client Error: Forbidden for url: https://graph.microsoft.com/v1.0/users/help@mjhughes.com/messages/AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTFAAA=/reply
+2026-04-16 14:52:54,186 [INFO]   Marking email as read...
+2026-04-16 14:52:54,595 [INFO] Marked email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTFAAA= as read.
+2026-04-16 14:52:54,595 [INFO]   Done: 'Ticket 17583 - 3/4-0" - 08/19/2025'
+2026-04-16 14:52:54,597 [INFO] =======================================================
+2026-04-16 14:52:54,597 [INFO] Processing: 'REVIEW REQUIRED - REVIEW REQUIRED - FW: [Scan] 2026-04-16 10:37 1'
+2026-04-16 14:52:54,598 [INFO]   Downloading '2026-04-16 10-37 1.pdf'...
+2026-04-16 14:52:55,115 [INFO]   Rendering PDF pages...
+2026-04-16 14:52:55,320 [INFO]   Scanning for QR code...
+2026-04-16 14:52:55,438 [INFO]   QR → Job: 2501  Location: 0510  Cost Code: 312323-21
+2026-04-16 14:52:55,438 [INFO]   Running OCR...
+2026-04-16 14:52:56,911 [INFO]   Detected profile: 'Teevin Bros Land & Timber Co., LLC'
+2026-04-16 14:52:56,911 [INFO]   Using AI extraction for: REVIEW REQUIRED - REVIEW REQUIRED - FW: [Scan] 2026-04-16 10:37 1
+2026-04-16 14:52:59,352 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-16 14:52:59,353 [INFO]   AI extraction result: {"ticket_number": "17657", "date": "08/20/2025", "facility": "800 Bradley Quarry", "customer": "MJ Hughes Construction", "material": "3/4-0\"", "net_tons": "16.67"}
+2026-04-16 14:52:59,354 [INFO]   OCR → Ticket: 17657  Date: 08/20/2025  Facility: 800 Bradley Quarry  Customer: MJ Hughes Construction  Net Tons: 16.67
+2026-04-16 14:52:59,363 [INFO]   Writing to Excel...
+2026-04-16 14:52:59,378 [INFO] Excel: wrote ticket 17657 to tab '312323-21' in materials_log.xlsx.
+2026-04-16 14:52:59,379 [INFO]   Renaming email subject...
+2026-04-16 14:52:59,831 [INFO] Renamed email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTGAAA= subject to: 'Ticket 17657 - 3/4-0" - 08/20/2025'
+2026-04-16 14:52:59,831 [INFO]   Sending confirmation email...
+2026-04-16 14:53:00,214 [WARNING]   Confirmation email not sent (will continue): 403 Client Error: Forbidden for url: https://graph.microsoft.com/v1.0/users/help@mjhughes.com/messages/AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTGAAA=/reply
+2026-04-16 14:53:00,217 [INFO]   Marking email as read...
+2026-04-16 14:53:00,683 [INFO] Marked email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTGAAA= as read.
+2026-04-16 14:53:00,683 [INFO]   Done: 'REVIEW REQUIRED - REVIEW REQUIRED - FW: [Scan] 2026-04-16 10:37 1'
+2026-04-16 14:53:00,685 [INFO] =======================================================
+2026-04-16 14:53:00,685 [INFO] Complete — success: 4  failed: 0  (failed emails remain unread for retry)
+2026-04-16 14:53:00,685 [INFO] =======================================================
+2026-04-16 15:00:48,639 [INFO] =======================================================
+2026-04-16 15:00:48,639 [INFO] Ticket Processing Automation — starting
+2026-04-16 15:00:48,640 [INFO] Run time: 2026-04-16 15:00:48
+2026-04-16 15:00:48,640 [INFO] =======================================================
+2026-04-16 15:00:48,640 [INFO] Credentials loaded from: C:\Users\dawson.h\Desktop\ticket-to-excel-automation\.env
+2026-04-16 15:00:48,640 [INFO] AZURE_TENANT_ID starts with: 'b4ed'
+2026-04-16 15:00:48,641 [INFO] Loaded ticket profile: 'Teevin Bros Land & Timber Co., LLC' (teevin_bros.json)
+2026-04-16 15:00:48,641 [INFO] Loaded 1 ticket profile(s).
+2026-04-16 15:00:49,375 [INFO] Authenticated with Microsoft Graph API.
+2026-04-16 15:00:52,128 [INFO] Found 6 unread email(s) with PDF attachments.
+2026-04-16 15:00:52,130 [INFO] =======================================================
+2026-04-16 15:00:52,131 [INFO] Processing: 'DUPLICATE - Ticket 16800 - 808 Bradley Rock Rip Rap - 8/6/2025'
+2026-04-16 15:00:52,131 [INFO]   Downloading '2026-04-15 14-20.pdf'...
+2026-04-16 15:00:52,640 [INFO]   Rendering PDF pages...
+2026-04-16 15:00:52,899 [INFO]   Scanning for QR code...
+2026-04-16 15:00:53,037 [INFO]   QR → Job: 2501  Location: 0420  Cost Code: 312323-20
+2026-04-16 15:00:53,037 [INFO]   Running OCR...
+2026-04-16 15:00:54,769 [INFO]   Detected profile: 'Teevin Bros Land & Timber Co., LLC'
+2026-04-16 15:00:54,769 [INFO]   Using AI extraction for: DUPLICATE - Ticket 16800 - 808 Bradley Rock Rip Rap - 8/6/2025
+2026-04-16 15:00:56,533 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-16 15:00:56,547 [INFO]   AI extraction result: {"ticket_number": "15580", "date": "08/06/2025", "facility": "800 Bradley Quarry", "customer": "MJ Hughes Construction", "material": "Bradley Rock Rip Rap", "net_tons": "18.64"}
+2026-04-16 15:00:56,548 [INFO]   OCR → Ticket: 15580  Date: 08/06/2025  Facility: 800 Bradley Quarry  Customer: MJ Hughes Construction  Net Tons: 18.64
+2026-04-16 15:00:56,551 [INFO]   Writing to Excel...
+2026-04-16 15:00:56,554 [INFO] Created new tab for cost code: 312323-20
+2026-04-16 15:00:56,570 [INFO] Excel: wrote ticket 15580 to tab '312323-20' in materials_log.xlsx.
+2026-04-16 15:00:56,570 [INFO]   Renaming email subject...
+2026-04-16 15:00:57,033 [INFO] Renamed email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTJAAA= subject to: 'Ticket 15580 - Bradley Rock Rip Rap - 08/06/2025'
+2026-04-16 15:00:57,034 [INFO]   Sending confirmation email...
+2026-04-16 15:00:57,407 [WARNING]   Confirmation email not sent (will continue): 403 Client Error: Forbidden for url: https://graph.microsoft.com/v1.0/users/help@mjhughes.com/messages/AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTJAAA=/reply
+2026-04-16 15:00:57,408 [INFO]   Marking email as read...
+2026-04-16 15:00:57,853 [INFO] Marked email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTJAAA= as read.
+2026-04-16 15:00:57,855 [INFO]   Done: 'DUPLICATE - Ticket 16800 - 808 Bradley Rock Rip Rap - 8/6/2025'
+2026-04-16 15:00:57,866 [INFO] =======================================================
+2026-04-16 15:00:57,866 [INFO] Processing: 'FW: [Scan] 2026-04-15 15:31'
+2026-04-16 15:00:57,866 [INFO]   Downloading '2026-04-15 15-31.pdf'...
+2026-04-16 15:00:58,347 [INFO]   Rendering PDF pages...
+2026-04-16 15:00:58,615 [INFO]   Scanning for QR code...
+2026-04-16 15:00:58,760 [INFO]   QR → Job: 2501  Location: 0420  Cost Code: 312323-20
+2026-04-16 15:00:58,760 [INFO]   Running OCR...
+2026-04-16 15:01:00,607 [INFO]   Detected profile: 'Teevin Bros Land & Timber Co., LLC'
+2026-04-16 15:01:01,050 [WARNING]   OCR confidence FAILED: date not found on header line
+2026-04-16 15:01:01,050 [WARNING] OCR confidence check failed (1 check(s) failed). Ticket will be flagged for manual review.
+2026-04-16 15:01:01,051 [WARNING]   TICKET FLAGGED FOR REVIEW: 'FW: [Scan] 2026-04-15 15:31'
+2026-04-16 15:01:01,051 [WARNING]     - date not found on header line
+2026-04-16 15:01:01,051 [ERROR] Error logged → 'FW: [Scan] 2026-04-15 15:31': REVIEW REQUIRED: FW: [Scan] 2026-04-15 15:31 - 2026-04-16 15:01:01 - Failed checks: date not found on header line
+2026-04-16 15:01:01,051 [INFO]   Sending review-required reply...
+2026-04-16 15:01:01,379 [WARNING]   Review reply not sent (will continue): 403 Client Error: Forbidden for url: https://graph.microsoft.com/v1.0/users/help@mjhughes.com/sendMail
+2026-04-16 15:01:01,381 [INFO]   Flagging email with 'REVIEW REQUIRED' category...
+2026-04-16 15:01:01,829 [INFO] Flagged email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTIAAA= with category 'REVIEW REQUIRED'.
+2026-04-16 15:01:01,830 [INFO]   Renaming email subject...
+2026-04-16 15:01:02,314 [INFO] Renamed email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTIAAA= subject to: 'REVIEW REQUIRED - FW: [Scan] 2026-04-15 15:31'
+2026-04-16 15:01:02,315 [INFO]   Moving email to 'REVIEW REQUIRED' folder...
+2026-04-16 15:01:03,047 [INFO] Moved email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTIAAA= to 'REVIEW REQUIRED' folder (new id=AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAWCJAACf5kq4dgz5QZHK1WIWgeP-AAAAAuyBAAA=).
+2026-04-16 15:01:03,047 [INFO]   Marking email as unread in 'REVIEW REQUIRED' folder...
+2026-04-16 15:01:03,432 [INFO] Marked email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAWCJAACf5kq4dgz5QZHK1WIWgeP-AAAAAuyBAAA= as unread (flagged for review).
+2026-04-16 15:01:03,433 [INFO] =======================================================
+2026-04-16 15:01:03,434 [INFO] Processing: 'REVIEW REQUIRED - REVIEW REQUIRED - REVIEW REQUIRED - FW: [Scan] 2026-04-15 16:24'
+2026-04-16 15:01:03,434 [INFO]   Downloading '2026-04-15 16-24.pdf'...
+2026-04-16 15:01:04,088 [INFO]   Rendering PDF pages...
+2026-04-16 15:01:04,310 [INFO]   Scanning for QR code...
+2026-04-16 15:01:04,436 [INFO]   QR → Job: 2501  Location: 0510  Cost Code: 312323-21
+2026-04-16 15:01:04,436 [INFO]   Running OCR...
+2026-04-16 15:01:06,079 [INFO]   Detected profile: 'Teevin Bros Land & Timber Co., LLC'
+2026-04-16 15:01:06,464 [WARNING]   OCR confidence FAILED: date not found on header line
+2026-04-16 15:01:06,464 [WARNING] OCR confidence check failed (1 check(s) failed). Ticket will be flagged for manual review.
+2026-04-16 15:01:06,464 [WARNING]   TICKET FLAGGED FOR REVIEW: 'REVIEW REQUIRED - REVIEW REQUIRED - REVIEW REQUIRED - FW: [Scan] 2026-04-15 16:24'
+2026-04-16 15:01:06,464 [WARNING]     - date not found on header line
+2026-04-16 15:01:06,465 [ERROR] Error logged → 'REVIEW REQUIRED - REVIEW REQUIRED - REVIEW REQUIRED - FW: [Scan] 2026-04-15 16:24': REVIEW REQUIRED: REVIEW REQUIRED - REVIEW REQUIRED - REVIEW REQUIRED - FW: [Scan] 2026-04-15 16:24 - 2026-04-16 15:01:06 - Failed checks: date not found on header line
+2026-04-16 15:01:06,465 [INFO]   Sending review-required reply...
+2026-04-16 15:01:06,837 [WARNING]   Review reply not sent (will continue): 403 Client Error: Forbidden for url: https://graph.microsoft.com/v1.0/users/help@mjhughes.com/sendMail
+2026-04-16 15:01:06,839 [INFO]   Flagging email with 'REVIEW REQUIRED' category...
+2026-04-16 15:01:07,230 [INFO] Flagged email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACS6AAA= with category 'REVIEW REQUIRED'.
+2026-04-16 15:01:07,230 [INFO]   Renaming email subject...
+2026-04-16 15:01:07,230 [WARNING]   Skipping rename — subject already starts with 'REVIEW REQUIRED': 'REVIEW REQUIRED - REVIEW REQUIRED - REVIEW REQUIRED - FW: [Scan] 2026-04-15 16:24'
+2026-04-16 15:01:07,231 [INFO]   Moving email to 'REVIEW REQUIRED' folder...
+2026-04-16 15:01:08,231 [INFO] Moved email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACS6AAA= to 'REVIEW REQUIRED' folder (new id=AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAWCJAACf5kq4dgz5QZHK1WIWgeP-AAAAAuyCAAA=).
+2026-04-16 15:01:08,232 [INFO]   Marking email as unread in 'REVIEW REQUIRED' folder...
+2026-04-16 15:01:08,639 [INFO] Marked email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAWCJAACf5kq4dgz5QZHK1WIWgeP-AAAAAuyCAAA= as unread (flagged for review).
+2026-04-16 15:01:08,640 [INFO] =======================================================
+2026-04-16 15:01:08,640 [INFO] Processing: 'Ticket 07637 - 3/4-0" - 08/20/2025'
+2026-04-16 15:01:08,640 [INFO]   Downloading '2026-04-16 10-37.pdf'...
+2026-04-16 15:01:09,081 [INFO]   Rendering PDF pages...
+2026-04-16 15:01:09,284 [INFO]   Scanning for QR code...
+2026-04-16 15:01:09,400 [INFO]   QR → Job: 2501  Location: 0510  Cost Code: 312323-21
+2026-04-16 15:01:09,400 [INFO]   Running OCR...
+2026-04-16 15:01:10,872 [INFO]   Detected profile: 'Teevin Bros Land & Timber Co., LLC'
+2026-04-16 15:01:11,228 [INFO]   Using AI extraction for: Ticket 07637 - 3/4-0" - 08/20/2025
+2026-04-16 15:01:13,186 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-16 15:01:13,187 [INFO]   AI extraction result: {"ticket_number": "17637", "date": "08/20/2025", "facility": "Bradley Quarry", "customer": "MJ Hughes Construction", "material": "3/4-0\"", "net_tons": "16.88"}
+2026-04-16 15:01:13,187 [INFO]   OCR → Ticket: 17637  Date: 08/20/2025  Facility: Bradley Quarry  Customer: MJ Hughes Construction  Net Tons: 16.88
+2026-04-16 15:01:13,197 [INFO]   Writing to Excel...
+2026-04-16 15:01:13,201 [INFO] Created new tab for cost code: 312323-21
+2026-04-16 15:01:13,221 [INFO] Excel: wrote ticket 17637 to tab '312323-21' in materials_log.xlsx.
+2026-04-16 15:01:13,221 [INFO]   Renaming email subject...
+2026-04-16 15:01:13,706 [INFO] Renamed email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTCAAA= subject to: 'Ticket 17637 - 3/4-0" - 08/20/2025'
+2026-04-16 15:01:13,707 [INFO]   Sending confirmation email...
+2026-04-16 15:01:14,036 [WARNING]   Confirmation email not sent (will continue): 403 Client Error: Forbidden for url: https://graph.microsoft.com/v1.0/users/help@mjhughes.com/messages/AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTCAAA=/reply
+2026-04-16 15:01:14,038 [INFO]   Marking email as read...
+2026-04-16 15:01:14,452 [INFO] Marked email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTCAAA= as read.
+2026-04-16 15:01:14,452 [INFO]   Done: 'Ticket 07637 - 3/4-0" - 08/20/2025'
+2026-04-16 15:01:14,453 [INFO] =======================================================
+2026-04-16 15:01:14,454 [INFO] Processing: 'Ticket 17583 - 3/4-0" - 08/19/2025'
+2026-04-16 15:01:14,454 [INFO]   Downloading '2026-04-16 10-36.pdf'...
+2026-04-16 15:01:14,893 [INFO]   Rendering PDF pages...
+2026-04-16 15:01:15,082 [INFO]   Scanning for QR code...
+2026-04-16 15:01:15,186 [INFO]   QR → Job: 2501  Location: 0510  Cost Code: 312323-21
+2026-04-16 15:01:15,186 [INFO]   Running OCR...
+2026-04-16 15:01:16,585 [INFO]   Detected profile: 'Teevin Bros Land & Timber Co., LLC'
+2026-04-16 15:01:16,585 [INFO]   Using AI extraction for: Ticket 17583 - 3/4-0" - 08/19/2025
+2026-04-16 15:01:18,699 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-16 15:01:18,701 [INFO]   AI extraction result: {"ticket_number": "17583", "date": "08/19/2025", "facility": "800 Bradley Quarry", "customer": "MJ Hughes Construction", "material": "3/4-0\"", "net_tons": "17.40"}
+2026-04-16 15:01:18,701 [INFO]   OCR → Ticket: 17583  Date: 08/19/2025  Facility: 800 Bradley Quarry  Customer: MJ Hughes Construction  Net Tons: 17.40
+2026-04-16 15:01:18,711 [INFO]   Writing to Excel...
+2026-04-16 15:01:18,727 [INFO] Excel: wrote ticket 17583 to tab '312323-21' in materials_log.xlsx.
+2026-04-16 15:01:18,728 [INFO]   Renaming email subject...
+2026-04-16 15:01:19,066 [INFO] Renamed email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTFAAA= subject to: 'Ticket 17583 - 3/4-0" - 08/19/2025'
+2026-04-16 15:01:19,066 [INFO]   Sending confirmation email...
+2026-04-16 15:01:19,391 [WARNING]   Confirmation email not sent (will continue): 403 Client Error: Forbidden for url: https://graph.microsoft.com/v1.0/users/help@mjhughes.com/messages/AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTFAAA=/reply
+2026-04-16 15:01:19,392 [INFO]   Marking email as read...
+2026-04-16 15:01:20,234 [INFO] Marked email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTFAAA= as read.
+2026-04-16 15:01:20,234 [INFO]   Done: 'Ticket 17583 - 3/4-0" - 08/19/2025'
+2026-04-16 15:01:20,236 [INFO] =======================================================
+2026-04-16 15:01:20,236 [INFO] Processing: 'Ticket 17657 - 3/4-0" - 08/20/2025'
+2026-04-16 15:01:20,236 [INFO]   Downloading '2026-04-16 10-37 1.pdf'...
+2026-04-16 15:01:20,694 [INFO]   Rendering PDF pages...
+2026-04-16 15:01:20,896 [INFO]   Scanning for QR code...
+2026-04-16 15:01:21,015 [INFO]   QR → Job: 2501  Location: 0510  Cost Code: 312323-21
+2026-04-16 15:01:21,015 [INFO]   Running OCR...
+2026-04-16 15:01:22,464 [INFO]   Detected profile: 'Teevin Bros Land & Timber Co., LLC'
+2026-04-16 15:01:22,465 [INFO]   Using AI extraction for: Ticket 17657 - 3/4-0" - 08/20/2025
+2026-04-16 15:01:24,342 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-16 15:01:24,343 [INFO]   AI extraction result: {"ticket_number": "17657", "date": "08/20/2025", "facility": "800 Bradley Quarry", "customer": "MJ Hughes Construction", "material": "3/4-0\"", "net_tons": "16.67"}
+2026-04-16 15:01:24,343 [INFO]   OCR → Ticket: 17657  Date: 08/20/2025  Facility: 800 Bradley Quarry  Customer: MJ Hughes Construction  Net Tons: 16.67
+2026-04-16 15:01:24,355 [INFO]   Writing to Excel...
+2026-04-16 15:01:24,373 [INFO] Excel: wrote ticket 17657 to tab '312323-21' in materials_log.xlsx.
+2026-04-16 15:01:24,373 [INFO]   Renaming email subject...
+2026-04-16 15:01:24,739 [INFO] Renamed email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTGAAA= subject to: 'Ticket 17657 - 3/4-0" - 08/20/2025'
+2026-04-16 15:01:24,739 [INFO]   Sending confirmation email...
+2026-04-16 15:01:25,060 [WARNING]   Confirmation email not sent (will continue): 403 Client Error: Forbidden for url: https://graph.microsoft.com/v1.0/users/help@mjhughes.com/messages/AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTGAAA=/reply
+2026-04-16 15:01:25,061 [INFO]   Marking email as read...
+2026-04-16 15:01:25,467 [INFO] Marked email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTGAAA= as read.
+2026-04-16 15:01:25,468 [INFO]   Done: 'Ticket 17657 - 3/4-0" - 08/20/2025'
+2026-04-16 15:01:25,469 [INFO] Running batch outlier detection on 4 ticket(s): ['15580', '17637', '17583', '17657']
+2026-04-16 15:01:25,479 [WARNING] WARNING: Ticket number 15580 may be a misread — differs from batch median 17610 by 2030. Please verify against original PDF.
+2026-04-16 15:01:25,500 [INFO] Batch outlier check: flagged 1 ticket(s) (median=17610).
+2026-04-16 15:01:25,500 [INFO] =======================================================
+2026-04-16 15:01:25,501 [INFO] Complete — success: 6  failed: 0  (failed emails remain unread for retry)
+2026-04-16 15:01:25,501 [INFO] =======================================================
+2026-04-16 16:12:40,433 [INFO] =======================================================
+2026-04-16 16:12:40,433 [INFO] Ticket Processing Automation — starting
+2026-04-16 16:12:40,433 [INFO] Run time: 2026-04-16 16:12:40
+2026-04-16 16:12:40,433 [INFO] =======================================================
+2026-04-16 16:12:40,434 [INFO] Credentials loaded from: C:\Users\dawson.h\Desktop\ticket-to-excel-automation\.env
+2026-04-16 16:12:40,434 [INFO] AZURE_TENANT_ID starts with: 'b4ed'
+2026-04-16 16:12:40,434 [INFO] Loaded ticket profile: 'Teevin Bros Land & Timber Co., LLC' (teevin_bros.json)
+2026-04-16 16:12:40,434 [INFO] Loaded 1 ticket profile(s).
+2026-04-16 16:12:40,446 [INFO] TOC materials loaded: 7 entry/entries.
+2026-04-16 16:12:40,446 [INFO] Loaded 7 TOC anticipated material entry/entries.
+2026-04-16 16:12:41,181 [INFO] Authenticated with Microsoft Graph API.
+2026-04-16 16:12:42,018 [INFO] Found 1 unread email(s) with PDF attachments.
+2026-04-16 16:12:42,019 [INFO] =======================================================
+2026-04-16 16:12:42,020 [INFO] Processing: 'FW: [Scan] 2026-04-16 16:03'
+2026-04-16 16:12:42,020 [INFO]   Downloading '2026-04-16 16-03.pdf'...
+2026-04-16 16:12:42,463 [INFO]   Rendering PDF pages...
+2026-04-16 16:12:42,713 [INFO]   Scanning for QR code...
+2026-04-16 16:12:42,830 [INFO]   QR → Job: 2601  Location: 0180  Cost Code: 313713-99
+2026-04-16 16:12:42,830 [INFO]   Running OCR...
+2026-04-16 16:12:44,384 [INFO]   Detected profile: 'Teevin Bros Land & Timber Co., LLC'
+2026-04-16 16:12:44,776 [INFO]   Using AI extraction for: FW: [Scan] 2026-04-16 16:03
+2026-04-16 16:12:46,534 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-16 16:12:46,546 [INFO]   AI extraction result: {"ticket_number": null, "date": "08/06/2025", "facility": "800 Bradley Quarry", "customer": "MJ Hughes Construction", "material": "Bradley Rock Rip Rap", "net_tons": "18.64"}
+2026-04-16 16:12:46,546 [WARNING]   AI returned null for field: ticket_number
+2026-04-16 16:12:46,547 [WARNING]   AI extraction: could not extract 'ticket_number'.
+2026-04-16 16:12:46,547 [INFO]   OCR → Ticket: N/A  Date: 08/06/2025  Facility: 800 Bradley Quarry  Customer: MJ Hughes Construction  Net Tons: 18.64
+2026-04-16 16:12:47,715 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-16 16:12:47,716 [INFO]   Material verification: anticipated='rip rap class 3' actual='Bradley Rock Rip Rap' → YES
+2026-04-16 16:12:47,716 [INFO]   Writing to Excel...
+2026-04-16 16:12:47,805 [WARNING]   WARNING: Empty field 'Ticket #' for ticket 
+2026-04-16 16:12:47,806 [ERROR] Error logged → 'ticket ': Empty field: Ticket #
+2026-04-16 16:12:47,947 [INFO] Excel: wrote ticket  to tab '3' row 9.
+2026-04-16 16:12:47,947 [INFO]   Renaming email subject...
+2026-04-16 16:12:48,414 [INFO] Renamed email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAAAlMAAA= subject to: 'Ticket  - Bradley Rock Rip Rap - 08/06/2025'
+2026-04-16 16:12:48,414 [INFO]   Sending confirmation email...
+2026-04-16 16:12:48,806 [WARNING]   Confirmation email not sent (will continue): 403 Client Error: Forbidden for url: https://graph.microsoft.com/v1.0/users/help@mjhughes.com/messages/AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAAAlMAAA=/reply
+2026-04-16 16:12:48,808 [INFO]   Marking email as read...
+2026-04-16 16:12:49,229 [INFO] Marked email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAAAlMAAA= as read.
+2026-04-16 16:12:49,229 [INFO]   Done: 'FW: [Scan] 2026-04-16 16:03'
+2026-04-16 16:12:49,230 [INFO] =======================================================
+2026-04-16 16:12:49,230 [INFO] Complete — success: 1  failed: 0  (failed emails remain unread for retry)
+2026-04-16 16:12:49,230 [INFO] =======================================================
+2026-04-16 16:18:23,774 [INFO] =======================================================
+2026-04-16 16:18:23,774 [INFO] Ticket Processing Automation — starting
+2026-04-16 16:18:23,774 [INFO] Run time: 2026-04-16 16:18:23
+2026-04-16 16:18:23,775 [INFO] =======================================================
+2026-04-16 16:18:23,775 [INFO] Credentials loaded from: C:\Users\dawson.h\Desktop\ticket-to-excel-automation\.env
+2026-04-16 16:18:23,775 [INFO] AZURE_TENANT_ID starts with: 'b4ed'
+2026-04-16 16:18:23,776 [INFO] Loaded ticket profile: 'Teevin Bros Land & Timber Co., LLC' (teevin_bros.json)
+2026-04-16 16:18:23,776 [INFO] Loaded 1 ticket profile(s).
+2026-04-16 16:18:23,788 [INFO] TOC materials loaded: 7 entry/entries.
+2026-04-16 16:18:23,788 [INFO] Loaded 7 TOC anticipated material entry/entries.
+2026-04-16 16:18:24,532 [INFO] Authenticated with Microsoft Graph API.
+2026-04-16 16:18:25,207 [INFO] Found 1 unread email(s) with PDF attachments.
+2026-04-16 16:18:25,209 [INFO] =======================================================
+2026-04-16 16:18:25,209 [INFO] Processing: 'Ticket  - Bradley Rock Rip Rap - 08/06/2025'
+2026-04-16 16:18:25,210 [INFO]   Downloading '2026-04-16 16-03.pdf'...
+2026-04-16 16:18:25,657 [INFO]   Rendering PDF pages...
+2026-04-16 16:18:25,922 [INFO]   Scanning for QR code...
+2026-04-16 16:18:26,040 [INFO]   QR → Job: 2601  Location: 0180  Cost Code: 313713-99
+2026-04-16 16:18:26,040 [INFO]   Running OCR...
+2026-04-16 16:18:27,964 [INFO]   Detected profile: 'Teevin Bros Land & Timber Co., LLC'
+2026-04-16 16:18:28,526 [INFO]   Using AI extraction for: Ticket  - Bradley Rock Rip Rap - 08/06/2025
+2026-04-16 16:18:28,795 [INFO]   AI extraction: vision mode (image + OCR text)
+2026-04-16 16:18:30,808 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-16 16:18:30,821 [INFO]   AI extraction result: {"ticket_number":"16800","date":"08/06/2025","facility":"Bradley Quarry","customer":"MJ Hughes Construction","material":"Bradley Rock Rip Rap","net_tons":"18.64"}
+2026-04-16 16:18:30,822 [INFO]   OCR → Ticket: 16800  Date: 08/06/2025  Facility: Bradley Quarry  Customer: MJ Hughes Construction  Net Tons: 18.64
+2026-04-16 16:18:32,306 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-16 16:18:32,307 [INFO]   Material verification: anticipated='rip rap class 3' actual='Bradley Rock Rip Rap' → YES
+2026-04-16 16:18:32,337 [INFO]   Writing to Excel...
+2026-04-16 16:18:32,589 [INFO] Excel: wrote ticket 16800 to tab '3' row 9.
+2026-04-16 16:18:32,590 [INFO]   Renaming email subject...
+2026-04-16 16:18:36,534 [INFO] Renamed email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAAAlMAAA= subject to: 'Ticket 16800 - Bradley Rock Rip Rap - 08/06/2025'
+2026-04-16 16:18:36,534 [INFO]   Sending confirmation email...
+2026-04-16 16:18:36,879 [WARNING]   Confirmation email not sent (will continue): 403 Client Error: Forbidden for url: https://graph.microsoft.com/v1.0/users/help@mjhughes.com/messages/AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAAAlMAAA=/reply
+2026-04-16 16:18:36,880 [INFO]   Marking email as read...
+2026-04-16 16:18:37,316 [INFO] Marked email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAAAlMAAA= as read.
+2026-04-16 16:18:37,316 [INFO]   Done: 'Ticket  - Bradley Rock Rip Rap - 08/06/2025'
+2026-04-16 16:18:37,318 [INFO] Running batch outlier detection on 1 ticket(s): ['16800']
+2026-04-16 16:18:37,318 [INFO] =======================================================
+2026-04-16 16:18:37,318 [INFO] Complete — success: 1  failed: 0  (failed emails remain unread for retry)
+2026-04-16 16:18:37,318 [INFO] =======================================================
+2026-04-17 08:08:59,712 [INFO] =======================================================
+2026-04-17 08:08:59,713 [INFO] Ticket Processing Automation — starting
+2026-04-17 08:08:59,713 [INFO] Run time: 2026-04-17 08:08:59
+2026-04-17 08:08:59,713 [INFO] =======================================================
+2026-04-17 08:08:59,714 [INFO] Credentials loaded from: C:\Users\dawson.h\Desktop\ticket-to-excel-automation\.env
+2026-04-17 08:08:59,714 [INFO] AZURE_TENANT_ID starts with: 'b4ed'
+2026-04-17 08:08:59,715 [INFO] Loaded ticket profile: 'Teevin Bros Land & Timber Co., LLC' (teevin_bros.json)
+2026-04-17 08:08:59,715 [INFO] Loaded 1 ticket profile(s).
+2026-04-17 08:08:59,726 [INFO] TOC materials loaded: 7 entry/entries.
+2026-04-17 08:08:59,726 [INFO] Loaded 7 TOC anticipated material entry/entries.
+2026-04-17 08:09:00,424 [INFO] Authenticated with Microsoft Graph API.
+2026-04-17 08:09:02,489 [INFO] Found 3 unread email(s) with PDF attachments.
+2026-04-17 08:09:02,491 [INFO] =======================================================
+2026-04-17 08:09:02,491 [INFO] Processing: 'Ticket 17583 - 3/4-0" - 08/19/2025'
+2026-04-17 08:09:02,491 [INFO]   Downloading '2026-04-16 10-36.pdf'...
+2026-04-17 08:09:03,325 [INFO]   Rendering PDF pages...
+2026-04-17 08:09:03,544 [INFO]   Scanning for QR code...
+2026-04-17 08:09:03,649 [INFO]   QR → Job: 2501  Location: 0510  Cost Code: 312323-21
+2026-04-17 08:09:03,649 [INFO]   Running OCR...
+2026-04-17 08:09:05,065 [INFO]   Detected profile: 'Teevin Bros Land & Timber Co., LLC'
+2026-04-17 08:09:05,065 [INFO]   Using AI extraction for: Ticket 17583 - 3/4-0" - 08/19/2025
+2026-04-17 08:09:05,492 [INFO]   AI extraction: vision mode (image + OCR text)
+2026-04-17 08:09:08,087 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-17 08:09:08,099 [INFO]   AI extraction result: {"ticket_number":"17583","date":"08/19/2025","facility":"Bradley Quarry","customer":"MJ Hughes Construction","material":"3/4-0\"","net_tons":"17.40"}
+2026-04-17 08:09:08,100 [INFO]   OCR → Ticket: 17583  Date: 08/19/2025  Facility: Bradley Quarry  Customer: MJ Hughes Construction  Net Tons: 17.40
+2026-04-17 08:09:08,130 [INFO]   Writing to Excel...
+2026-04-17 08:09:08,224 [WARNING] WARNING: No matching tab found for QR code '2501-0510-312323-21'. Please create a tab for this cost code manually.
+2026-04-17 08:09:08,224 [INFO]   Renaming email subject...
+2026-04-17 08:09:08,841 [INFO] Renamed email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTFAAA= subject to: 'Ticket 17583 - 3/4-0" - 08/19/2025'
+2026-04-17 08:09:08,842 [INFO]   Sending confirmation email...
+2026-04-17 08:09:09,399 [WARNING]   Confirmation email not sent (will continue): 403 Client Error: Forbidden for url: https://graph.microsoft.com/v1.0/users/help@mjhughes.com/messages/AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTFAAA=/reply
+2026-04-17 08:09:09,401 [INFO]   Marking email as read...
+2026-04-17 08:09:09,977 [INFO] Marked email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTFAAA= as read.
+2026-04-17 08:09:09,978 [INFO]   Done: 'Ticket 17583 - 3/4-0" - 08/19/2025'
+2026-04-17 08:09:09,979 [INFO] =======================================================
+2026-04-17 08:09:09,979 [INFO] Processing: 'Ticket 17657 - 3/4-0" - 08/20/2025'
+2026-04-17 08:09:09,980 [INFO]   Downloading '2026-04-16 10-37 1.pdf'...
+2026-04-17 08:09:10,828 [INFO]   Rendering PDF pages...
+2026-04-17 08:09:11,040 [INFO]   Scanning for QR code...
+2026-04-17 08:09:11,155 [INFO]   QR → Job: 2501  Location: 0510  Cost Code: 312323-21
+2026-04-17 08:09:11,155 [INFO]   Running OCR...
+2026-04-17 08:09:12,650 [INFO]   Detected profile: 'Teevin Bros Land & Timber Co., LLC'
+2026-04-17 08:09:12,651 [INFO]   Using AI extraction for: Ticket 17657 - 3/4-0" - 08/20/2025
+2026-04-17 08:09:13,054 [INFO]   AI extraction: vision mode (image + OCR text)
+2026-04-17 08:09:16,985 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-17 08:09:16,986 [INFO]   AI extraction result: {"ticket_number":"17657","date":"08/20/2025","facility":"Bradley Quarry","customer":"MJ Hughes Construction","material":"3/4-0\"","net_tons":"16.67"}
+2026-04-17 08:09:16,986 [INFO]   OCR → Ticket: 17657  Date: 08/20/2025  Facility: Bradley Quarry  Customer: MJ Hughes Construction  Net Tons: 16.67
+2026-04-17 08:09:17,030 [INFO]   Writing to Excel...
+2026-04-17 08:09:17,127 [WARNING] WARNING: No matching tab found for QR code '2501-0510-312323-21'. Please create a tab for this cost code manually.
+2026-04-17 08:09:17,127 [INFO]   Renaming email subject...
+2026-04-17 08:09:17,640 [INFO] Renamed email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTGAAA= subject to: 'Ticket 17657 - 3/4-0" - 08/20/2025'
+2026-04-17 08:09:17,640 [INFO]   Sending confirmation email...
+2026-04-17 08:09:18,199 [WARNING]   Confirmation email not sent (will continue): 403 Client Error: Forbidden for url: https://graph.microsoft.com/v1.0/users/help@mjhughes.com/messages/AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTGAAA=/reply
+2026-04-17 08:09:18,200 [INFO]   Marking email as read...
+2026-04-17 08:09:18,741 [INFO] Marked email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTGAAA= as read.
+2026-04-17 08:09:18,742 [INFO]   Done: 'Ticket 17657 - 3/4-0" - 08/20/2025'
+2026-04-17 08:09:18,743 [INFO] =======================================================
+2026-04-17 08:09:18,743 [INFO] Processing: 'Ticket 16800 - Bradley Rock Rip Rap - 08/06/2025'
+2026-04-17 08:09:18,743 [INFO]   Downloading '2026-04-16 16-03.pdf'...
+2026-04-17 08:09:19,462 [INFO]   Rendering PDF pages...
+2026-04-17 08:09:19,679 [INFO]   Scanning for QR code...
+2026-04-17 08:09:19,798 [INFO]   QR → Job: 2601  Location: 0180  Cost Code: 313713-99
+2026-04-17 08:09:19,799 [INFO]   Running OCR...
+2026-04-17 08:09:21,320 [INFO]   Detected profile: 'Teevin Bros Land & Timber Co., LLC'
+2026-04-17 08:09:21,970 [INFO]   Using AI extraction for: Ticket 16800 - Bradley Rock Rip Rap - 08/06/2025
+2026-04-17 08:09:22,377 [INFO]   AI extraction: vision mode (image + OCR text)
+2026-04-17 08:09:26,354 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-17 08:09:26,356 [INFO]   AI extraction result: {"ticket_number":"16800","date":"08/06/2025","facility":"Bradley Quarry","customer":"MJ Hughes Construction","material":"Bradley Rock Rip Rap","net_tons":"18.64"}
+2026-04-17 08:09:26,356 [INFO]   OCR → Ticket: 16800  Date: 08/06/2025  Facility: Bradley Quarry  Customer: MJ Hughes Construction  Net Tons: 18.64
+2026-04-17 08:09:27,832 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-17 08:09:27,833 [INFO]   Material verification: anticipated='rip rap class 3' actual='Bradley Rock Rip Rap' → YES
+2026-04-17 08:09:27,860 [INFO]   Writing to Excel...
+2026-04-17 08:09:28,088 [INFO] Excel: wrote ticket 16800 to tab '3' row 9.
+2026-04-17 08:09:28,088 [INFO]   Renaming email subject...
+2026-04-17 08:09:28,590 [INFO] Renamed email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAAAlMAAA= subject to: 'Ticket 16800 - Bradley Rock Rip Rap - 08/06/2025'
+2026-04-17 08:09:28,590 [INFO]   Sending confirmation email...
+2026-04-17 08:09:29,100 [WARNING]   Confirmation email not sent (will continue): 403 Client Error: Forbidden for url: https://graph.microsoft.com/v1.0/users/help@mjhughes.com/messages/AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAAAlMAAA=/reply
+2026-04-17 08:09:29,101 [INFO]   Marking email as read...
+2026-04-17 08:09:29,667 [INFO] Marked email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAAAlMAAA= as read.
+2026-04-17 08:09:29,668 [INFO]   Done: 'Ticket 16800 - Bradley Rock Rip Rap - 08/06/2025'
+2026-04-17 08:09:29,670 [INFO] Running batch outlier detection on 3 ticket(s): ['17583', '17657', '16800']
+2026-04-17 08:09:29,671 [INFO] Batch outlier check: 3 ticket(s), median=17583, no outliers detected.
+2026-04-17 08:09:29,671 [INFO] =======================================================
+2026-04-17 08:09:29,671 [INFO] Complete — success: 3  failed: 0  (failed emails remain unread for retry)
+2026-04-17 08:09:29,671 [INFO] =======================================================
+2026-04-17 08:17:56,904 [INFO] =======================================================
+2026-04-17 08:17:56,905 [INFO] Ticket Processing Automation — starting
+2026-04-17 08:17:56,905 [INFO] Run time: 2026-04-17 08:17:56
+2026-04-17 08:17:56,905 [INFO] =======================================================
+2026-04-17 08:17:56,905 [INFO] Credentials loaded from: C:\Users\dawson.h\Desktop\ticket-to-excel-automation\.env
+2026-04-17 08:17:56,905 [INFO] AZURE_TENANT_ID starts with: 'b4ed'
+2026-04-17 08:17:56,906 [INFO] Loaded ticket profile: 'Teevin Bros Land & Timber Co., LLC' (teevin_bros.json)
+2026-04-17 08:17:56,906 [INFO] Loaded 1 ticket profile(s).
+2026-04-17 08:17:57,690 [INFO] Authenticated with Microsoft Graph API.
+2026-04-17 08:17:59,805 [ERROR] Cannot download ticket_tracker_2601.xlsx from SharePoint: 404 Client Error: Not Found for url: https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com,aae8f340-7508-4e57-b378-4e7cf957a279,bba377d3-6f37-4c1c-95c4-1fa769f3894c/drives/b!QPPoqgh1V06zeE58-VeiedN3o7s3bxxMlcQfp2nziUxFyWUvnb1pQqAKsoGQfHEX/root:/MJHughes%20OPEN%20JOBS/ticket_tracker_2601.xlsx:/content. Aborting — no tickets will be processed.
+2026-04-17 09:41:51,798 [INFO] =======================================================
+2026-04-17 09:41:51,799 [INFO] Ticket Processing Automation — starting
+2026-04-17 09:41:51,799 [INFO] Run time: 2026-04-17 09:41:51
+2026-04-17 09:41:51,799 [INFO] =======================================================
+2026-04-17 09:41:51,799 [INFO] Credentials loaded from: C:\Users\dawson.h\Desktop\ticket-to-excel-automation\.env
+2026-04-17 09:41:51,799 [INFO] AZURE_TENANT_ID starts with: 'b4ed'
+2026-04-17 09:41:51,800 [INFO] Loaded ticket profile: 'Teevin Bros Land & Timber Co., LLC' (teevin_bros.json)
+2026-04-17 09:41:51,800 [INFO] Loaded 1 ticket profile(s).
+2026-04-17 09:41:52,765 [INFO] Authenticated with Microsoft Graph API.
+2026-04-17 09:41:55,882 [INFO] Downloaded ticket_tracker_2601.xlsx from SharePoint (46,869 bytes → C:\Users\dawson.h\AppData\Local\Temp\ticket_tracker_2601.xlsx)
+2026-04-17 09:41:55,896 [INFO] TOC materials loaded: 7 entry/entries.
+2026-04-17 09:41:55,897 [INFO] Loaded 7 TOC anticipated material entry/entries.
+2026-04-17 09:41:57,060 [INFO] Found 1 unread email(s) with PDF attachments.
+2026-04-17 09:41:57,062 [INFO] =======================================================
+2026-04-17 09:41:57,062 [INFO] Processing: 'FW: [Scan] 2026-04-17 09:04'
+2026-04-17 09:41:57,063 [INFO]   Downloading '2026-04-17 09-04.pdf'...
+2026-04-17 09:41:57,866 [INFO]   Rendering PDF pages...
+2026-04-17 09:42:00,789 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-17 09:42:00,802 [INFO]   Page 1: Claude detected 1 ticket(s)
+2026-04-17 09:42:00,803 [INFO]     Ticket 1: top=0.0%  bottom=100.0%
+2026-04-17 09:42:00,803 [INFO]   [p1/t1] Single full-page ticket — no crop needed
+2026-04-17 09:42:00,804 [INFO]   [p1/t1] Scanning for QR code...
+2026-04-17 09:42:00,911 [INFO]   [p1/t1] QR → Job: 2601  Location: 0180  Cost Code: 313713-99
+2026-04-17 09:42:00,911 [INFO]   [p1/t1] Running OCR...
+2026-04-17 09:42:02,530 [INFO]   Detected profile: 'Teevin Bros Land & Timber Co., LLC'
+2026-04-17 09:42:03,218 [INFO]   Using AI extraction for: FW: [Scan] 2026-04-17 09:04
+2026-04-17 09:42:03,616 [INFO]   AI extraction: vision mode (image + OCR text)
+2026-04-17 09:42:06,197 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-17 09:42:06,198 [INFO]   AI extraction result: {"ticket_number":"16800","date":"08/06/2025","facility":"Bradley Quarry","customer":"MJ Hughes Construction","material":"Bradley Rock Rip Rap","net_tons":"18.64"}
+2026-04-17 09:42:06,199 [INFO]   [p1/t1] OCR → Ticket: 16800  Date: 08/06/2025  Facility: Bradley Quarry  Net Tons: 18.64
+2026-04-17 09:42:07,605 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-17 09:42:07,606 [INFO]   Material verification: anticipated='rip rap class 3' actual='Bradley Rock Rip Rap' → YES
+2026-04-17 09:42:07,639 [INFO]   [p1/t1] Writing to Excel...
+2026-04-17 09:42:07,863 [INFO] Excel: wrote ticket 16800 to tab '3' row 9.
+2026-04-17 09:42:07,864 [INFO]   [p1] Uploading PDF to SharePoint (tickets: 16800)...
+2026-04-17 09:42:10,948 [INFO] Created folder: MJHughes OPEN JOBS/Ticket Scans
+2026-04-17 09:42:12,514 [INFO] Created folder: MJHughes OPEN JOBS/Ticket Scans/2601
+2026-04-17 09:42:14,394 [INFO] Uploaded PDF to SharePoint: MJHughes OPEN JOBS/Ticket Scans/2601/Tickets, 16800.pdf
+2026-04-17 09:42:16,920 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-17 09:42:16,921 [INFO]   Page 2: Claude detected 1 ticket(s)
+2026-04-17 09:42:16,921 [INFO]     Ticket 1: top=0.0%  bottom=100.0%
+2026-04-17 09:42:16,922 [INFO]   [p2/t1] Single full-page ticket — no crop needed
+2026-04-17 09:42:16,922 [INFO]   [p2/t1] Scanning for QR code...
+2026-04-17 09:42:17,017 [INFO]   [p2/t1] QR → Job: 2601  Location: 0620  Cost Code: 312323-21
+2026-04-17 09:42:17,018 [INFO]   [p2/t1] Running OCR...
+2026-04-17 09:42:18,388 [INFO]   Detected profile: 'Teevin Bros Land & Timber Co., LLC'
+2026-04-17 09:42:18,388 [INFO]   Using AI extraction for: FW: [Scan] 2026-04-17 09:04
+2026-04-17 09:42:18,779 [INFO]   AI extraction: vision mode (image + OCR text)
+2026-04-17 09:42:21,051 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-17 09:42:21,052 [INFO]   AI extraction result: {"ticket_number":"17583","date":"08/19/2025","facility":"Bradley Quarry","customer":"MJ Hughes Construction","material":"3/4-0\"","net_tons":"17.40"}
+2026-04-17 09:42:21,052 [INFO]   [p2/t1] OCR → Ticket: 17583  Date: 08/19/2025  Facility: Bradley Quarry  Net Tons: 17.40
+2026-04-17 09:42:22,623 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-17 09:42:22,624 [INFO]   Material verification: anticipated='boulders' actual='3/4-0"' → NO
+2026-04-17 09:42:22,624 [WARNING]   [p2/t1] WARNING: Material mismatch for ticket 17583 — Anticipated: boulders | Found: 3/4-0"
+2026-04-17 09:42:22,670 [INFO]   [p2/t1] Writing to Excel...
+2026-04-17 09:42:22,897 [INFO] Excel: wrote ticket 17583 to tab '12' row 9.
+2026-04-17 09:42:22,897 [INFO]   [p2] Uploading PDF to SharePoint (tickets: 17583)...
+2026-04-17 09:42:27,748 [INFO] Uploaded PDF to SharePoint: MJHughes OPEN JOBS/Ticket Scans/2601/Tickets, 17583.pdf
+2026-04-17 09:42:30,142 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-17 09:42:30,143 [INFO]   Page 3: Claude detected 1 ticket(s)
+2026-04-17 09:42:30,143 [INFO]     Ticket 1: top=0.0%  bottom=100.0%
+2026-04-17 09:42:30,144 [INFO]   [p3/t1] Single full-page ticket — no crop needed
+2026-04-17 09:42:30,144 [INFO]   [p3/t1] Scanning for QR code...
+2026-04-17 09:42:30,276 [INFO]   [p3/t1] QR → Job: 2601  Location: 0180  Cost Code: 313713-99
+2026-04-17 09:42:30,277 [INFO]   [p3/t1] Running OCR...
+2026-04-17 09:42:32,113 [INFO]   Detected profile: 'Teevin Bros Land & Timber Co., LLC'
+2026-04-17 09:42:32,113 [INFO]   Using AI extraction for: FW: [Scan] 2026-04-17 09:04
+2026-04-17 09:42:32,521 [INFO]   AI extraction: vision mode (image + OCR text)
+2026-04-17 09:42:36,276 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-17 09:42:36,277 [INFO]   AI extraction result: {"ticket_number": "16815", "date": "08/06/2025", "facility": "Bradley Quarry", "customer": "MJ Hughes Construction", "material": "Bradley Rock Rip Rap", "net_tons": 19.27}
+2026-04-17 09:42:36,278 [INFO]   [p3/t1] OCR → Ticket: 16815  Date: 08/06/2025  Facility: Bradley Quarry  Net Tons: 19.27
+2026-04-17 09:42:37,926 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-17 09:42:37,928 [INFO]   Material verification: anticipated='rip rap class 3' actual='Bradley Rock Rip Rap' → YES
+2026-04-17 09:42:37,957 [INFO]   [p3/t1] Writing to Excel...
+2026-04-17 09:42:38,215 [INFO] Excel: wrote ticket 16815 to tab '3' row 10.
+2026-04-17 09:42:38,215 [INFO]   [p3] Uploading PDF to SharePoint (tickets: 16815)...
+2026-04-17 09:42:43,047 [INFO] Uploaded PDF to SharePoint: MJHughes OPEN JOBS/Ticket Scans/2601/Tickets, 16815.pdf
+2026-04-17 09:42:45,845 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-17 09:42:45,846 [INFO]   Page 4: Claude detected 1 ticket(s)
+2026-04-17 09:42:45,846 [INFO]     Ticket 1: top=0.0%  bottom=100.0%
+2026-04-17 09:42:45,846 [INFO]   [p4/t1] Single full-page ticket — no crop needed
+2026-04-17 09:42:45,846 [INFO]   [p4/t1] Scanning for QR code...
+2026-04-17 09:42:45,953 [INFO]   [p4/t1] QR → Job: 2601  Location: 0620  Cost Code: 312323-21
+2026-04-17 09:42:45,954 [INFO]   [p4/t1] Running OCR...
+2026-04-17 09:42:47,439 [INFO]   Detected profile: 'Teevin Bros Land & Timber Co., LLC'
+2026-04-17 09:42:47,440 [INFO]   Using AI extraction for: FW: [Scan] 2026-04-17 09:04
+2026-04-17 09:42:47,847 [INFO]   AI extraction: vision mode (image + OCR text)
+2026-04-17 09:42:49,761 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-17 09:42:49,762 [INFO]   AI extraction result: {"ticket_number":"17637","date":"08/20/2025","facility":"Bradley Quarry","customer":"MJ Hughes Construction","material":"3/4-0\"","net_tons":"16.88"}
+2026-04-17 09:42:49,762 [INFO]   [p4/t1] OCR → Ticket: 17637  Date: 08/20/2025  Facility: Bradley Quarry  Net Tons: 16.88
+2026-04-17 09:42:51,434 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-17 09:42:51,435 [INFO]   Material verification: anticipated='boulders' actual='3/4-0"' → NO
+2026-04-17 09:42:51,435 [WARNING]   [p4/t1] WARNING: Material mismatch for ticket 17637 — Anticipated: boulders | Found: 3/4-0"
+2026-04-17 09:42:51,469 [INFO]   [p4/t1] Writing to Excel...
+2026-04-17 09:42:51,719 [INFO] Excel: wrote ticket 17637 to tab '12' row 10.
+2026-04-17 09:42:51,719 [INFO]   [p4] Uploading PDF to SharePoint (tickets: 17637)...
+2026-04-17 09:42:56,498 [INFO] Uploaded PDF to SharePoint: MJHughes OPEN JOBS/Ticket Scans/2601/Tickets, 17637.pdf
+2026-04-17 09:42:57,178 [INFO] Renamed email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAAAlNAAA= subject to: 'Ticket 17637 - 3/4-0" - 08/20/2025'
+2026-04-17 09:42:57,178 [INFO]   Marking email as read...
+2026-04-17 09:42:57,743 [INFO] Marked email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAAAlNAAA= as read.
+2026-04-17 09:42:57,743 [INFO]   Done: 'FW: [Scan] 2026-04-17 09:04' — 4 ticket(s) written, review_needed=False
+2026-04-17 09:42:57,750 [INFO] Running batch outlier detection on 4 ticket(s): ['16800', '17583', '16815', '17637']
+2026-04-17 09:42:57,750 [INFO] Batch outlier check: 4 ticket(s), median=17199, no outliers detected.
+2026-04-17 09:43:00,798 [INFO] Uploaded ticket_tracker_2601.xlsx to SharePoint (37,943 bytes)
+2026-04-17 09:43:00,799 [INFO] Deleted local temp copy: C:\Users\dawson.h\AppData\Local\Temp\ticket_tracker_2601.xlsx
+2026-04-17 09:43:00,799 [INFO] =======================================================
+2026-04-17 09:43:00,799 [INFO] Complete — success: 1  failed: 0  (failed emails remain unread for retry)
+2026-04-17 09:43:00,799 [INFO] =======================================================
+2026-04-17 10:01:01,363 [INFO] =======================================================
+2026-04-17 10:01:01,363 [INFO] Ticket Processing Automation — starting
+2026-04-17 10:01:01,364 [INFO] Run time: 2026-04-17 10:01:01
+2026-04-17 10:01:01,364 [INFO] =======================================================
+2026-04-17 10:01:01,364 [INFO] Credentials loaded from: C:\Users\dawson.h\Desktop\ticket-to-excel-automation\.env
+2026-04-17 10:01:01,364 [INFO] AZURE_TENANT_ID starts with: 'b4ed'
+2026-04-17 10:01:01,365 [INFO] Loaded ticket profile: 'Teevin Bros Land & Timber Co., LLC' (teevin_bros.json)
+2026-04-17 10:01:01,365 [INFO] Loaded 1 ticket profile(s).
+2026-04-17 10:01:02,254 [INFO] Authenticated with Microsoft Graph API.
+2026-04-17 10:01:04,258 [ERROR] Cannot download ticket_tracker_2601.xlsx from SharePoint: 404 Client Error: Not Found for url: https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com,aae8f340-7508-4e57-b378-4e7cf957a279,bba377d3-6f37-4c1c-95c4-1fa769f3894c/drives/b!QPPoqgh1V06zeE58-VeiedN3o7s3bxxMlcQfp2nziUxFyWUvnb1pQqAKsoGQfHEX/root:/MJHughes%20OPEN%20JOBS/2601/ticket_tracker_2601.xlsx:/content. Aborting — no tickets will be processed.
+2026-04-17 10:07:30,117 [INFO] =======================================================
+2026-04-17 10:07:30,118 [INFO] Ticket Processing Automation — starting
+2026-04-17 10:07:30,118 [INFO] Run time: 2026-04-17 10:07:30
+2026-04-17 10:07:30,118 [INFO] =======================================================
+2026-04-17 10:07:30,118 [INFO] Credentials loaded from: C:\Users\dawson.h\Desktop\ticket-to-excel-automation\.env
+2026-04-17 10:07:30,118 [INFO] AZURE_TENANT_ID starts with: 'b4ed'
+2026-04-17 10:07:30,119 [INFO] Loaded ticket profile: 'Teevin Bros Land & Timber Co., LLC' (teevin_bros.json)
+2026-04-17 10:07:30,119 [INFO] Loaded 1 ticket profile(s).
+2026-04-17 10:07:30,938 [INFO] Authenticated with Microsoft Graph API.
+2026-04-17 10:07:33,715 [INFO] Downloaded ticket_tracker_2601.xlsx from SharePoint (46,864 bytes → C:\Users\dawson.h\AppData\Local\Temp\ticket_tracker_2601.xlsx)
+2026-04-17 10:07:33,728 [INFO] TOC materials loaded: 7 entry/entries.
+2026-04-17 10:07:33,728 [INFO] Loaded 7 TOC anticipated material entry/entries.
+2026-04-17 10:07:34,953 [INFO] Found 1 unread email(s) with PDF attachments.
+2026-04-17 10:07:34,955 [INFO] =======================================================
+2026-04-17 10:07:34,955 [INFO] Processing: 'Ticket 17637 - 3/4-0" - 08/20/2025'
+2026-04-17 10:07:34,955 [INFO]   Downloading '2026-04-17 09-04.pdf'...
+2026-04-17 10:07:35,688 [INFO]   Rendering PDF pages...
+2026-04-17 10:07:38,908 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-17 10:07:38,920 [INFO]   Page 1: Claude detected 1 ticket(s)
+2026-04-17 10:07:38,920 [INFO]     Ticket 1: top=0.0%  bottom=100.0%
+2026-04-17 10:07:38,921 [INFO]   [p1/t1] Single full-page ticket — no crop needed
+2026-04-17 10:07:38,921 [INFO]   [p1/t1] Scanning for QR code...
+2026-04-17 10:07:39,034 [INFO]   [p1/t1] QR → Job: 2601  Location: 0180  Cost Code: 313713-99
+2026-04-17 10:07:39,035 [INFO]   [p1/t1] Running OCR...
+2026-04-17 10:07:40,797 [INFO]   Detected profile: 'Teevin Bros Land & Timber Co., LLC'
+2026-04-17 10:07:41,483 [INFO]   Using AI extraction for: Ticket 17637 - 3/4-0" - 08/20/2025
+2026-04-17 10:07:41,932 [INFO]   AI extraction: vision mode (image + OCR text)
+2026-04-17 10:07:44,754 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-17 10:07:44,755 [INFO]   AI extraction result: {"ticket_number":"16800","date":"08/06/2025","facility":"Bradley Quarry","customer":"MJ Hughes Construction","material":"Bradley Rock Rip Rap","net_tons":"18.64","qr_sticker_text":"Class 2 RipRap"}
+2026-04-17 10:07:44,755 [INFO]   [p1/t1] OCR → Ticket: 16800  Date: 08/06/2025  Facility: Bradley Quarry  Net Tons: 18.64
+2026-04-17 10:07:46,304 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-17 10:07:46,304 [INFO]   Material verification: anticipated='rip rap class 3' actual='Bradley Rock Rip Rap' → YES
+2026-04-17 10:07:46,338 [INFO]   [p1/t1] Writing to Excel...
+2026-04-17 10:07:46,438 [INFO]   Multiple tabs matched QR '2601-0180-313713-99': '3', '4' — asking Claude to disambiguate
+2026-04-17 10:07:47,884 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-17 10:07:47,885 [INFO]   Tab disambiguation: Claude answered '1' for QR '2601-0180-313713-99' (candidates: ['3', '4'])
+2026-04-17 10:07:47,885 [INFO]   Multiple tabs matched QR '2601-0180-313713-99' — AI selected tab '3' based on material 'Bradley Rock Rip Rap'
+2026-04-17 10:07:48,021 [INFO] Excel: wrote ticket 16800 to tab '3' row 9.
+2026-04-17 10:07:48,022 [INFO]   [p1] Uploading PDF to SharePoint (tickets: 16800)...
+2026-04-17 10:07:51,729 [INFO] Created folder: MJHughes OPEN JOBS/2601/Ticket Scans
+2026-04-17 10:07:51,729 [INFO] Created folder structure for new job: 2601
+2026-04-17 10:07:53,232 [INFO] Uploaded PDF to SharePoint: MJHughes OPEN JOBS/2601/Ticket Scans/Tickets, 16800.pdf
+2026-04-17 10:07:55,805 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-17 10:07:55,806 [INFO]   Page 2: Claude detected 1 ticket(s)
+2026-04-17 10:07:55,806 [INFO]     Ticket 1: top=0.0%  bottom=100.0%
+2026-04-17 10:07:55,807 [INFO]   [p2/t1] Single full-page ticket — no crop needed
+2026-04-17 10:07:55,807 [INFO]   [p2/t1] Scanning for QR code...
+2026-04-17 10:07:55,905 [INFO]   [p2/t1] QR → Job: 2601  Location: 0620  Cost Code: 312323-21
+2026-04-17 10:07:55,905 [INFO]   [p2/t1] Running OCR...
+2026-04-17 10:07:57,303 [INFO]   Detected profile: 'Teevin Bros Land & Timber Co., LLC'
+2026-04-17 10:07:57,303 [INFO]   Using AI extraction for: Ticket 17637 - 3/4-0" - 08/20/2025
+2026-04-17 10:07:57,714 [INFO]   AI extraction: vision mode (image + OCR text)
+2026-04-17 10:07:59,638 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-17 10:07:59,639 [INFO]   AI extraction result: {"ticket_number":"17583","date":"08/19/2025","facility":"Bradley Quarry","customer":"MJ Hughes Construction","material":"3/4-0\"","net_tons":"17.40","qr_sticker_text":"3/4\"-0\""}
+2026-04-17 10:07:59,639 [INFO]   [p2/t1] OCR → Ticket: 17583  Date: 08/19/2025  Facility: Bradley Quarry  Net Tons: 17.40
+2026-04-17 10:08:00,999 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-17 10:08:00,999 [INFO]   Material verification: anticipated='boulders' actual='3/4-0"' → NO
+2026-04-17 10:08:00,999 [WARNING]   [p2/t1] WARNING: Material mismatch for ticket 17583 — Anticipated: boulders | Found: 3/4-0"
+2026-04-17 10:08:01,046 [INFO]   [p2/t1] Writing to Excel...
+2026-04-17 10:08:01,280 [INFO] Excel: wrote ticket 17583 to tab '12' row 9.
+2026-04-17 10:08:01,281 [INFO]   [p2] Uploading PDF to SharePoint (tickets: 17583)...
+2026-04-17 10:08:05,997 [INFO] Uploaded PDF to SharePoint: MJHughes OPEN JOBS/2601/Ticket Scans/Tickets, 17583.pdf
+2026-04-17 10:08:08,776 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-17 10:08:08,778 [INFO]   Page 3: Claude detected 1 ticket(s)
+2026-04-17 10:08:08,778 [INFO]     Ticket 1: top=0.0%  bottom=100.0%
+2026-04-17 10:08:08,779 [INFO]   [p3/t1] Single full-page ticket — no crop needed
+2026-04-17 10:08:08,779 [INFO]   [p3/t1] Scanning for QR code...
+2026-04-17 10:08:08,901 [INFO]   [p3/t1] QR → Job: 2601  Location: 0180  Cost Code: 313713-99
+2026-04-17 10:08:08,901 [INFO]   [p3/t1] Running OCR...
+2026-04-17 10:08:10,645 [INFO]   Detected profile: 'Teevin Bros Land & Timber Co., LLC'
+2026-04-17 10:08:10,645 [INFO]   Using AI extraction for: Ticket 17637 - 3/4-0" - 08/20/2025
+2026-04-17 10:08:11,053 [INFO]   AI extraction: vision mode (image + OCR text)
+2026-04-17 10:08:14,187 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-17 10:08:14,188 [INFO]   AI extraction result: {"ticket_number":"16815","date":"08/06/2025","facility":"Bradley Quarry","customer":"MJ Hughes Construction","material":"Bradley Rock Rip Rap","net_tons":"19.27","qr_sticker_text":"Class 3 RipRap"}
+2026-04-17 10:08:14,189 [INFO]   [p3/t1] OCR → Ticket: 16815  Date: 08/06/2025  Facility: Bradley Quarry  Net Tons: 19.27
+2026-04-17 10:08:15,913 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-17 10:08:15,914 [INFO]   Material verification: anticipated='rip rap class 3' actual='Bradley Rock Rip Rap' → YES
+2026-04-17 10:08:15,943 [INFO]   [p3/t1] Writing to Excel...
+2026-04-17 10:08:16,048 [INFO]   Multiple tabs matched QR '2601-0180-313713-99': '3', '4' — asking Claude to disambiguate
+2026-04-17 10:08:17,929 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-17 10:08:17,930 [INFO]   Tab disambiguation: Claude answered '2' for QR '2601-0180-313713-99' (candidates: ['3', '4'])
+2026-04-17 10:08:17,931 [INFO]   Multiple tabs matched QR '2601-0180-313713-99' — AI selected tab '4' based on material 'Bradley Rock Rip Rap'
+2026-04-17 10:08:18,068 [INFO] Excel: wrote ticket 16815 to tab '4' row 9.
+2026-04-17 10:08:18,069 [INFO]   [p3] Uploading PDF to SharePoint (tickets: 16815)...
+2026-04-17 10:08:22,474 [INFO] Uploaded PDF to SharePoint: MJHughes OPEN JOBS/2601/Ticket Scans/Tickets, 16815.pdf
+2026-04-17 10:08:25,704 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-17 10:08:25,705 [INFO]   Page 4: Claude detected 1 ticket(s)
+2026-04-17 10:08:25,706 [INFO]     Ticket 1: top=0.0%  bottom=100.0%
+2026-04-17 10:08:25,706 [INFO]   [p4/t1] Single full-page ticket — no crop needed
+2026-04-17 10:08:25,706 [INFO]   [p4/t1] Scanning for QR code...
+2026-04-17 10:08:25,819 [INFO]   [p4/t1] QR → Job: 2601  Location: 0620  Cost Code: 312323-21
+2026-04-17 10:08:25,819 [INFO]   [p4/t1] Running OCR...
+2026-04-17 10:08:27,411 [INFO]   Detected profile: 'Teevin Bros Land & Timber Co., LLC'
+2026-04-17 10:08:27,411 [INFO]   Using AI extraction for: Ticket 17637 - 3/4-0" - 08/20/2025
+2026-04-17 10:08:27,823 [INFO]   AI extraction: vision mode (image + OCR text)
+2026-04-17 10:08:30,419 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-17 10:08:30,420 [INFO]   AI extraction result: {"ticket_number":"17637","date":"08/20/2025","facility":"Bradley Quarry","customer":"MJ Hughes Construction","material":"3/4-0\"","net_tons":"16.88","qr_sticker_text":"3/4\"-0\""}
+2026-04-17 10:08:30,421 [INFO]   [p4/t1] OCR → Ticket: 17637  Date: 08/20/2025  Facility: Bradley Quarry  Net Tons: 16.88
+2026-04-17 10:08:32,201 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-17 10:08:32,202 [INFO]   Material verification: anticipated='boulders' actual='3/4-0"' → NO
+2026-04-17 10:08:32,202 [WARNING]   [p4/t1] WARNING: Material mismatch for ticket 17637 — Anticipated: boulders | Found: 3/4-0"
+2026-04-17 10:08:32,244 [INFO]   [p4/t1] Writing to Excel...
+2026-04-17 10:08:32,502 [INFO] Excel: wrote ticket 17637 to tab '12' row 10.
+2026-04-17 10:08:32,502 [INFO]   [p4] Uploading PDF to SharePoint (tickets: 17637)...
+2026-04-17 10:08:36,902 [INFO] Uploaded PDF to SharePoint: MJHughes OPEN JOBS/2601/Ticket Scans/Tickets, 17637.pdf
+2026-04-17 10:08:37,438 [INFO] Renamed email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAAAlNAAA= subject to: 'Ticket 17637 - 3/4-0" - 08/20/2025'
+2026-04-17 10:08:37,438 [INFO]   Marking email as read...
+2026-04-17 10:08:38,058 [INFO] Marked email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAAAlNAAA= as read.
+2026-04-17 10:08:38,059 [INFO]   Done: 'Ticket 17637 - 3/4-0" - 08/20/2025' — 4 ticket(s) written, review_needed=False
+2026-04-17 10:08:38,065 [INFO] Running batch outlier detection on 4 ticket(s): ['16800', '17583', '16815', '17637']
+2026-04-17 10:08:38,065 [INFO] Batch outlier check: 4 ticket(s), median=17199, no outliers detected.
+2026-04-17 10:08:40,328 [INFO] Uploaded ticket_tracker_2601.xlsx to SharePoint (37,972 bytes)
+2026-04-17 10:08:40,329 [INFO] Deleted local temp copy: C:\Users\dawson.h\AppData\Local\Temp\ticket_tracker_2601.xlsx
+2026-04-17 10:08:40,330 [INFO] =======================================================
+2026-04-17 10:08:40,330 [INFO] Complete — success: 1  failed: 0  (failed emails remain unread for retry)
+2026-04-17 10:08:40,330 [INFO] =======================================================
+2026-04-17 10:35:31,846 [INFO] =======================================================
+2026-04-17 10:35:31,847 [INFO] Ticket Processing Automation — starting
+2026-04-17 10:35:31,847 [INFO] Run time: 2026-04-17 10:35:31
+2026-04-17 10:35:31,847 [INFO] =======================================================
+2026-04-17 10:35:31,847 [INFO] Credentials loaded from: C:\Users\dawson.h\Desktop\ticket-to-excel-automation\.env
+2026-04-17 10:35:31,848 [INFO] AZURE_TENANT_ID starts with: 'b4ed'
+2026-04-17 10:35:31,848 [INFO] Loaded ticket profile: 'Teevin Bros Land & Timber Co., LLC' (teevin_bros.json)
+2026-04-17 10:35:31,848 [INFO] Loaded 1 ticket profile(s).
+2026-04-17 10:35:32,597 [INFO] Authenticated with Microsoft Graph API.
+2026-04-17 10:35:35,699 [INFO] Downloaded ticket_tracker_2601.xlsx from SharePoint (44,937 bytes → C:\Users\dawson.h\AppData\Local\Temp\ticket_tracker_2601.xlsx)
+2026-04-17 10:35:35,711 [INFO] TOC materials loaded: 7 entry/entries.
+2026-04-17 10:35:35,711 [INFO] Loaded 7 TOC anticipated material entry/entries.
+2026-04-17 10:35:36,723 [INFO] Found 1 unread email(s) with PDF attachments.
+2026-04-17 10:35:36,724 [INFO] =======================================================
+2026-04-17 10:35:36,724 [INFO] Processing: 'Ticket 17637 - 3/4-0" - 08/20/2025'
+2026-04-17 10:35:36,724 [INFO]   Downloading '2026-04-17 09-04.pdf'...
+2026-04-17 10:35:37,445 [INFO]   Rendering PDF pages...
+2026-04-17 10:35:41,696 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-17 10:35:41,709 [INFO]   Page 1: Claude detected 1 ticket(s)
+2026-04-17 10:35:41,709 [INFO]     Ticket 1: top=0.0%  bottom=100.0%
+2026-04-17 10:35:41,709 [INFO]   [p1/t1] Single full-page ticket — no crop needed
+2026-04-17 10:35:41,709 [INFO]   [p1/t1] Scanning for QR code...
+2026-04-17 10:35:41,813 [INFO]   [p1/t1] QR → Job: 2601  Location: 0180  Cost Code: 313713-99
+2026-04-17 10:35:41,814 [INFO]   [p1/t1] Running OCR...
+2026-04-17 10:35:43,420 [INFO]   Detected profile: 'Teevin Bros Land & Timber Co., LLC'
+2026-04-17 10:35:44,101 [INFO]   Using AI extraction for: Ticket 17637 - 3/4-0" - 08/20/2025
+2026-04-17 10:35:44,498 [INFO]   AI extraction: vision mode (image + OCR text)
+2026-04-17 10:35:49,823 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-17 10:35:49,824 [INFO]   AI extraction result: {"ticket_number":"16800","date":"08/06/2025","facility":"Bradley Quarry","customer":"MJ Hughes Construction","material":"Bradley Rock Rip Rap","net_tons":"18.64","qr_sticker_text":"Class 2 RipRap"}
+2026-04-17 10:35:49,824 [INFO]   [p1/t1] OCR → Ticket: 16800  Date: 08/06/2025  Facility: Bradley Quarry  Net Tons: 18.64
+2026-04-17 10:35:51,381 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-17 10:35:51,383 [INFO]   Material verification: anticipated='rip rap class 3' actual='Bradley Rock Rip Rap' → YES
+2026-04-17 10:35:51,421 [INFO]   [p1/t1] Writing to Excel...
+2026-04-17 10:35:51,525 [INFO]   Multiple tabs matched QR '2601-0180-313713-99': '3', '4' — asking Claude to disambiguate
+2026-04-17 10:35:54,504 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-17 10:35:54,505 [INFO]   Tab disambiguation: Claude answered '1' for QR '2601-0180-313713-99' (candidates: ['3', '4'])
+2026-04-17 10:35:54,505 [INFO]   Multiple tabs matched QR '2601-0180-313713-99' — AI selected tab '3' based on material 'Bradley Rock Rip Rap'
+2026-04-17 10:35:54,651 [INFO] Excel: wrote ticket 16800 to tab '3' row 9.
+2026-04-17 10:35:54,651 [INFO]   [p1/t1] Uploading crop PDF to SharePoint (ticket: 16800)...
+2026-04-17 10:35:58,927 [INFO] Uploaded PDF to SharePoint: MJHughes OPEN JOBS/2601/Ticket Scans/Tickets, 16800.pdf
+2026-04-17 10:36:02,091 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-17 10:36:02,092 [INFO]   Page 2: Claude detected 1 ticket(s)
+2026-04-17 10:36:02,092 [INFO]     Ticket 1: top=0.0%  bottom=100.0%
+2026-04-17 10:36:02,092 [INFO]   [p2/t1] Single full-page ticket — no crop needed
+2026-04-17 10:36:02,093 [INFO]   [p2/t1] Scanning for QR code...
+2026-04-17 10:36:02,202 [INFO]   [p2/t1] QR → Job: 2601  Location: 0620  Cost Code: 312323-21
+2026-04-17 10:36:02,202 [INFO]   [p2/t1] Running OCR...
+2026-04-17 10:36:03,660 [INFO]   Detected profile: 'Teevin Bros Land & Timber Co., LLC'
+2026-04-17 10:36:03,660 [INFO]   Using AI extraction for: Ticket 17637 - 3/4-0" - 08/20/2025
+2026-04-17 10:36:04,081 [INFO]   AI extraction: vision mode (image + OCR text)
+2026-04-17 10:36:07,911 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-17 10:36:07,912 [INFO]   AI extraction result: {"ticket_number":"17583","date":"08/19/2025","facility":"Bradley Quarry","customer":"MJ Hughes Construction","material":"3/4-0\"","net_tons":"17.40","qr_sticker_text":"3/4\"-0\""}
+2026-04-17 10:36:07,913 [INFO]   [p2/t1] OCR → Ticket: 17583  Date: 08/19/2025  Facility: Bradley Quarry  Net Tons: 17.40
+2026-04-17 10:36:10,594 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-17 10:36:10,595 [INFO]   Material verification: anticipated='boulders' actual='3/4-0"' → NO
+2026-04-17 10:36:10,595 [WARNING]   [p2/t1] WARNING: Material mismatch for ticket 17583 — Anticipated: boulders | Found: 3/4-0"
+2026-04-17 10:36:10,627 [INFO]   [p2/t1] Writing to Excel...
+2026-04-17 10:36:10,866 [INFO] Excel: wrote ticket 17583 to tab '12' row 9.
+2026-04-17 10:36:10,866 [INFO]   [p2/t1] Uploading crop PDF to SharePoint (ticket: 17583)...
+2026-04-17 10:36:14,841 [INFO] Uploaded PDF to SharePoint: MJHughes OPEN JOBS/2601/Ticket Scans/Tickets, 17583.pdf
+2026-04-17 10:36:18,015 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-17 10:36:18,017 [INFO]   Page 3: Claude detected 1 ticket(s)
+2026-04-17 10:36:18,017 [INFO]     Ticket 1: top=0.0%  bottom=100.0%
+2026-04-17 10:36:18,017 [INFO]   [p3/t1] Single full-page ticket — no crop needed
+2026-04-17 10:36:18,018 [INFO]   [p3/t1] Scanning for QR code...
+2026-04-17 10:36:18,151 [INFO]   [p3/t1] QR → Job: 2601  Location: 0180  Cost Code: 313713-99
+2026-04-17 10:36:18,152 [INFO]   [p3/t1] Running OCR...
+2026-04-17 10:36:19,943 [INFO]   Detected profile: 'Teevin Bros Land & Timber Co., LLC'
+2026-04-17 10:36:19,943 [INFO]   Using AI extraction for: Ticket 17637 - 3/4-0" - 08/20/2025
+2026-04-17 10:36:20,368 [INFO]   AI extraction: vision mode (image + OCR text)
+2026-04-17 10:36:23,380 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-17 10:36:23,380 [INFO]   AI extraction result: {"ticket_number":"16815","date":"08/06/2025","facility":"Bradley Quarry","customer":"MJ Hughes Construction","material":"Bradley Rock Rip Rap","net_tons":"19.27","qr_sticker_text":"Class 3 RipRap"}
+2026-04-17 10:36:23,381 [INFO]   [p3/t1] OCR → Ticket: 16815  Date: 08/06/2025  Facility: Bradley Quarry  Net Tons: 19.27
+2026-04-17 10:36:25,062 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-17 10:36:25,062 [INFO]   Material verification: anticipated='rip rap class 3' actual='Bradley Rock Rip Rap' → YES
+2026-04-17 10:36:25,097 [INFO]   [p3/t1] Writing to Excel...
+2026-04-17 10:36:25,212 [INFO]   Multiple tabs matched QR '2601-0180-313713-99': '3', '4' — asking Claude to disambiguate
+2026-04-17 10:36:26,897 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-17 10:36:26,898 [INFO]   Tab disambiguation: Claude answered '2' for QR '2601-0180-313713-99' (candidates: ['3', '4'])
+2026-04-17 10:36:26,899 [INFO]   Multiple tabs matched QR '2601-0180-313713-99' — AI selected tab '4' based on material 'Bradley Rock Rip Rap'
+2026-04-17 10:36:27,036 [INFO] Excel: wrote ticket 16815 to tab '4' row 9.
+2026-04-17 10:36:27,037 [INFO]   [p3/t1] Uploading crop PDF to SharePoint (ticket: 16815)...
+2026-04-17 10:36:31,345 [INFO] Uploaded PDF to SharePoint: MJHughes OPEN JOBS/2601/Ticket Scans/Tickets, 16815.pdf
+2026-04-17 10:36:34,168 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-17 10:36:34,169 [INFO]   Page 4: Claude detected 1 ticket(s)
+2026-04-17 10:36:34,169 [INFO]     Ticket 1: top=0.0%  bottom=100.0%
+2026-04-17 10:36:34,170 [INFO]   [p4/t1] Single full-page ticket — no crop needed
+2026-04-17 10:36:34,170 [INFO]   [p4/t1] Scanning for QR code...
+2026-04-17 10:36:34,279 [INFO]   [p4/t1] QR → Job: 2601  Location: 0620  Cost Code: 312323-21
+2026-04-17 10:36:34,279 [INFO]   [p4/t1] Running OCR...
+2026-04-17 10:36:35,794 [INFO]   Detected profile: 'Teevin Bros Land & Timber Co., LLC'
+2026-04-17 10:36:35,795 [INFO]   Using AI extraction for: Ticket 17637 - 3/4-0" - 08/20/2025
+2026-04-17 10:36:36,215 [INFO]   AI extraction: vision mode (image + OCR text)
+2026-04-17 10:36:38,776 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-17 10:36:38,777 [INFO]   AI extraction result: {"ticket_number":"17637","date":"08/20/2025","facility":"Bradley Quarry","customer":"MJ Hughes Construction","material":"3/4-0\"","net_tons":"16.88","qr_sticker_text":"3/4\"-0\""}
+2026-04-17 10:36:38,778 [INFO]   [p4/t1] OCR → Ticket: 17637  Date: 08/20/2025  Facility: Bradley Quarry  Net Tons: 16.88
+2026-04-17 10:36:42,000 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-17 10:36:42,001 [INFO]   Material verification: anticipated='boulders' actual='3/4-0"' → NO
+2026-04-17 10:36:42,001 [WARNING]   [p4/t1] WARNING: Material mismatch for ticket 17637 — Anticipated: boulders | Found: 3/4-0"
+2026-04-17 10:36:42,039 [INFO]   [p4/t1] Writing to Excel...
+2026-04-17 10:36:42,278 [INFO] Excel: wrote ticket 17637 to tab '12' row 10.
+2026-04-17 10:36:42,279 [INFO]   [p4/t1] Uploading crop PDF to SharePoint (ticket: 17637)...
+2026-04-17 10:36:47,930 [INFO] Uploaded PDF to SharePoint: MJHughes OPEN JOBS/2601/Ticket Scans/Tickets, 17637.pdf
+2026-04-17 10:36:48,498 [INFO] Renamed email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAAAlNAAA= subject to: 'Ticket 17637 - 3/4-0" - 08/20/2025'
+2026-04-17 10:36:48,498 [INFO]   Marking email as read...
+2026-04-17 10:36:49,095 [INFO] Marked email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAAAlNAAA= as read.
+2026-04-17 10:36:49,095 [INFO]   Done: 'Ticket 17637 - 3/4-0" - 08/20/2025' — 4 ticket(s) written, review_needed=False
+2026-04-17 10:36:49,099 [INFO] Running batch outlier detection on 4 ticket(s): ['16800', '17583', '16815', '17637']
+2026-04-17 10:36:49,100 [INFO] Batch outlier check: 4 ticket(s), median=17199, no outliers detected.
+2026-04-17 10:36:51,774 [INFO] Uploaded ticket_tracker_2601.xlsx to SharePoint (37,972 bytes)
+2026-04-17 10:36:51,775 [INFO] Deleted local temp copy: C:\Users\dawson.h\AppData\Local\Temp\ticket_tracker_2601.xlsx
+2026-04-17 10:36:51,776 [INFO] =======================================================
+2026-04-17 10:36:51,776 [INFO] Complete — success: 1  failed: 0  (failed emails remain unread for retry)
+2026-04-17 10:36:51,776 [INFO] =======================================================
