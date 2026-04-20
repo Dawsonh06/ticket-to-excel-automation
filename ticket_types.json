@@ -1,0 +1,21 @@
+{
+  "rock": {
+    "keywords": ["quarry", "rip rap", "crushed", "aggregate",
+                 "gravel", "rock", "pit", "stone", "basalt",
+                 "tons", "teevin", "knife river", "bradley"],
+    "target_folder": "Rock Tickets",
+    "excel_file": "ticket_tracker_rock.xlsx"
+  },
+  "concrete": {
+    "keywords": ["concrete", "cubic yards", "mix design",
+                 "slump", "batch", "CY", "PSI", "cement"],
+    "target_folder": "Concrete Tickets",
+    "excel_file": "ticket_tracker_concrete.xlsx"
+  },
+  "flagging": {
+    "keywords": ["flagging", "traffic control", "flagger",
+                 "hours", "crew", "labor", "TCO"],
+    "target_folder": "Flagging Tickets",
+    "excel_file": "ticket_tracker_flagging.xlsx"
+  }
+}

@@ -526,3 +526,43 @@ Error   : REVIEW REQUIRED: REVIEW REQUIRED - REVIEW REQUIRED - REVIEW REQUIRED -
 Subject : ticket 
 Error   : Empty field: Ticket #
 ------------------------------------------------------------
+[2026-04-17 12:00:24]
+Subject : FW: [Scan] 2026-04-17 11:58
+Error   : UNKNOWN TICKET FORMAT: CUSTOMER COPY Be SO. No profile found. Please create a profile for this supplier.
+------------------------------------------------------------
+[2026-04-20 08:20:06]
+Subject : REVIEW REQUIRED - FW: [Scan] 2026-04-17 11:58
+Error   : UNKNOWN TICKET FORMAT: CUSTOMER COPY Be SO. No profile found. Please create a profile for this supplier.
+------------------------------------------------------------
+[2026-04-20 08:24:23]
+Subject : REVIEW REQUIRED - FW: [Scan] 2026-04-17 11:58
+Error   : UNKNOWN TICKET FORMAT: CUSTOMER COPY e9rve 80 pay any Sowing oF eland-Sy chergee. No profile found. Please create a profile for this supplier.
+------------------------------------------------------------
+[2026-04-20 09:12:10]
+Subject : FW: [Scan] 2026-04-20 09:07
+Error   : REVIEW REQUIRED: FW: [Scan] 2026-04-20 09:07 — 'Net' row not found — weight table may not have been read
+------------------------------------------------------------
+[2026-04-20 09:19:30]
+Subject : REVIEW REQUIRED - FW: [Scan] 2026-04-20 09:07
+Error   : REVIEW REQUIRED: REVIEW REQUIRED - FW: [Scan] 2026-04-20 09:07 — 'Net' row not found and no weight-table row pattern detected
+------------------------------------------------------------
+[2026-04-20 11:39:00]
+Subject : FW: [Scan] 2026-04-20 11:19
+Error   : REVIEW REQUIRED: FW: [Scan] 2026-04-20 11:19 — no date found in ticket text
+------------------------------------------------------------
+[2026-04-20 13:19:36]
+Subject : FW: [Scan] 2026-04-20 12:53
+Error   : REVIEW REQUIRED: FW: [Scan] 2026-04-20 12:53 — no date found in ticket text
+------------------------------------------------------------
+[2026-04-20 13:22:27]
+Subject : FW: [Scan] 2026-04-20 12:53
+Error   : REVIEW REQUIRED: FW: [Scan] 2026-04-20 12:53 — no date found in ticket text
+------------------------------------------------------------
+[2026-04-20 13:27:41]
+Subject : REVIEW REQUIRED - FW: [Scan] 2026-04-20 12:53
+Error   : REVIEW REQUIRED: REVIEW REQUIRED - FW: [Scan] 2026-04-20 12:53 — no date found in ticket text
+------------------------------------------------------------
+[2026-04-20 13:31:14]
+Subject : REVIEW REQUIRED - FW: [Scan] 2026-04-20 12:53
+Error   : REVIEW REQUIRED: REVIEW REQUIRED - FW: [Scan] 2026-04-20 12:53 — no 6-digit ticket number found near top of ticket
+------------------------------------------------------------

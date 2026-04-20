@@ -1,0 +1,44 @@
+{
+  "supplier_name": "Generic (Unknown Supplier)",
+  "is_fallback": true,
+  "detection_keywords": [],
+  "layout": {
+    "company_name_line": 1,
+    "ticket_number_extraction": {
+      "method": "region_ocr",
+      "description": "Ticket number is typically a bold 5-8 digit number near the top right of the ticket.",
+      "ticket_number_length": 5,
+      "region": {
+        "x_start_pct": 0.50,
+        "y_start_pct": 0.00,
+        "x_end_pct":   1.00,
+        "y_end_pct":   0.25
+      },
+      "tesseract_config": "--oem 3 --psm 6"
+    }
+  },
+  "labels": {
+    "facility": ["Location:", "Location", "From:", "Ship From:", "Ship From", "Source:"],
+    "customer": ["Customer:", "Customer", "Bill To:", "Bill To", "Sold To:"],
+    "order":    ["Order:", "Order", "P.O.:", "PO:", "Job:", "Contract:"],
+    "material": ["Product:", "Product", "Material:", "Material", "Item:", "Item",
+                 "Description:", "Description", "Mat:", "Prod:"],
+    "net_row":  "Net"
+  },
+  "notes": {
+    "usage": "Fallback profile used when no specific supplier profile matches. Logs the supplier to unknown_suppliers.txt so a dedicated profile can be created later.",
+    "ticket_number": "Ticket number is 5-8 digits; the region scan covers the right half of the top quarter. AI vision is the primary extraction method.",
+    "facility": "The facility is where the material originated (quarry/pit/plant), not the customer receiving the delivery."
+  },
+  "weight_table": {
+    "columns": ["Pounds", "Tons"],
+    "tons_column_index": 1
+  },
+  "ocr_corrections": {
+    "3)4": "3/4",
+    "Bradiey": "Bradley"
+  },
+  "confidence_checks": [
+    "valid_date_found"
+  ]
+}

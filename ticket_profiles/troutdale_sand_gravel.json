@@ -1,0 +1,61 @@
+{
+  "supplier_name": "Troutdale Sand & Gravel",
+  "ticket_type": "concrete",
+  "detection_keywords": [
+    "TROUTDALE SAND",
+    "Troutdale Sand",
+    "TSG",
+    "TROUTDALE SAND & GRAVEL",
+    "Troutdale Sand & Gravel"
+  ],
+  "detection_scan_lines": 5,
+  "layout": {
+    "company_name_line": 1,
+    "ticket_number_extraction": {
+      "method": "region_ocr",
+      "description": "6-digit ticket number appears after the 'TICKET NO.' label in the upper section of the ticket.",
+      "ticket_number_length": 6,
+      "ticket_number_label": "TICKET NO.",
+      "ticket_number_label_alternates": ["TICKET NO:", "TICKET NO", "Ticket No."],
+      "region": {
+        "x_start_pct": 0.30,
+        "y_start_pct": 0.00,
+        "x_end_pct":   1.00,
+        "y_end_pct":   0.50
+      },
+      "tesseract_config": "--oem 3 --psm 6",
+      "ticket_number_ai_hint": "The ticket number on Troutdale Sand & Gravel tickets appears in the upper right corner after the label TICKET NO. It is typically 6 digits. IMPORTANT: The ticket number font on Troutdale tickets is thin and difficult to read. Common misreads are: the digit 0 (zero) looks similar to 2 in this font; the digit 9 looks similar to Q or 3 in this font. Look very carefully at each digit in the TICKET NO. field. Zero has a closed oval shape. Two has a curved top and flat bottom with a horizontal stroke. Nine has a loop at the top and a descending stroke. Double-check your reading of any digit that could be 0 vs 2, or 9 vs 3."
+    }
+  },
+  "labels": {
+    "date_time":       ["DATE:", "DATE"],
+    "customer":        ["SOLD TO:", "SOLD TO"],
+    "material":        ["PRODUCT DESCRIPTION:", "PRODUCT DESCRIPTION"],
+    "slump":           ["Slump:", "SLUMP:", "SLUMP"],
+    "qty_this_load":   ["QUANTITY THIS LOAD:", "QUANTITY THIS LOAD"],
+    "qty_delivered":   ["QUANTITY DELIVERED:", "QUANTITY DELIVERED"],
+    "unit_of_measure": ["UNIT OF MEASURE:", "UNIT OF MEASURE"]
+  },
+  "notes": {
+    "ticket_number":  "6-digit number on the line following 'TICKET NO.' in the upper section of the ticket.",
+    "date":           "Date appears after the 'DATE:' label in format MM/DD/YY (2-digit year). Normalise to MM/DD/YYYY (4-digit year) — e.g. '11/17/25' → '11/17/2025'. Assume 2000s (20YY).",
+    "supplier":       "Always 'Troutdale Sand & Gravel' for this supplier.",
+    "slump":          "Numeric value after 'Slump:' label near the bottom left of the ticket. Example: 'Slump: 4.00 lu' → 4.00. Return null if absent.",
+    "qty_delivered":  "Use 'QUANTITY THIS LOAD' as the per-load cubic yards delivered (not 'QUANTITY DELIVERED' which is a cumulative total). Units are YD (cubic yards).",
+    "helper_notes":   "Product description from the 'PRODUCT DESCRIPTION' line. Example: '6.5SK 4000'. Include the full description text.",
+    "excel_columns":  "A=Ticket Date, B=Logged Date, C=Supplier (always 'Troutdale Sand & Gravel'), D=Slump, E=Qty Delivered (YD), F=Ticket #, G=Helper Notes (product description), H=Human Notes (leave blank)"
+  },
+  "weight_table": {},
+  "ocr_corrections": {
+    "TROUTDAIE":      "TROUTDALE",
+    "TROUTDAL ":      "TROUTDALE ",
+    "TROUTDALE SAND & GRAVEL COMPANY": "TROUTDALE SAND & GRAVEL",
+    "TICKET NO:":     "TICKET NO.",
+    "TICKET N0.":     "TICKET NO.",
+    "QUANTITY TH1S LOAD": "QUANTITY THIS LOAD",
+    "PRODUCT 0ESCRIPTION": "PRODUCT DESCRIPTION"
+  },
+  "confidence_checks": [
+    "supplier_name_in_text"
+  ]
+}

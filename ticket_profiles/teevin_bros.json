@@ -42,7 +42,6 @@
     "Sradiey": "Bradley"
   },
   "confidence_checks": [
-    "valid_date_on_line_2",
-    "five_digit_ticket_on_line_2"
+    "valid_date_on_line_2"
   ]
 }

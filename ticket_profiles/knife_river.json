@@ -1,0 +1,60 @@
+{
+  "supplier_name": "Knife River",
+  "detection_keywords": ["KNIFE RIVER", "Knife River"],
+  "detection_context_keywords": {
+    "keywords": ["CUSTOMER COPY", "OFFICE COPY"],
+    "required_context": ["KNIFE RIVER", "Knife River"],
+    "context_lines": 10
+  },
+  "layout": {
+    "company_name_line": 1,
+    "date_label": "Date :",
+    "date_position": "after_label",
+    "duplicate_copy_page": true,
+    "ticket_number_extraction": {
+      "method": "region_ocr",
+      "description": "Ticket number is an 8-digit number printed in bold in the upper-right corner, beside the 'Ticket No.:' label. OCR often splits it across two consecutive lines (e.g. '20321' then '064') — these are reassembled by the extraction logic.",
+      "ticket_number_length": 8,
+      "ticket_number_label": "Ticket No.:",
+      "region": {
+        "x_start_pct": 0.70,
+        "y_start_pct": 0.00,
+        "x_end_pct":   1.00,
+        "y_end_pct":   0.20
+      },
+      "tesseract_config": "--oem 3 --psm 6"
+    },
+    "facility_extraction": {
+      "description": "The quarry name appears below the 'KNIFE RIVER' header line and above the street address (the first line starting with a digit). No keyword label precedes it. The AI extraction step is responsible for identifying this field since there is no parseable label.",
+      "example": "Angell Quarry"
+    }
+  },
+  "labels": {
+    "facility": [],
+    "customer": ["Customer:", "Customer"],
+    "order":    ["Order:", "Order", "P.O.:", "PO:"],
+    "material": ["Product:", "Product"],
+    "net_row":  "Net"
+  },
+  "notes": {
+    "qr_sticker": "The QR code is a sticker added by MJ Hughes and can appear anywhere on the ticket. Do not use QR code position to determine which copy to process.",
+    "duplicate_copies": "Knife River prints a Customer Copy and an Office Copy on the same page. When two boundaries are detected, only the copy with the QR sticker is processed. QR detection drives the selection — not the position on the page.",
+    "customer_format": "Customer line contains a numeric ID followed by the company name (e.g. '23402  MJ HUGHES CONSTRUCTION INC'). The leading numeric ID should be ignored; extract the name only.",
+    "material_format": "Product line contains a 7-digit numeric product code followed by the description and then tonnage (e.g. '2499340  3/4\"-0 CRUSHED  13.60 Ton'). NOTE: _clean_material only strips 2-4 digit codes; the 7-digit Knife River code will NOT be auto-stripped by OCR extraction. The AI extraction step handles this correctly.",
+    "ticket_number_format": "8-digit number (e.g. 20321064), beside the 'Ticket No.:' label. OCR may split it across two lines (e.g. '20321' + '064'). The extraction logic handles reassembly of split numbers, and the AI prompt is told to do the same."
+  },
+  "weight_table": {
+    "columns": ["Pounds", "Tons", "Metric"],
+    "tons_column_index": 1
+  },
+  "ocr_corrections": {
+    "3/4\"-0":   "3/4-0",
+    "3/4\"-Q":   "3/4-0",
+    "CRUSHE D":  "CRUSHED",
+    "CRUSH ED":  "CRUSHED"
+  },
+  "confidence_checks": [
+    "product_label_found",
+    "net_row_found"
+  ]
+}

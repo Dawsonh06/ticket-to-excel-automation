@@ -1,0 +1,50 @@
+{
+  "supplier_name": "CalPortland",
+  "ticket_type": "concrete",
+  "detection_keywords": ["CALPORTLAND", "CalPortland", "Calportland"],
+  "detection_scan_lines": 20,
+  "layout": {
+    "company_name_line": 1,
+    "ticket_number_extraction": {
+      "method": "region_ocr",
+      "description": "7-digit ticket number appears after 'TICKET#:' near the top of the ticket.",
+      "ticket_number_length": 7,
+      "ticket_number_label": "TICKET#:",
+      "ticket_number_label_alternates": ["Ticket No.", "TICKET #"],
+      "region": {
+        "x_start_pct": 0.00,
+        "y_start_pct": 0.00,
+        "x_end_pct":   1.00,
+        "y_end_pct":   0.40
+      },
+      "tesseract_config": "--oem 3 --psm 6"
+    }
+  },
+  "labels": {
+    "customer":        ["Customer:"],
+    "material":        ["Product:"],
+    "date_time":       ["Date/Time:"],
+    "slump":           ["Slump:", "Slump on arrival:", "Slump On Arrival:", "Slump on Arrival:"],
+    "qty_this_load":   ["Qty This Load:", "Qty this Load:"],
+    "qty_delivered":   ["Qty Delivered:", "Qty delivered:"],
+    "qty_ordered":     ["Qty Ordered:", "Qty ordered:"]
+  },
+  "notes": {
+    "ticket_number":   "7-digit number on the line beginning with 'TICKET#:'. Label variants include 'Ticket No.' and 'TICKET #'.",
+    "date":            "Date is on the 'Date/Time:' line in format M/DD/YYYY HH:MM. Extract date portion only (M/DD/YYYY).",
+    "material":        "Product line contains a code followed by a dash and description (e.g. '0446FS - 4000 PSI WITH 25% SL'). Strip the leading code and dash; store the description text in Helper Notes.",
+    "slump":           "Value after 'Slump on arrival:'. Leave null/blank if field is empty or absent.",
+    "qty_delivered":   "Use 'Qty This Load:' as the per-load cubic yards delivered. Units are CY.",
+    "excel_columns":   "A=Ticket Date, B=Logged Date, C=Supplier, D=Slump, E=Qty Delivered (CY), F=Ticket #, G=Helper Notes (material description), H=Human Notes (leave blank)"
+  },
+  "weight_table": {},
+  "ocr_corrections": {
+    "CALPORTLANO":  "CALPORTLAND",
+    "CALP0RTLAND":  "CALPORTLAND",
+    "TICKETR":      "TICKET#",
+    "TICKET #":     "TICKET#"
+  },
+  "confidence_checks": [
+    "supplier_name_in_text"
+  ]
+}
