@@ -93,13 +93,19 @@ ANTHROPIC_API_KEY   = (os.environ.get("ANTHROPIC_API_KEY") or os.getenv("ANTHROP
 _tesseract_cmd = os.getenv("TESSERACT_CMD", r"C:\Program Files\Tesseract-OCR\tesseract.exe")
 pytesseract.pytesseract.tesseract_cmd = _tesseract_cmd
 
-MAILBOX              = "help@mjhughes.com"
-SUMMARY_RECIPIENT    = "dawson.h@mjhughes.com"   # destination for run summary emails
-_JOB_NUMBER        = "2601"                       # Currently configured job
-_EXCEL_FILENAME          = f"ticket_tracker_{_JOB_NUMBER}.xlsx"
-_EXCEL_FILENAME_CONCRETE = f"ticket_tracker_{_JOB_NUMBER}_concrete.xlsx"
-EXCEL_FILE               = r"C:\Users\dawson.h\AppData\Local\Temp\ticket_tracker_2601.xlsx"
-EXCEL_FILE_CONCRETE      = r"C:\Users\dawson.h\AppData\Local\Temp\ticket_tracker_2601_concrete.xlsx"
+MAILBOX           = os.getenv("MAILBOX_ADDRESS",       "help@mjhughes.com")
+SUMMARY_RECIPIENT = os.getenv("SUMMARY_EMAIL",         "dawson.h@mjhughes.com")
+_JOB_NUMBER       = os.getenv("SHAREPOINT_JOB_FOLDER", "2601")
+
+_EXCEL_FILENAME          = os.getenv("EXCEL_FILE_ROCK",     f"ticket_tracker_{_JOB_NUMBER}.xlsx")
+_EXCEL_FILENAME_CONCRETE = os.getenv("EXCEL_FILE_CONCRETE", f"ticket_tracker_{_JOB_NUMBER}_concrete.xlsx")
+
+# Local temp paths are derived from the OS temp directory and the (possibly
+# overridden) filenames above.  No user-specific path is hardcoded.
+_LOCAL_TEMP_DIR     = Path(os.environ.get("TEMP", r"C:\Windows\Temp"))
+EXCEL_FILE          = str(_LOCAL_TEMP_DIR / _EXCEL_FILENAME)
+EXCEL_FILE_CONCRETE = str(_LOCAL_TEMP_DIR / _EXCEL_FILENAME_CONCRETE)
+
 ERROR_LOG              = "error_log.txt"
 KNOWN_FACILITIES_FILE  = "known_facilities.txt"
 TICKET_PROFILES_DIR    = "ticket_profiles"
@@ -107,7 +113,7 @@ UNKNOWN_SUPPLIERS_LOG  = "unknown_suppliers.txt"
 OCR_DEBUG          = os.getenv("OCR_DEBUG", "").lower() in ("1", "true", "yes")
 TICKET_TYPES_FILE  = "ticket_types.json"
 # "all" or unset → no type filter; "rock" or "concrete" → only that type
-_raw_ticket_type   = os.getenv("TICKET_TYPE", "").lower().strip()
+_raw_ticket_type   = os.getenv("TICKET_TYPE", "all").lower().strip()
 _TICKET_TYPE       = "" if _raw_ticket_type in ("all", "") else _raw_ticket_type
 SHAREPOINT_HOST    = "vancouvermjhughes.sharepoint.com"
 SHAREPOINT_FOLDER  = "MJHughes OPEN JOBS"   # Top-level folder inside Shared Documents
@@ -1165,6 +1171,112 @@ def _scan_full_page_for_qr(
     return None, None
 
 
+def _ai_scan_qr_from_image(
+    page_image: "Image.Image",
+    page_num: int,
+) -> "tuple[Optional[dict], Optional[int]]":
+    """Try to read the QR code sticker from *page_image* using Claude vision.
+
+    Sends the full page image to Claude with a structured prompt asking it to
+    locate and decode any QR code sticker matching the job-location-costcode
+    pattern.  This is the primary QR detection method; zxingcpp is the fallback.
+
+    Returns:
+        ``(qr_data, y_center_px)`` when Claude finds a valid matching QR code,
+        where ``y_center_px`` is estimated from the reported sticker location.
+        ``(None, None)`` when Claude reports no QR code, the returned text does
+        not match the expected pattern, or on any API/parsing error.
+    """
+    if not ANTHROPIC_API_KEY:
+        return None, None
+
+    # Downscale the page so the payload stays manageable.
+    img_copy = page_image.copy()
+    max_side = 1500
+    if max(img_copy.size) > max_side:
+        ratio    = max_side / max(img_copy.size)
+        new_size = (int(img_copy.size[0] * ratio), int(img_copy.size[1] * ratio))
+        img_copy = img_copy.resize(new_size, Image.LANCZOS)
+    buf = io.BytesIO()
+    img_copy.convert("RGB").save(buf, format="JPEG", quality=85)
+    b64_data = base64.b64encode(buf.getvalue()).decode("ascii")
+
+    prompt = (
+        "Look at this ticket image carefully.\n"
+        "Find any QR code sticker on this ticket — it could be anywhere: "
+        "top right, top left, bottom left, bottom right, side edges, "
+        "rotated vertically or horizontally.\n\n"
+        "If you find a QR code, read the text encoded in it.\n"
+        "QR codes on these tickets follow this pattern:\n"
+        "XXXX-XXXX-XXXXXX-XX (job-location-costcode format)\n"
+        "Example: 2601-0180-313713-99\n\n"
+        'Return ONLY a JSON object:\n'
+        '{\n'
+        '  "qr_found": true or false,\n'
+        '  "qr_text": "full QR code text or null",\n'
+        '  "qr_location": "top-right/top-left/bottom-right/bottom-left/left-side/right-side"\n'
+        '}\n'
+        "No other text."
+    )
+
+    try:
+        ai_client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+        response  = ai_client.messages.create(
+            model=_AI_MODEL,
+            max_tokens=128,
+            messages=[{
+                "role": "user",
+                "content": [
+                    {
+                        "type": "image",
+                        "source": {
+                            "type":       "base64",
+                            "media_type": "image/jpeg",
+                            "data":       b64_data,
+                        },
+                    },
+                    {"type": "text", "text": prompt},
+                ],
+            }],
+        )
+        raw = response.content[0].text.strip()
+        if raw.startswith("```"):
+            raw = re.sub(r"^```[a-z]*\n?", "", raw)
+            raw = re.sub(r"\n?```$",        "", raw)
+        ai_result = json.loads(raw)
+    except Exception as exc:
+        logging.debug(f"  QR p{page_num} | AI scan error: {exc}")
+        return None, None
+
+    if not ai_result.get("qr_found"):
+        return None, None
+
+    qr_text = (ai_result.get("qr_text") or "").strip()
+    if not QR_PATTERN.search(qr_text):
+        logging.debug(
+            f"  QR p{page_num} | AI returned qr_found=true but "
+            f"{qr_text!r} does not match expected pattern"
+        )
+        return None, None
+
+    # Estimate a Y coordinate from the reported sticker location so the
+    # boundary-assignment logic can match the QR to the correct ticket crop.
+    location = (ai_result.get("qr_location") or "").lower()
+    ph = page_image.size[1]
+    if "top" in location:
+        y_est = int(ph * 0.15)
+    elif "bottom" in location:
+        y_est = int(ph * 0.85)
+    else:
+        y_est = int(ph * 0.50)
+
+    logging.info(
+        f"  [p{page_num}] QR found via AI vision: "
+        f"'{qr_text}' at {location or 'unknown location'}"
+    )
+    return _parse_qr_string(qr_text), y_est
+
+
 # ============================================================
 # OCR CONFIDENCE CHECK
 # ============================================================
@@ -1321,6 +1433,177 @@ def _check_ocr_confidence(
         if result is not None:
             failed.append(result)
     return len(failed) == 0, failed
+
+
+# ============================================================
+# AUTO-PROFILE GENERATION
+# ============================================================
+def _generate_auto_profile(
+    company_name: str,
+    full_text: str,
+    image: "Optional[Image.Image]",
+    ai_fields: dict,
+) -> "Optional[TicketProfile]":
+    """Generate a ticket profile JSON for an unknown supplier via Claude API.
+
+    Called when the generic fallback profile is used and AI extraction succeeds.
+    Saves the generated profile JSON to ticket_profiles/ and returns a loaded
+    TicketProfile so it can be used immediately for remaining tickets in this run.
+
+    Returns None on any error (Claude API failure, invalid JSON, validation failure).
+    """
+    if not ANTHROPIC_API_KEY:
+        logging.warning("  Auto-profile generation skipped — ANTHROPIC_API_KEY not set.")
+        return None
+
+    # Guess ticket type from the fields AI extracted via the generic profile.
+    if ai_fields.get("qty_delivered") or ai_fields.get("slump"):
+        guessed_type = "concrete"
+    elif ai_fields.get("net_tons"):
+        guessed_type = "rock"
+    else:
+        guessed_type = ""
+
+    # Load a reference profile to show Claude the expected structure.
+    _ref_path = Path(TICKET_PROFILES_DIR) / "teevin_bros.json"
+    example_json = _ref_path.read_text(encoding="utf-8") if _ref_path.exists() else "{}"
+
+    prompt = f"""\
+You have successfully extracted data from a delivery ticket from the supplier "{company_name}".
+
+Now generate a JSON profile for this supplier so future tickets can be processed automatically
+without relying on the generic fallback.
+
+The profile MUST be a valid JSON object containing ALL of these required keys:
+
+  supplier_name        (string)  — full company name as it appears on the ticket
+  detection_keywords   (array)   — words/phrases to scan in OCR text to identify this supplier
+                                   Include at least 2-3 variants (e.g. abbreviations, all-caps)
+  layout               (object)  — must include a "ticket_number_extraction" sub-object with:
+                                     method: "region_ocr"
+                                     region: {{ x_start_pct, y_start_pct, x_end_pct, y_end_pct }}
+                                       (use 0.50–1.00 x, 0.00–0.25 y for the top-right area)
+                                     tesseract_config: "--oem 3 --psm 6"
+                                     ticket_number_length: (integer, typically 5-8)
+  labels               (object)  — maps field names to arrays of label text variants found on
+                                   the ticket (e.g. "customer": ["Customer:", "SOLD TO:"])
+  weight_table         (object)  — {{ "columns": [...], "tons_column_index": N }} for rock/aggregate
+                                   tickets; use {{}} for concrete tickets
+  ocr_corrections      (object)  — common OCR misreads as "wrong": "correct" pairs; use {{}} if none
+  confidence_checks    (array)   — always include "supplier_name_in_text"
+
+Optional but recommended:
+  ticket_type          (string)  — "rock", "concrete", or omit if unknown
+  detection_scan_lines (integer) — lines to scan for keywords (default 3; use more if name is deep)
+  notes                (object)  — human-readable extraction hints per field
+
+Reference profile (teevin_bros.json) — use this as a structural template:
+{example_json}
+
+CONTEXT:
+  Supplier name detected: {company_name}
+  Guessed ticket type:    {guessed_type or "unknown"}
+
+Fields extracted by the generic AI profile:
+{json.dumps(ai_fields, indent=2)}
+
+Return ONLY the JSON object — no markdown fences, no explanation.
+
+OCR TEXT (first 3000 chars):
+{full_text[:3000]}"""
+
+    ai_client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+
+    # Include the ticket image so Claude can see the layout directly.
+    if image is not None:
+        img_copy = image.copy()
+        max_side = 1500
+        if max(img_copy.size) > max_side:
+            ratio    = max_side / max(img_copy.size)
+            new_size = (int(img_copy.size[0] * ratio), int(img_copy.size[1] * ratio))
+            img_copy = img_copy.resize(new_size, Image.LANCZOS)
+        buf = io.BytesIO()
+        img_copy.convert("RGB").save(buf, format="JPEG", quality=85)
+        b64_data = base64.b64encode(buf.getvalue()).decode("ascii")
+        content = [
+            {
+                "type": "image",
+                "source": {
+                    "type":       "base64",
+                    "media_type": "image/jpeg",
+                    "data":       b64_data,
+                },
+            },
+            {"type": "text", "text": prompt},
+        ]
+    else:
+        content = prompt
+
+    try:
+        response = ai_client.messages.create(
+            model=_AI_MODEL,
+            max_tokens=2048,
+            messages=[{"role": "user", "content": content}],
+        )
+        raw_json = response.content[0].text.strip()
+
+        # Strip accidental markdown fences.
+        if raw_json.startswith("```"):
+            raw_json = re.sub(r"^```[a-z]*\n?", "", raw_json)
+            raw_json = re.sub(r"\n?```$",        "", raw_json)
+
+        profile_data = json.loads(raw_json)
+        logging.info(f"  Auto-profile AI response parsed OK for {company_name!r}")
+    except Exception as exc:
+        logging.warning(f"  Auto-profile generation failed for {company_name!r}: {exc}")
+        return None
+
+    # Validate the generated profile against the required schema.
+    errors = validate_profile(profile_data, "<auto-generated>")
+    if errors:
+        logging.warning(
+            f"  Auto-generated profile for {company_name!r} has validation errors: "
+            + "; ".join(errors)
+        )
+        return None
+
+    # Derive a safe filename: lowercase, special chars → underscores.
+    sanitized = re.sub(r"[^a-z0-9]+", "_", company_name.lower()).strip("_")
+    filename   = f"{sanitized}.json"
+    profile_path = Path(TICKET_PROFILES_DIR) / filename
+
+    try:
+        profile_path.write_text(json.dumps(profile_data, indent=2), encoding="utf-8")
+        logging.info(f"  Auto-profile saved: {profile_path}")
+    except OSError as exc:
+        logging.warning(f"  Could not save auto-profile to {profile_path}: {exc}")
+        return None
+
+    # Append a note to the unknown_suppliers log.
+    try:
+        with open(UNKNOWN_SUPPLIERS_LOG, "a", encoding="utf-8") as f:
+            f.write(
+                f"AUTO-PROFILE CREATED: {company_name} → {filename}"
+                f"  Review this profile and verify all fields before relying on it.\n"
+            )
+    except OSError:
+        pass
+
+    # Build and return a TicketProfile for immediate in-memory use.
+    new_profile = TicketProfile(
+        supplier_name               = profile_data["supplier_name"],
+        detection_keywords          = profile_data["detection_keywords"],
+        layout                      = profile_data.get("layout", {}),
+        labels                      = profile_data.get("labels", {}),
+        weight_table                = profile_data.get("weight_table", {}),
+        ocr_corrections             = profile_data.get("ocr_corrections", {}),
+        confidence_checks           = profile_data["confidence_checks"],
+        source_file                 = str(profile_path),
+        is_fallback                 = False,
+        ticket_type                 = str(profile_data.get("ticket_type", guessed_type)),
+        detection_scan_lines        = int(profile_data.get("detection_scan_lines", 3)),
+    )
+    return new_profile
 
 
 # ============================================================
@@ -1488,6 +1771,67 @@ def extract_ticket_data_ocr(images: list, profiles: list[TicketProfile], subject
             )
             ticket_data.update(ai_fields)
             ai_used = True
+
+            # Date: log which method produced a value; fall back to header-line
+            # OCR when AI returns null.  Keeping "" (not REVIEW_REQUIRED) on
+            # total failure lets the yellow-highlight logic flag the cell.
+            _ai_date = ticket_data.get("date", "")
+            if _ai_date:
+                logging.info(f"  Date from AI vision: {_ai_date}")
+            else:
+                logging.info("  Date from AI null — trying OCR fallback")
+                _ocr_date_fallback, _ = _parse_ticket_header(full_text)
+                if _ocr_date_fallback:
+                    ticket_data["date"] = _ocr_date_fallback
+                    logging.info(f"  Date from OCR fallback: {_ocr_date_fallback}")
+                else:
+                    logging.info(
+                        "  Date not found by either method — flagging cell yellow"
+                    )
+                    # ticket_data["date"] stays "" → yellow highlight in Excel
+
+            # Auto-profile generation: when the generic fallback matched this
+            # ticket and AI extraction succeeded, ask Claude to generate a
+            # dedicated profile JSON for the supplier so future tickets from the
+            # same company are processed with proper field mappings.
+            if profile.is_fallback:
+                _auto_company = next(
+                    (l.strip() for l in raw_text.splitlines() if l.strip()),
+                    "unknown supplier",
+                )
+                logging.info(
+                    f"  Generic profile used — attempting auto-profile generation "
+                    f"for: {_auto_company!r}"
+                )
+                _new_profile = _generate_auto_profile(
+                    _auto_company,
+                    full_text,
+                    images[0] if images else None,
+                    ai_fields,
+                )
+                if _new_profile:
+                    profiles.append(_new_profile)
+                    logging.info(
+                        f"  Auto-profile added for immediate use: "
+                        f"{_new_profile.supplier_name!r}"
+                    )
+                    # Tag the ticket so the reviewer knows the profile was auto-generated.
+                    _caution = "Auto-generated profile used - verify all fields"
+                    if ticket_data.get("helper_notes"):
+                        ticket_data["helper_notes"] = (
+                            _caution + "; " + ticket_data["helper_notes"]
+                        )
+                    elif ticket_data.get("material"):
+                        ticket_data["material"] = (
+                            _caution + "; " + ticket_data["material"]
+                        )
+                    else:
+                        # No existing notes field — set whichever key is relevant.
+                        if _new_profile.ticket_type == "concrete":
+                            ticket_data["helper_notes"] = _caution
+                        else:
+                            ticket_data["material"] = _caution
+
         except Exception as ai_exc:
             logging.warning(f"  AI extraction failed, falling back to regex: {ai_exc}")
     else:
@@ -1554,7 +1898,17 @@ OCR text may contain character-level errors from scan quality \
 Extract exactly these seven fields:
 
   ticket_number    — {ticket_number_field_hint}
-  date             — delivery date, normalised to MM/DD/YYYY
+  date             — CRITICAL FIELD — delivery date, normalised to MM/DD/YYYY.
+                     Find this by looking DIRECTLY at the image; do not rely
+                     on OCR text alone.  The date may be:
+                     - Near the top of the ticket, next to the ticket number
+                     - Partially covered by a QR sticker
+                     - On the same line as the ticket number (e.g. Teevin Bros)
+                     - After a DATE: or Date/Time: label (Knife River, others)
+                     - In any format: M/D/YYYY, MM/DD/YYYY, MM/DD/YY, M/D/YY,
+                       or written out (e.g. "Dec 8 2024")
+                     Look carefully at the entire top quarter of the image.
+                     Return null ONLY if you genuinely cannot find any date.
   facility         — quarry / pit / source location printed after the
                      "Location:" label.  NEVER a customer or contractor name.
                      Must not contain "MJ Hughes" or "Hughes Construction".
@@ -1595,8 +1949,17 @@ OCR text may contain character-level errors from scan quality.
 Extract exactly these seven fields:
 
   ticket_number  — {ticket_number_field_hint}
-  date           — delivery date from the "Date/Time:" line,
-                   normalised to MM/DD/YYYY (strip the time portion).
+  date           — CRITICAL FIELD — delivery date, normalised to MM/DD/YYYY.
+                   Find this by looking DIRECTLY at the image; do not rely
+                   on OCR text alone.  The date may be:
+                   - Near the top of the ticket, next to the ticket number
+                   - Partially covered by a QR sticker
+                   - After a DATE: or Date/Time: label
+                   - In any format: M/D/YYYY, MM/DD/YYYY, MM/DD/YY, M/D/YY,
+                     or written out (e.g. "Dec 8 2024")
+                   Look carefully at the entire top quarter of the image.
+                   Strip any time portion and normalise to MM/DD/YYYY.
+                   Return null ONLY if you genuinely cannot find any date.
   supplier       — the concrete supplier company name printed at the top
                    of the ticket (e.g. "CalPortland").
   slump          — numeric value after the label "Slump:" in the delivery
@@ -2501,6 +2864,55 @@ def _find_duplicate_ticket(
         workbook.close()
 
     return None
+
+
+def _read_existing_ticket_numbers(
+    excel_path: str = None,
+    col_ticket_num: int = None,
+    data_start_row: int = None,
+) -> frozenset:
+    """Collect all ticket numbers already written in an Excel workbook.
+
+    Opens the file read-only and scans every non-TOC sheet from
+    *data_start_row*, returning a frozenset of stripped ticket-number strings.
+
+    Called once per email before processing begins.  The resulting snapshot
+    lets the retry logic skip tickets that were successfully written in an
+    earlier attempt so they are not written a second time.
+
+    Returns an empty frozenset when the file does not exist, is unreadable,
+    or contains no ticket numbers.
+    """
+    path = Path(excel_path) if excel_path else Path(EXCEL_FILE)
+    if col_ticket_num is None:
+        col_ticket_num = _COL_TICKET_NUM
+    if data_start_row is None:
+        data_start_row = _DATA_START_ROW
+
+    if not path.exists():
+        return frozenset()
+
+    result: set = set()
+    try:
+        workbook = openpyxl.load_workbook(path, read_only=True, data_only=True)
+        try:
+            for sheet_name in workbook.sheetnames:
+                if sheet_name == _TOC_TAB_NAME:
+                    continue
+                sheet = workbook[sheet_name]
+                for row in sheet.iter_rows(min_row=data_start_row, values_only=True):
+                    if len(row) >= col_ticket_num:
+                        cell_val = row[col_ticket_num - 1]
+                        if cell_val:
+                            result.add(str(cell_val).strip())
+        finally:
+            workbook.close()
+    except Exception as exc:
+        logging.warning(
+            f"  Could not read existing ticket numbers from {path.name}: {exc}"
+        )
+
+    return frozenset(result)
 
 
 def _pick_tab_with_ai(
@@ -3595,6 +4007,24 @@ def process_email(
                     }
                 # else: type matches _TICKET_TYPE (or no filter set) — continue.
 
+            # ── Retry snapshot: record every ticket number already in Excel. ──
+            # If this email is being reprocessed after a partial failure, any
+            # ticket whose number appears here will be skipped (no duplicate
+            # Excel row, no duplicate PDF upload) and counted as already-done.
+            if detected_type == "concrete":
+                already_in_excel: frozenset = _read_existing_ticket_numbers(
+                    excel_path=EXCEL_FILE_CONCRETE,
+                    col_ticket_num=_CONCRETE_COL_TICKET_NUM,
+                    data_start_row=_CONCRETE_DATA_START_ROW,
+                )
+            else:
+                already_in_excel: frozenset = _read_existing_ticket_numbers()
+            if already_in_excel:
+                logging.info(
+                    f"  Retry snapshot: {len(already_in_excel)} ticket number(s) "
+                    "already in Excel — will skip if re-encountered."
+                )
+
             # ---- 3. Detect ticket boundaries per page; process each crop --------
             # all_ticket_numbers : ticket numbers from rows successfully written
             # any_review_needed  : True when at least one ticket needs human review
@@ -3609,19 +4039,36 @@ def process_email(
 
             for page_num, page_image in enumerate(images, start=1):
 
-                # Pre-scan the full uncropped page for a QR code.  This runs
-                # before any cropping so that QR codes near a crop boundary
-                # are not lost.  The result is passed into both the duplicate-
-                # copy filter and the per-ticket QR step below.
-                page_qr_data, page_qr_y = _scan_full_page_for_qr(
+                # Pre-scan the full uncropped page for a QR code.  AI vision
+                # is tried first; zxingcpp is the fallback.  Running before
+                # any cropping ensures codes near a crop boundary are not lost.
+                # The result is passed into both the duplicate-copy filter and
+                # the per-ticket QR step below.
+                page_qr_data, page_qr_y = _ai_scan_qr_from_image(
                     page_image, page_num
                 )
                 if page_qr_data:
                     logging.info(
-                        f"  [p{page_num}] Full-page QR pre-scan: found "
-                        f"'{page_qr_data['raw']}' at Y={page_qr_y}px "
-                        f"(page height {page_image.size[1]}px)"
+                        f"  [p{page_num}] QR found via AI vision: "
+                        f"'{page_qr_data['raw']}' "
+                        f"(estimated Y={page_qr_y}px, "
+                        f"page height {page_image.size[1]}px)"
                     )
+                else:
+                    page_qr_data, page_qr_y = _scan_full_page_for_qr(
+                        page_image, page_num
+                    )
+                    if page_qr_data:
+                        logging.info(
+                            f"  [p{page_num}] QR found via zxingcpp (AI missed it): "
+                            f"'{page_qr_data['raw']}' at Y={page_qr_y}px "
+                            f"(page height {page_image.size[1]}px)"
+                        )
+                    else:
+                        logging.info(
+                            f"  [p{page_num}] QR not found by either method "
+                            f"(AI vision + zxingcpp)"
+                        )
 
                 boundaries = detect_ticket_boundaries(page_image, page_num)
                 boundaries = _apply_duplicate_copy_filter(
@@ -3850,6 +4297,22 @@ def process_email(
                     notes    = res["material_note"]
                     job      = qr_d["job_number"]
                     crop_img = res["crop_img"]
+
+                    # ── Retry skip: ticket already in Excel from a prior attempt ──
+                    # Do not write a duplicate Excel row or re-upload the PDF.
+                    # Count it as successfully done so the email can be marked read.
+                    if tn and tn in already_in_excel:
+                        logging.info(
+                            f"{res['tag']} Skipping ticket {tn} — already "
+                            "processed in a previous attempt"
+                        )
+                        all_ticket_numbers.append(tn)
+                        last_success = (qr_d, td)
+                        if first_success is None:
+                            first_success = (qr_d, td)
+                        if detected_type:
+                            types_seen.add(detected_type)
+                        continue   # skip Excel write AND PDF upload
 
                     # Unknown job — skip Excel write, warn; PDF still uploaded below
                     if job.upper() != _JOB_NUMBER.upper():
