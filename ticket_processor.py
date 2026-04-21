@@ -510,8 +510,9 @@ class GraphClient:
     # ----------------------------------------------------------
     def _json_headers(self) -> dict:
         return {
-            "Authorization": f"Bearer {self.access_token}",
-            "Content-Type": "application/json",
+            "Authorization":   f"Bearer {self.access_token}",
+            "Content-Type":    "application/json",
+            "ConsistencyLevel": "eventual",   # required by some SharePoint endpoints
         }
 
     # ----------------------------------------------------------
@@ -3445,10 +3446,99 @@ def upload_to_sharepoint(
 
 
 def _sharepoint_site_id(client: GraphClient) -> str:
-    """Retrieve the Graph site ID for the configured SharePoint hostname."""
-    url  = f"{GRAPH_BASE}/sites/{SHAREPOINT_HOST}:/"
-    data = client.get(url).json()
-    return data["id"]
+    """Retrieve the Graph site ID for the configured SharePoint hostname.
+
+    Tries four different discovery strategies in order and stops at the first
+    that returns an HTTP 200.  Every attempt logs the exact URL, status code,
+    and full raw response body so connection/permission errors can be diagnosed.
+    """
+    token   = client.access_token
+    headers = {
+        "Authorization":    f"Bearer {token}",
+        "ConsistencyLevel": "eventual",
+    }
+
+    # ── Attempt 1: standard path-based site lookup ────────────────────────────
+    url1 = f"{GRAPH_BASE}/sites/{SHAREPOINT_HOST}:/"
+    logging.info(f"SharePoint site discovery attempt 1: GET {url1}")
+    resp1 = requests.get(url1, headers=headers)
+    logging.info(f"  → HTTP {resp1.status_code}  body: {resp1.text}")
+    if resp1.status_code == 200:
+        site_id = resp1.json()["id"]
+        logging.info(f"SharePoint site found via: path lookup ({url1})")
+        return site_id
+
+    # ── Attempt 2: hostname-only lookup ───────────────────────────────────────
+    url2 = f"{GRAPH_BASE}/sites/{SHAREPOINT_HOST}"
+    logging.info(f"SharePoint site discovery attempt 2: GET {url2}")
+    resp2 = requests.get(url2, headers=headers)
+    logging.info(f"  → HTTP {resp2.status_code}  body: {resp2.text}")
+    if resp2.status_code == 200:
+        site_id = resp2.json()["id"]
+        logging.info(f"SharePoint site found via: hostname lookup ({url2})")
+        return site_id
+
+    # ── Attempt 3: root site ──────────────────────────────────────────────────
+    url3 = f"{GRAPH_BASE}/sites/root"
+    logging.info(f"SharePoint site discovery attempt 3: GET {url3}")
+    resp3 = requests.get(url3, headers=headers)
+    logging.info(f"  → HTTP {resp3.status_code}  body: {resp3.text}")
+    if resp3.status_code == 200:
+        site_id = resp3.json()["id"]
+        logging.info(f"SharePoint site found via: root site ({url3})")
+        return site_id
+
+    # ── Attempt 4: site search ────────────────────────────────────────────────
+    url4 = f"{GRAPH_BASE}/sites?search=*"
+    logging.info(f"SharePoint site discovery attempt 4: GET {url4}")
+    resp4 = requests.get(url4, headers=headers)
+    logging.info(f"  → HTTP {resp4.status_code}  body: {resp4.text}")
+    if resp4.status_code == 200:
+        sites = resp4.json().get("value", [])
+        host_lower = SHAREPOINT_HOST.lower()
+        for site in sites:
+            web_url = (site.get("webUrl") or "").lower()
+            name    = (site.get("name")   or "").lower()
+            if host_lower.split(".")[0] in web_url or host_lower.split(".")[0] in name:
+                site_id = site["id"]
+                logging.info(
+                    f"SharePoint site found via: search (matched {site.get('webUrl')!r})"
+                )
+                return site_id
+        logging.warning(
+            f"Site search returned {len(sites)} result(s) but none matched "
+            f"{SHAREPOINT_HOST!r}. Sites found: "
+            + ", ".join(s.get("webUrl", "?") for s in sites)
+        )
+
+    # ── Attempt 5: SharePoint REST API (bypasses Graph entirely) ─────────────
+    rest_url = f"https://{SHAREPOINT_HOST}/_api/site"
+    rest_headers = {
+        "Authorization": f"Bearer {token}",
+        "Accept":        "application/json;odata=verbose",
+    }
+    logging.info(f"SharePoint site discovery attempt 5 (REST API): GET {rest_url}")
+    resp5 = requests.get(rest_url, headers=rest_headers)
+    logging.info(f"  → HTTP {resp5.status_code}  body: {resp5.text}")
+    if resp5.status_code == 200:
+        # REST API returns the site URL; we still need the Graph site ID.
+        # Re-try attempt 1 in case the REST success indicates auth is fine
+        # but the Graph path format was the only issue.
+        logging.info(
+            "SharePoint REST API succeeded — Graph site ID still required. "
+            "Re-trying Graph path lookup after REST confirmation."
+        )
+        resp1b = requests.get(url1, headers=headers)
+        logging.info(f"  → HTTP {resp1b.status_code}  body: {resp1b.text}")
+        if resp1b.status_code == 200:
+            site_id = resp1b.json()["id"]
+            logging.info("SharePoint site found via: REST confirmation + Graph path lookup")
+            return site_id
+
+    raise RuntimeError(
+        f"All SharePoint site discovery attempts failed for {SHAREPOINT_HOST!r}. "
+        "Check the logs above for full HTTP responses from each attempt."
+    )
 
 
 def _sharepoint_drive_id(client: GraphClient, site_id: str) -> str:
