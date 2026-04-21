@@ -5808,3 +5808,20 @@ ValueError: No QR code matching XXXX-YYYY-CCCCCC-CC found in PDF.
 2026-04-20 13:47:06,614 [INFO] =======================================================
 2026-04-20 13:47:06,614 [INFO] Complete — success: 4  sorted: 0  failed: 0  (failed emails remain unread for retry)
 2026-04-20 13:47:06,614 [INFO] =======================================================
+2026-04-21 15:30:35,562 [INFO] =======================================================
+2026-04-21 15:30:35,562 [INFO] Ticket Processing Automation — starting
+2026-04-21 15:30:35,562 [INFO] Run time: 2026-04-21 15:30:35
+2026-04-21 15:30:35,562 [INFO] =======================================================
+2026-04-21 15:30:35,562 [INFO] Credentials loaded from: /home/user/ticket-to-excel-automation/.env
+2026-04-21 15:30:35,562 [INFO] AZURE_TENANT_ID starts with: 'b4ed'
+2026-04-21 15:30:35,563 [INFO] Loaded ticket profile: 'CalPortland' (calportland.json)
+2026-04-21 15:30:35,564 [INFO] Loaded ticket profile: 'Generic (Unknown Supplier)' (generic.json)
+2026-04-21 15:30:35,565 [INFO] Loaded ticket profile: 'Knife River' (knife_river.json)
+2026-04-21 15:30:35,565 [INFO] Loaded ticket profile: 'Teevin Bros Land & Timber Co., LLC' (teevin_bros.json)
+2026-04-21 15:30:35,565 [INFO] Loaded ticket profile: 'Troutdale Sand & Gravel' (troutdale_sand_gravel.json)
+2026-04-21 15:30:35,566 [INFO] Loaded 5 ticket profile(s).
+2026-04-21 15:30:35,566 [INFO] Loaded 3 ticket type(s): ['rock', 'concrete', 'flagging']
+2026-04-21 15:30:35,874 [INFO] Authenticated with Microsoft Graph API.
+2026-04-21 15:30:35,933 [WARNING] Could not download ticket_tracker_2601.xlsx from SharePoint: 403 Client Error: Forbidden for url: https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/
+2026-04-21 15:30:35,974 [WARNING] Could not download ticket_tracker_2601_concrete.xlsx from SharePoint: 403 Client Error: Forbidden for url: https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/
+2026-04-21 15:30:35,976 [ERROR] Cannot download ticket_tracker_2601.xlsx from SharePoint — aborting because rock tickets are in scope for this run.
