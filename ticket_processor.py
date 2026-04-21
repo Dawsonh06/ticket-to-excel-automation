@@ -1059,6 +1059,12 @@ def extract_qr_code(images: list) -> Optional[dict]:
     Returns:
         Parsed QR data dict, or None if no valid code is found.
     """
+    if not PYZBAR_AVAILABLE:
+        logging.warning(
+            "  QR crop scan | Step 3: pyzbar not available — "
+            "crop-based QR detection skipped, falling back to OCR only"
+        )
+
     if OCR_DEBUG and images:
         images[0].save("qr_debug.png")
         logging.info(
@@ -1069,6 +1075,7 @@ def extract_qr_code(images: list) -> Optional[dict]:
     for page_num, image in enumerate(images, start=1):
         w, h = image.size
 
+        logging.info(f"  QR p{page_num} | Step 3: Attempting pyzbar crop scans...")
         # ── Step 1: full page, original resolution ────────────────────────
         if OCR_DEBUG:
             logging.info(f"  QR p{page_num} | step 1: full page ({w}×{h})")
@@ -1175,8 +1182,13 @@ def _scan_full_page_for_qr(
     page so that codes near a crop boundary are not lost.
     """
     if not PYZBAR_AVAILABLE:
+        logging.warning(
+            f"  QR p{page_num} | Step 2: pyzbar not available — "
+            "install libzbar0 and the pyzbar package"
+        )
         return None, None
 
+    logging.info(f"  QR p{page_num} | Step 2: Attempting pyzbar full-page scan...")
     variants = [
         ("original",  page_image),
         ("grayscale", page_image.convert("L")),
@@ -1186,6 +1198,10 @@ def _scan_full_page_for_qr(
         for r in results:
             text = r.data.decode("utf-8").strip()
             if not QR_PATTERN.search(text):
+                logging.info(
+                    f"  QR p{page_num} | pyzbar [{_var_name}]: found {text!r} "
+                    "but pattern not matched"
+                )
                 continue
             polygon  = r.polygon
             y_center = (
@@ -1194,6 +1210,7 @@ def _scan_full_page_for_qr(
                 else r.rect.top + r.rect.height // 2
             )
             return _parse_qr_string(text), y_center
+    logging.info(f"  QR p{page_num} | pyzbar full-page: no QR found")
     return None, None
 
 
@@ -1214,7 +1231,12 @@ def _ai_scan_qr_from_image(
         not match the expected pattern, or on any API/parsing error.
     """
     if not ANTHROPIC_API_KEY:
+        logging.warning(
+            f"  QR p{page_num} | AI vision skipped — ANTHROPIC_API_KEY not set"
+        )
         return None, None
+
+    logging.info(f"  QR p{page_num} | Step 1: Attempting AI vision scan...")
 
     # Downscale the page so the payload stays manageable.
     img_copy = page_image.copy()
@@ -1271,17 +1293,21 @@ def _ai_scan_qr_from_image(
             raw = re.sub(r"\n?```$",        "", raw)
         ai_result = json.loads(raw)
     except Exception as exc:
-        logging.debug(f"  QR p{page_num} | AI scan error: {exc}")
+        logging.warning(f"  QR p{page_num} | AI vision error: {exc}")
         return None, None
 
     if not ai_result.get("qr_found"):
+        logging.info(
+            f"  QR p{page_num} | AI vision: qr_found=false "
+            f"(raw response: {raw!r})"
+        )
         return None, None
 
     qr_text = (ai_result.get("qr_text") or "").strip()
     if not QR_PATTERN.search(qr_text):
-        logging.debug(
-            f"  QR p{page_num} | AI returned qr_found=true but "
-            f"{qr_text!r} does not match expected pattern"
+        logging.warning(
+            f"  QR p{page_num} | AI vision: qr_found=true but "
+            f"{qr_text!r} does not match expected pattern — treating as not found"
         )
         return None, None
 
