@@ -1250,18 +1250,22 @@ def _ai_scan_qr_from_image(
     b64_data = base64.b64encode(buf.getvalue()).decode("ascii")
 
     prompt = (
-        "Look at this ticket image carefully.\n"
-        "Find any QR code sticker on this ticket — it could be anywhere: "
-        "top right, top left, bottom left, bottom right, side edges, "
-        "rotated vertically or horizontally.\n\n"
-        "If you find a QR code, read the text encoded in it.\n"
-        "QR codes on these tickets follow this pattern:\n"
-        "XXXX-XXXX-XXXXXX-XX (job-location-costcode format)\n"
+        "Look at this ticket image carefully.\n\n"
+        "Find any small label sticker on this ticket. "
+        "The sticker may be on the left side, right side, top, bottom, or any corner. "
+        "It may be rotated vertically or at an angle.\n\n"
+        "The sticker contains a QR code image AND printed text. "
+        "IMPORTANT: Even if you cannot decode the QR code image itself, "
+        "read the printed text on the sticker label directly. "
+        "The text is printed in the format:\n"
+        "XXXX-XXXX-XXXXXX-XX\n"
         "Example: 2601-0180-313713-99\n\n"
+        "Look carefully at all edges and corners of the ticket for this sticker. "
+        "The text may be printed vertically (rotated 90 degrees) alongside the QR code.\n\n"
         'Return ONLY a JSON object:\n'
         '{\n'
         '  "qr_found": true or false,\n'
-        '  "qr_text": "full QR code text or null",\n'
+        '  "qr_text": "the XXXX-XXXX-XXXXXX-XX text from the sticker, or null",\n'
         '  "qr_location": "top-right/top-left/bottom-right/bottom-left/left-side/right-side"\n'
         '}\n'
         "No other text."
@@ -1291,29 +1295,36 @@ def _ai_scan_qr_from_image(
         if raw.startswith("```"):
             raw = re.sub(r"^```[a-z]*\n?", "", raw)
             raw = re.sub(r"\n?```$",        "", raw)
+        logging.info(f"  QR p{page_num} | AI QR detection raw response: {raw!r}")
         ai_result = json.loads(raw)
     except Exception as exc:
         logging.warning(f"  QR p{page_num} | AI vision error: {exc}")
         return None, None
 
-    if not ai_result.get("qr_found"):
+    qr_found = ai_result.get("qr_found")
+    qr_text  = (ai_result.get("qr_text") or "").strip()
+    location = (ai_result.get("qr_location") or "").lower()
+    logging.info(
+        f"  QR p{page_num} | AI result: qr_found={qr_found}  "
+        f"qr_text={qr_text!r}  location={location!r}"
+    )
+
+    if not qr_found:
         logging.info(
-            f"  QR p{page_num} | AI vision: qr_found=false "
-            f"(raw response: {raw!r})"
+            f"  QR p{page_num} | AI could not find QR code — trying pyzbar fallback"
         )
         return None, None
 
-    qr_text = (ai_result.get("qr_text") or "").strip()
     if not QR_PATTERN.search(qr_text):
         logging.warning(
             f"  QR p{page_num} | AI vision: qr_found=true but "
-            f"{qr_text!r} does not match expected pattern — treating as not found"
+            f"{qr_text!r} does not match expected pattern XXXX-XXXX-XXXXXX-XX "
+            "— treating as not found"
         )
         return None, None
 
     # Estimate a Y coordinate from the reported sticker location so the
     # boundary-assignment logic can match the QR to the correct ticket crop.
-    location = (ai_result.get("qr_location") or "").lower()
     ph = page_image.size[1]
     if "top" in location:
         y_est = int(ph * 0.15)
