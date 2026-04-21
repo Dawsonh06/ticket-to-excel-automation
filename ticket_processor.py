@@ -842,7 +842,7 @@ def send_run_summary_email(
     duplicate_count: int,
     error_count: int,
     flagged_items: "list[tuple[str, list[str]]]",
-    error_subjects: "list[str]",
+    error_items: "list[dict]",
 ) -> None:
     """Send a plain-text run summary email to SUMMARY_RECIPIENT.
 
@@ -878,9 +878,20 @@ def send_run_summary_email(
         lines.append("(none)")
 
     lines += ["", "Errors:"]
-    if error_subjects:
-        for subj in error_subjects:
-            lines.append(f"- {subj}")
+    if error_items:
+        for i, item in enumerate(error_items, start=1):
+            lines.append(f"  Error {i}:")
+            lines.append(f"    Email: {item.get('subject', '(unknown)')}")
+            if item.get("att_name"):
+                lines.append(f"    File:  {item['att_name']}")
+            lines.append(f"    Step:  {item.get('error_step', 'unknown')}")
+            lines.append(f"    Error: {item.get('error_detail', '')}")
+            tb = (item.get("traceback") or "").strip()
+            if tb:
+                lines.append("    Traceback:")
+                for tb_line in tb.splitlines():
+                    lines.append(f"      {tb_line}")
+            lines.append("")
     else:
         lines.append("(none)")
 
@@ -4032,12 +4043,15 @@ def process_email(
     for attachment in email["pdf_attachments"]:
         att_name = attachment.get("name", "attachment.pdf")
 
+        _current_step = "initializing"
         try:
             # ---- 1. Download PDF ------------------------------------------------
+            _current_step = f"downloading attachment '{att_name}'"
             logging.info(f"  Downloading '{att_name}'...")
             pdf_bytes = get_attachment_content(client, email_id, attachment["id"])
 
             # ---- 2. Convert PDF to images ---------------------------------------
+            _current_step = "rendering PDF pages"
             logging.info("  Rendering PDF pages...")
             images = pdf_to_images(pdf_bytes, dpi=200)
             if not images:
@@ -4050,6 +4064,7 @@ def process_email(
             # detected_type is initialized here so it is always defined when the
             # Phase 3 upload loop runs, even when ticket_types is empty.
             detected_type = ""
+            _current_step = "detecting ticket type"
             if ticket_types:
                 type_ocr = pytesseract.image_to_string(
                     images[0], config="--oem 3 --psm 6"
@@ -4128,6 +4143,7 @@ def process_email(
             types_seen:         set                = set()
 
             for page_num, page_image in enumerate(images, start=1):
+                _current_step = f"scanning QR code on page {page_num}"
 
                 # Pre-scan the full uncropped page for a QR code.  AI vision
                 # is tried first; zxingcpp is the fallback.  Running before
@@ -4244,6 +4260,7 @@ def process_email(
                     )
 
                     # OCR + AI extraction
+                    _current_step = f"running OCR/AI extraction on page {page_num} ticket {t_idx}"
                     logging.info(f"{tag} Running OCR...")
                     ticket_data = extract_ticket_data_ocr(
                         crop_imgs, profiles, subject=subject
@@ -4416,6 +4433,7 @@ def process_email(
                         # Known job — write to the correct Excel tracker
                         write_succeeded = True
                         _is_concrete    = (detected_type == "concrete")
+                        _current_step   = f"writing ticket {tn} to Excel"
                         try:
                             if res["is_duplicate"]:
                                 logging.info(f"{res['tag']} Writing duplicate row to Excel...")
@@ -4461,6 +4479,7 @@ def process_email(
                     # type was detected; fall back to the flat Ticket Scans root
                     # when type detection was not configured.
                     if crop_img is not None:
+                        _current_step = f"uploading ticket {tn} PDF to SharePoint"
                         try:
                             logging.info(
                                 f"{res['tag']} Uploading crop PDF to SharePoint "
@@ -4534,6 +4553,7 @@ def process_email(
 
             elif last_success:
                 # ALL tickets processed cleanly — rename and archive to processed folder
+                _current_step  = "completing email operations (rename/mark-read/archive)"
                 _clean_subject = _build_success_subject(
                     all_ticket_numbers,
                     first_success[1],
@@ -4567,10 +4587,24 @@ def process_email(
             }
 
         except Exception as exc:
-            detail = f"{type(exc).__name__}: {exc}\n{traceback.format_exc()}"
-            logging.error(f"  FAILED on '{att_name}': {exc}")
-            log_error(subject, f"Attachment '{att_name}': {detail}")
-            return None    # Email stays unread → will retry next run
+            tb     = traceback.format_exc()
+            detail = f"{type(exc).__name__}: {exc}"
+            logging.error(
+                f"  FAILED on '{att_name}' at step '{_current_step}': {exc}"
+            )
+            logging.error(f"  Traceback:\n{tb}")
+            log_error(
+                subject,
+                f"Attachment '{att_name}' [{_current_step}]: {detail}\n{tb}",
+            )
+            return {                        # Email stays unread → will retry next run
+                "failed":       True,
+                "subject":      subject,
+                "att_name":     att_name,
+                "error_step":   _current_step,
+                "error_detail": detail,
+                "traceback":    tb,
+            }
 
     # No PDF attachments were processed (shouldn't happen given the filter above)
     return None
@@ -4660,16 +4694,22 @@ def main() -> None:
     total_duplicates     = 0
     rock_tickets:        list[str]                     = []
     flagged_items:       list[tuple[str, list[str]]]   = []
-    error_subjects:      list[str]                     = []
+    error_items:         list[dict]                    = []
 
     if not emails:
         logging.info("No unread emails with PDF attachments. Nothing to do.")
     else:
         for email in emails:
             result = process_email(client, email, profiles, toc_materials, ticket_types)
-            if result is None:
+            if result is None or result.get("failed"):
                 failures += 1
-                error_subjects.append(email.get("subject", "(unknown)"))
+                error_items.append({
+                    "subject":      result["subject"]           if result else email.get("subject", "(unknown)"),
+                    "att_name":     result.get("att_name", "")  if result else "",
+                    "error_step":   result.get("error_step",   "unknown") if result else "unknown",
+                    "error_detail": result.get("error_detail", "")        if result else "",
+                    "traceback":    result.get("traceback",    "")        if result else "",
+                })
             elif result.get("sorted_type"):
                 # Email was classified as a different ticket type and moved to
                 # its sort folder — count separately, don't flag as failure.
@@ -4723,7 +4763,7 @@ def main() -> None:
         duplicate_count  = total_duplicates,
         error_count      = failures,
         flagged_items    = flagged_items,
-        error_subjects   = error_subjects,
+        error_items      = error_items,
     )
 
     logging.info("=" * 55)
