@@ -35,6 +35,7 @@ External tools required:
 # ============================================================
 import io
 import os
+import platform
 import re
 import json
 import base64
@@ -89,8 +90,14 @@ AZURE_CLIENT_SECRET = os.getenv("AZURE_CLIENT_SECRET")
 AZURE_TENANT_ID     = os.getenv("AZURE_TENANT_ID")
 ANTHROPIC_API_KEY   = (os.environ.get("ANTHROPIC_API_KEY") or os.getenv("ANTHROPIC_API_KEY") or "").strip()
 
-# Allow overriding Tesseract path via .env; fall back to the standard Windows install location.
-_tesseract_cmd = os.getenv("TESSERACT_CMD", r"C:\Program Files\Tesseract-OCR\tesseract.exe")
+# Allow overriding Tesseract path via .env.
+# Default: Windows install path on Windows, plain 'tesseract' on Linux/macOS.
+_tesseract_default = (
+    r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+    if platform.system() == "Windows"
+    else "tesseract"
+)
+_tesseract_cmd = os.getenv("TESSERACT_CMD", _tesseract_default)
 pytesseract.pytesseract.tesseract_cmd = _tesseract_cmd
 
 MAILBOX           = os.getenv("MAILBOX_ADDRESS",       "help@mjhughes.com")
@@ -4629,6 +4636,8 @@ def main() -> None:
     logging.info("Ticket Processing Automation — starting")
     logging.info(f"Run time: {run_start.strftime('%Y-%m-%d %H:%M:%S')}")
     logging.info("=" * 55)
+    logging.info(f"Platform: {platform.system()}")
+    logging.info(f"Tesseract path: {pytesseract.pytesseract.tesseract_cmd}")
 
     # Fail fast if any required credential is missing
     missing_vars = [
