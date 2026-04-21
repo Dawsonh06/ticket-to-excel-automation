@@ -566,3 +566,23 @@ Error   : REVIEW REQUIRED: REVIEW REQUIRED - FW: [Scan] 2026-04-20 12:53 — no 
 Subject : REVIEW REQUIRED - FW: [Scan] 2026-04-20 12:53
 Error   : REVIEW REQUIRED: REVIEW REQUIRED - FW: [Scan] 2026-04-20 12:53 — no 6-digit ticket number found near top of ticket
 ------------------------------------------------------------
+[2026-04-20 16:05:37]
+Subject : FW: [Scan] 2026-04-20 15:59
+Error   : REVIEW REQUIRED: FW: [Scan] 2026-04-20 15:59 — date not found on header line
+------------------------------------------------------------
+[2026-04-20 16:16:44]
+Subject : Rock Ticket 17657 - 08/20/2025 (partial)
+Error   : DUPLICATE TICKET: 17657 - Rock Ticket 17657 - 08/20/2025 (partial) - 2026-04-20 16:16:44
+------------------------------------------------------------
+[2026-04-20 16:16:51]
+Subject : Rock Ticket 17657 - 08/20/2025 (partial)
+Error   : REVIEW REQUIRED: Rock Ticket 17657 - 08/20/2025 (partial) — date not found on header line
+------------------------------------------------------------
+[2026-04-20 16:22:57]
+Subject : Rock Tickets 16799, 17657 - 08/06/2025 (partial)
+Error   : DUPLICATE TICKET: 16799 - Rock Tickets 16799, 17657 - 08/06/2025 (partial) - 2026-04-20 16:22:57
+------------------------------------------------------------
+[2026-04-20 16:23:06]
+Subject : Rock Tickets 16799, 17657 - 08/06/2025 (partial)
+Error   : DUPLICATE TICKET: 17657 - Rock Tickets 16799, 17657 - 08/06/2025 (partial) - 2026-04-20 16:23:06
+------------------------------------------------------------

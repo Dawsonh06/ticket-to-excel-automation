@@ -39,6 +39,6 @@
     "Bradiey": "Bradley"
   },
   "confidence_checks": [
-    "valid_date_found"
+    "ticket_number_found"
   ]
 }

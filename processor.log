@@ -5808,3 +5808,1519 @@ ValueError: No QR code matching XXXX-YYYY-CCCCCC-CC found in PDF.
 2026-04-20 13:47:06,614 [INFO] =======================================================
 2026-04-20 13:47:06,614 [INFO] Complete — success: 4  sorted: 0  failed: 0  (failed emails remain unread for retry)
 2026-04-20 13:47:06,614 [INFO] =======================================================
+2026-04-20 16:03:02,110 [INFO] =======================================================
+2026-04-20 16:03:02,110 [INFO] Ticket Processing Automation — starting
+2026-04-20 16:03:02,110 [INFO] Run time: 2026-04-20 16:03:02
+2026-04-20 16:03:02,110 [INFO] =======================================================
+2026-04-20 16:03:02,111 [INFO] Credentials loaded from: C:\Users\dawson.h\Desktop\ticket-to-excel-automation\.env
+2026-04-20 16:03:02,111 [INFO] AZURE_TENANT_ID starts with: 'b4ed'
+2026-04-20 16:03:02,111 [INFO] Loaded ticket profile: 'CalPortland' (calportland.json)
+2026-04-20 16:03:02,111 [INFO] Loaded ticket profile: 'Generic (Unknown Supplier)' (generic.json)
+2026-04-20 16:03:02,113 [INFO] Loaded ticket profile: 'Knife River' (knife_river.json)
+2026-04-20 16:03:02,114 [INFO] Loaded ticket profile: 'Teevin Bros Land & Timber Co., LLC' (teevin_bros.json)
+2026-04-20 16:03:02,114 [INFO] Loaded ticket profile: 'Troutdale Sand & Gravel' (troutdale_sand_gravel.json)
+2026-04-20 16:03:02,114 [INFO] Loaded 5 ticket profile(s).
+2026-04-20 16:03:02,115 [INFO] Loaded 3 ticket type(s): ['rock', 'concrete', 'flagging']
+2026-04-20 16:03:03,093 [INFO] Authenticated with Microsoft Graph API.
+2026-04-20 16:03:05,901 [INFO] Downloaded ticket_tracker_2601.xlsx from SharePoint (44,940 bytes → C:\Users\dawson.h\AppData\Local\Temp\ticket_tracker_2601.xlsx)
+2026-04-20 16:03:08,743 [INFO] Downloaded ticket_tracker_2601_concrete.xlsx from SharePoint (14,595 bytes → C:\Users\dawson.h\AppData\Local\Temp\ticket_tracker_2601_concrete.xlsx)
+2026-04-20 16:03:08,756 [INFO] TOC materials loaded: 7 entry/entries.
+2026-04-20 16:03:08,756 [INFO] Loaded 7 TOC anticipated material entry/entries.
+2026-04-20 16:03:12,195 [INFO] Found 5 unread email(s) with PDF attachments.
+2026-04-20 16:03:12,197 [INFO] =======================================================
+2026-04-20 16:03:12,197 [INFO] Processing: 'Rock Tickets 16800, 17583, 16815, 17637 - 08/06/2025'
+2026-04-20 16:03:12,197 [INFO]   Downloading '2026-04-17 09-04.pdf'...
+2026-04-20 16:03:13,881 [INFO]   Rendering PDF pages...
+2026-04-20 16:03:15,930 [INFO]   Ticket type detected: rock (score: 6 keywords matched)
+2026-04-20 16:03:16,051 [INFO]   [p1] Full-page QR pre-scan: found '2601-0180-313713-99' at Y=538px (page height 1654px)
+2026-04-20 16:03:18,036 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-20 16:03:18,049 [INFO]   Page 1: Claude detected 1 ticket(s)
+2026-04-20 16:03:18,049 [INFO]     Ticket 1: top=0.0%  bottom=100.0%
+2026-04-20 16:03:18,050 [INFO]   [p1/t1] Single full-page ticket — no crop needed
+2026-04-20 16:03:18,050 [INFO]   [p1/t1] Scanning for QR code...
+2026-04-20 16:03:18,050 [INFO]   [p1/t1] QR assigned from full-page scan (Y=538px within boundary 0–1654px)
+2026-04-20 16:03:18,050 [INFO] QR found at Y=538px on full page (1654px total) → assigned to ticket 1
+2026-04-20 16:03:18,050 [INFO]   [p1/t1] QR → Job: 2601  Location: 0180  Cost Code: 313713-99
+2026-04-20 16:03:18,050 [INFO]   [p1/t1] Running OCR...
+2026-04-20 16:03:19,802 [INFO]   Detected profile: 'Teevin Bros Land & Timber Co., LLC'
+2026-04-20 16:03:19,804 [INFO] OCR debug: corrected text saved to ocr_debug.txt
+2026-04-20 16:03:20,308 [INFO] OCR debug: ticket-number crop saved to ocr_debug_topright.png (original coords x=1533-3833, y=0-496)
+2026-04-20 16:03:20,488 [INFO] OCR debug: preprocessed first page saved to ocr_debug.png
+2026-04-20 16:03:20,488 [INFO]   Using AI extraction for: Rock Tickets 16800, 17583, 16815, 17637 - 08/06/2025
+2026-04-20 16:03:20,919 [INFO]   AI extraction: vision mode (image + OCR text)
+2026-04-20 16:03:22,976 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-20 16:03:22,977 [INFO]   AI extraction result: {"ticket_number":"16800","date":"08/06/2025","facility":"Bradley Quarry","customer":"MJ Hughes Construction","material":"Bradley Rock Rip Rap","net_tons":"18.64","qr_sticker_text":"Class 2 RipRap"}
+2026-04-20 16:03:22,978 [INFO]   [p1/t1] OCR → Ticket: 16800  Date: 08/06/2025  Facility: Bradley Quarry  Net Tons: 18.64
+2026-04-20 16:03:29,350 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-20 16:03:29,350 [INFO]   Material verification: anticipated='rip rap class 3' actual='Bradley Rock Rip Rap' → YES
+2026-04-20 16:03:29,384 [INFO]   [p1/t1] Writing to Excel...
+2026-04-20 16:03:29,479 [INFO]   Multiple tabs matched QR '2601-0180-313713-99': '3', '4' — asking Claude to disambiguate
+2026-04-20 16:03:30,576 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-20 16:03:30,577 [INFO]   Tab disambiguation: Claude answered '1' for QR '2601-0180-313713-99' (candidates: ['3', '4'])
+2026-04-20 16:03:30,577 [INFO]   Multiple tabs matched QR '2601-0180-313713-99' — AI selected tab '3' based on material 'Bradley Rock Rip Rap'
+2026-04-20 16:03:30,713 [INFO] Excel: wrote ticket 16800 to tab '3' row 9.
+2026-04-20 16:03:30,713 [INFO]   [p1/t1] Uploading crop PDF to SharePoint (ticket: 16800)...
+2026-04-20 16:03:35,876 [INFO] Uploaded PDF to SharePoint: MJHughes OPEN JOBS/2601/Ticket Scans/Rock/Tickets, 16800.pdf
+2026-04-20 16:03:35,993 [INFO]   [p2] Full-page QR pre-scan: found '2601-0620-312323-21' at Y=585px (page height 1654px)
+2026-04-20 16:03:37,682 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-20 16:03:37,682 [INFO]   Page 2: Claude detected 1 ticket(s)
+2026-04-20 16:03:37,683 [INFO]     Ticket 1: top=0.0%  bottom=100.0%
+2026-04-20 16:03:37,683 [INFO]   [p2/t1] Single full-page ticket — no crop needed
+2026-04-20 16:03:37,683 [INFO]   [p2/t1] Scanning for QR code...
+2026-04-20 16:03:37,683 [INFO]   [p2/t1] QR assigned from full-page scan (Y=585px within boundary 0–1654px)
+2026-04-20 16:03:37,683 [INFO] QR found at Y=585px on full page (1654px total) → assigned to ticket 1
+2026-04-20 16:03:37,683 [INFO]   [p2/t1] QR → Job: 2601  Location: 0620  Cost Code: 312323-21
+2026-04-20 16:03:37,683 [INFO]   [p2/t1] Running OCR...
+2026-04-20 16:03:39,216 [INFO]   Detected profile: 'Teevin Bros Land & Timber Co., LLC'
+2026-04-20 16:03:39,218 [INFO] OCR debug: corrected text saved to ocr_debug.txt
+2026-04-20 16:03:39,624 [INFO] OCR debug: ticket-number crop saved to ocr_debug_topright.png (original coords x=1419-3548, y=0-496)
+2026-04-20 16:03:39,771 [INFO] OCR debug: preprocessed first page saved to ocr_debug.png
+2026-04-20 16:03:39,771 [INFO]   Using AI extraction for: Rock Tickets 16800, 17583, 16815, 17637 - 08/06/2025
+2026-04-20 16:03:40,196 [INFO]   AI extraction: vision mode (image + OCR text)
+2026-04-20 16:03:41,939 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-20 16:03:41,940 [INFO]   AI extraction result: {"ticket_number":"17583","date":"08/19/2025","facility":"Bradley Quarry","customer":"MJ Hughes Construction","material":"3/4-0\"","net_tons":"17.40","qr_sticker_text":"3/4\"-0\""}
+2026-04-20 16:03:41,942 [INFO]   [p2/t1] OCR → Ticket: 17583  Date: 08/19/2025  Facility: Bradley Quarry  Net Tons: 17.40
+2026-04-20 16:03:43,091 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-20 16:03:43,091 [INFO]   Material verification: anticipated='boulders' actual='3/4-0"' → NO
+2026-04-20 16:03:43,091 [WARNING]   [p2/t1] WARNING: Material mismatch for ticket 17583 — Anticipated: boulders | Found: 3/4-0"
+2026-04-20 16:03:43,120 [INFO]   [p2/t1] Writing to Excel...
+2026-04-20 16:03:43,421 [INFO] Excel: wrote ticket 17583 to tab '12' row 9.
+2026-04-20 16:03:43,421 [INFO]   [p2/t1] Uploading crop PDF to SharePoint (ticket: 17583)...
+2026-04-20 16:03:48,341 [INFO] Uploaded PDF to SharePoint: MJHughes OPEN JOBS/2601/Ticket Scans/Rock/Tickets, 17583.pdf
+2026-04-20 16:03:48,493 [INFO]   [p3] Full-page QR pre-scan: found '2601-0180-313713-99' at Y=500px (page height 1654px)
+2026-04-20 16:03:50,213 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-20 16:03:50,214 [INFO]   Page 3: Claude detected 1 ticket(s)
+2026-04-20 16:03:50,214 [INFO]     Ticket 1: top=0.0%  bottom=100.0%
+2026-04-20 16:03:50,214 [INFO]   [p3/t1] Single full-page ticket — no crop needed
+2026-04-20 16:03:50,214 [INFO]   [p3/t1] Scanning for QR code...
+2026-04-20 16:03:50,214 [INFO]   [p3/t1] QR assigned from full-page scan (Y=500px within boundary 0–1654px)
+2026-04-20 16:03:50,214 [INFO] QR found at Y=500px on full page (1654px total) → assigned to ticket 1
+2026-04-20 16:03:50,214 [INFO]   [p3/t1] QR → Job: 2601  Location: 0180  Cost Code: 313713-99
+2026-04-20 16:03:50,215 [INFO]   [p3/t1] Running OCR...
+2026-04-20 16:03:52,226 [INFO]   Detected profile: 'Teevin Bros Land & Timber Co., LLC'
+2026-04-20 16:03:52,228 [INFO] OCR debug: corrected text saved to ocr_debug.txt
+2026-04-20 16:03:52,751 [INFO] OCR debug: ticket-number crop saved to ocr_debug_topright.png (original coords x=1814-4536, y=0-496)
+2026-04-20 16:03:52,942 [INFO] OCR debug: preprocessed first page saved to ocr_debug.png
+2026-04-20 16:03:52,942 [INFO]   Using AI extraction for: Rock Tickets 16800, 17583, 16815, 17637 - 08/06/2025
+2026-04-20 16:03:53,349 [INFO]   AI extraction: vision mode (image + OCR text)
+2026-04-20 16:03:55,579 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-20 16:03:55,580 [INFO]   AI extraction result: {"ticket_number":"16815","date":"08/06/2025","facility":"Bradley Quarry","customer":"MJ Hughes Construction","material":"Bradley Rock Rip Rap","net_tons":"19.27","qr_sticker_text":"Class 3 RipRap"}
+2026-04-20 16:03:55,581 [INFO]   [p3/t1] OCR → Ticket: 16815  Date: 08/06/2025  Facility: Bradley Quarry  Net Tons: 19.27
+2026-04-20 16:03:56,947 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-20 16:03:56,948 [INFO]   Material verification: anticipated='rip rap class 3' actual='Bradley Rock Rip Rap' → YES
+2026-04-20 16:03:56,978 [INFO]   [p3/t1] Writing to Excel...
+2026-04-20 16:03:57,085 [INFO]   Multiple tabs matched QR '2601-0180-313713-99': '3', '4' — asking Claude to disambiguate
+2026-04-20 16:03:58,749 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-20 16:03:58,750 [INFO]   Tab disambiguation: Claude answered '2' for QR '2601-0180-313713-99' (candidates: ['3', '4'])
+2026-04-20 16:03:58,750 [INFO]   Multiple tabs matched QR '2601-0180-313713-99' — AI selected tab '4' based on material 'Bradley Rock Rip Rap'
+2026-04-20 16:03:58,893 [INFO] Excel: wrote ticket 16815 to tab '4' row 9.
+2026-04-20 16:03:58,893 [INFO]   [p3/t1] Uploading crop PDF to SharePoint (ticket: 16815)...
+2026-04-20 16:04:04,181 [INFO] Uploaded PDF to SharePoint: MJHughes OPEN JOBS/2601/Ticket Scans/Rock/Tickets, 16815.pdf
+2026-04-20 16:04:04,305 [INFO]   [p4] Full-page QR pre-scan: found '2601-0620-312323-21' at Y=511px (page height 1654px)
+2026-04-20 16:04:05,974 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-20 16:04:05,975 [INFO]   Page 4: Claude detected 1 ticket(s)
+2026-04-20 16:04:05,975 [INFO]     Ticket 1: top=0.0%  bottom=100.0%
+2026-04-20 16:04:05,976 [INFO]   [p4/t1] Single full-page ticket — no crop needed
+2026-04-20 16:04:05,976 [INFO]   [p4/t1] Scanning for QR code...
+2026-04-20 16:04:05,976 [INFO]   [p4/t1] QR assigned from full-page scan (Y=511px within boundary 0–1654px)
+2026-04-20 16:04:05,976 [INFO] QR found at Y=511px on full page (1654px total) → assigned to ticket 1
+2026-04-20 16:04:05,976 [INFO]   [p4/t1] QR → Job: 2601  Location: 0620  Cost Code: 312323-21
+2026-04-20 16:04:05,977 [INFO]   [p4/t1] Running OCR...
+2026-04-20 16:04:07,638 [INFO]   Detected profile: 'Teevin Bros Land & Timber Co., LLC'
+2026-04-20 16:04:07,641 [INFO] OCR debug: corrected text saved to ocr_debug.txt
+2026-04-20 16:04:08,131 [INFO] OCR debug: ticket-number crop saved to ocr_debug_topright.png (original coords x=1505-3764, y=0-496)
+2026-04-20 16:04:08,337 [INFO] OCR debug: preprocessed first page saved to ocr_debug.png
+2026-04-20 16:04:08,337 [INFO]   Using AI extraction for: Rock Tickets 16800, 17583, 16815, 17637 - 08/06/2025
+2026-04-20 16:04:08,799 [INFO]   AI extraction: vision mode (image + OCR text)
+2026-04-20 16:04:10,793 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-20 16:04:10,794 [INFO]   AI extraction result: {"ticket_number":"17637","date":"08/20/2025","facility":"Bradley Quarry","customer":"MJ Hughes Construction","material":"3/4-0\"","net_tons":"16.88","qr_sticker_text":"3/4\"-0\""}
+2026-04-20 16:04:10,796 [INFO]   [p4/t1] OCR → Ticket: 17637  Date: 08/20/2025  Facility: Bradley Quarry  Net Tons: 16.88
+2026-04-20 16:04:11,943 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-20 16:04:11,944 [INFO]   Material verification: anticipated='boulders' actual='3/4-0"' → NO
+2026-04-20 16:04:11,944 [WARNING]   [p4/t1] WARNING: Material mismatch for ticket 17637 — Anticipated: boulders | Found: 3/4-0"
+2026-04-20 16:04:11,981 [INFO]   [p4/t1] Writing to Excel...
+2026-04-20 16:04:12,229 [INFO] Excel: wrote ticket 17637 to tab '12' row 10.
+2026-04-20 16:04:12,230 [INFO]   [p4/t1] Uploading crop PDF to SharePoint (ticket: 17637)...
+2026-04-20 16:04:17,222 [INFO] Uploaded PDF to SharePoint: MJHughes OPEN JOBS/2601/Ticket Scans/Rock/Tickets, 17637.pdf
+2026-04-20 16:04:17,224 [INFO]   Renaming email to: 'Rock Tickets 16800, 17583, 16815, 17637 - 08/06/2025'
+2026-04-20 16:04:17,828 [INFO] Renamed email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTlAAA= subject to: 'Rock Tickets 16800, 17583, 16815, 17637 - 08/06/2025'
+2026-04-20 16:04:17,828 [INFO]   Marking email as read...
+2026-04-20 16:04:18,507 [INFO] Marked email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTlAAA= as read.
+2026-04-20 16:04:19,692 [INFO] Archived: 'Rock Tickets 16800, 17583, 16815, 17637 - 08/06/2025' → 'Rock Tickets - Processed'
+2026-04-20 16:04:19,692 [INFO]   Done: 'Rock Tickets 16800, 17583, 16815, 17637 - 08/06/2025' — 4 ticket(s) written, review_needed=False
+2026-04-20 16:04:19,697 [INFO] =======================================================
+2026-04-20 16:04:19,697 [INFO] Processing: 'Concrete Ticket 2805126 - 09/11/2024'
+2026-04-20 16:04:19,697 [INFO]   Downloading '2026-04-20 11-19.pdf'...
+2026-04-20 16:04:20,573 [INFO]   Rendering PDF pages...
+2026-04-20 16:04:22,184 [INFO]   Ticket type detected: concrete (score: 4 keywords matched)
+2026-04-20 16:04:22,268 [INFO]   [p1] Full-page QR pre-scan: found '2601-0180-313713-99' at Y=1648px (page height 2137px)
+2026-04-20 16:04:24,568 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-20 16:04:24,569 [INFO]   Page 1: Claude detected 1 ticket(s)
+2026-04-20 16:04:24,569 [INFO]     Ticket 1: top=0.0%  bottom=100.0%
+2026-04-20 16:04:24,569 [INFO]   [p1/t1] Single full-page ticket — no crop needed
+2026-04-20 16:04:24,569 [INFO]   [p1/t1] Scanning for QR code...
+2026-04-20 16:04:24,569 [INFO]   [p1/t1] QR assigned from full-page scan (Y=1648px within boundary 0–2137px)
+2026-04-20 16:04:24,569 [INFO] QR found at Y=1648px on full page (2137px total) → assigned to ticket 1
+2026-04-20 16:04:24,569 [INFO]   [p1/t1] QR → Job: 2601  Location: 0180  Cost Code: 313713-99
+2026-04-20 16:04:24,570 [INFO]   [p1/t1] Running OCR...
+2026-04-20 16:04:26,581 [INFO]   Detected profile: 'CalPortland'
+2026-04-20 16:04:26,583 [INFO] OCR debug: corrected text saved to ocr_debug.txt
+2026-04-20 16:04:26,964 [INFO] OCR debug: ticket-number crop saved to ocr_debug_topright.png (original coords x=0-1654, y=0-854)
+2026-04-20 16:04:27,122 [INFO] OCR debug: preprocessed first page saved to ocr_debug.png
+2026-04-20 16:04:27,123 [INFO]   Using AI extraction for: Concrete Ticket 2805126 - 09/11/2024
+2026-04-20 16:04:27,513 [INFO]   AI extraction: vision mode (image + OCR text)
+2026-04-20 16:04:30,306 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-20 16:04:30,307 [INFO]   AI extraction result: {"ticket_number":"2805126","date":"09/11/2024","supplier":"CalPortland","slump":"4.00","qty_delivered":"2.00","helper_notes":"4000 PSI WITH 25% SL","qr_sticker_text":"Class 2 RipRap"}
+2026-04-20 16:04:30,308 [INFO]   [p1/t1] OCR → Ticket: 2805126  Date: 09/11/2024  Supplier: CalPortland  Qty CY: 2.00
+2026-04-20 16:04:30,312 [INFO]   [p1/t1] Writing to Excel...
+2026-04-20 16:04:30,342 [INFO] Excel (concrete): wrote ticket 2805126 to tab '2' row 5.
+2026-04-20 16:04:30,342 [INFO]   [p1/t1] Uploading crop PDF to SharePoint (ticket: 2805126)...
+2026-04-20 16:04:35,148 [INFO] Uploaded PDF to SharePoint: MJHughes OPEN JOBS/2601/Ticket Scans/Concrete/Tickets, 2805126.pdf
+2026-04-20 16:04:35,150 [INFO]   Renaming email to: 'Concrete Ticket 2805126 - 09/11/2024'
+2026-04-20 16:04:35,751 [INFO] Renamed email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACToAAA= subject to: 'Concrete Ticket 2805126 - 09/11/2024'
+2026-04-20 16:04:35,751 [INFO]   Marking email as read...
+2026-04-20 16:04:36,312 [INFO] Marked email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACToAAA= as read.
+2026-04-20 16:04:37,427 [INFO] Archived: 'Concrete Ticket 2805126 - 09/11/2024' → 'Concrete Tickets - Processed'
+2026-04-20 16:04:37,428 [INFO]   Done: 'Concrete Ticket 2805126 - 09/11/2024' — 1 ticket(s) written, review_needed=False
+2026-04-20 16:04:37,429 [INFO] =======================================================
+2026-04-20 16:04:37,429 [INFO] Processing: 'Concrete Ticket 2805013 - 09/11/2024'
+2026-04-20 16:04:37,429 [INFO]   Downloading '2026-04-20 12-42.pdf'...
+2026-04-20 16:04:38,219 [INFO]   Rendering PDF pages...
+2026-04-20 16:04:39,739 [INFO]   Ticket type detected: concrete (score: 4 keywords matched)
+2026-04-20 16:04:39,840 [INFO]   [p1] Full-page QR pre-scan: found '2601-0180-313713-99' at Y=170px (page height 2144px)
+2026-04-20 16:04:42,097 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-20 16:04:42,098 [INFO]   Page 1: Claude detected 1 ticket(s)
+2026-04-20 16:04:42,098 [INFO]     Ticket 1: top=0.0%  bottom=100.0%
+2026-04-20 16:04:42,098 [INFO]   [p1/t1] Single full-page ticket — no crop needed
+2026-04-20 16:04:42,098 [INFO]   [p1/t1] Scanning for QR code...
+2026-04-20 16:04:42,099 [INFO]   [p1/t1] QR assigned from full-page scan (Y=170px within boundary 0–2144px)
+2026-04-20 16:04:42,099 [INFO] QR found at Y=170px on full page (2144px total) → assigned to ticket 1
+2026-04-20 16:04:42,099 [INFO]   [p1/t1] QR → Job: 2601  Location: 0180  Cost Code: 313713-99
+2026-04-20 16:04:42,099 [INFO]   [p1/t1] Running OCR...
+2026-04-20 16:04:43,897 [INFO]   Detected profile: 'CalPortland'
+2026-04-20 16:04:43,901 [INFO] OCR debug: corrected text saved to ocr_debug.txt
+2026-04-20 16:04:44,245 [INFO] OCR debug: ticket-number crop saved to ocr_debug_topright.png (original coords x=0-1654, y=0-857)
+2026-04-20 16:04:44,379 [INFO] OCR debug: preprocessed first page saved to ocr_debug.png
+2026-04-20 16:04:44,379 [INFO]   Using AI extraction for: Concrete Ticket 2805013 - 09/11/2024
+2026-04-20 16:04:44,793 [INFO]   AI extraction: vision mode (image + OCR text)
+2026-04-20 16:04:47,288 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-20 16:04:47,289 [INFO]   AI extraction result: {
+  "ticket_number": "2805013",
+  "date": "09/11/2024",
+  "supplier": "CalPortland",
+  "slump": "4.00",
+  "qty_delivered": "8.00",
+  "helper_notes": "4000 PSI WITH 25% SL",
+  "qr_sticker_text": "Class 2 RipRap"
+}
+2026-04-20 16:04:47,290 [INFO]   [p1/t1] OCR → Ticket: 2805013  Date: 09/11/2024  Supplier: CalPortland  Qty CY: 8.00
+2026-04-20 16:04:47,298 [INFO]   [p1/t1] Writing to Excel...
+2026-04-20 16:04:47,334 [INFO] Excel (concrete): wrote ticket 2805013 to tab '2' row 6.
+2026-04-20 16:04:47,334 [INFO]   [p1/t1] Uploading crop PDF to SharePoint (ticket: 2805013)...
+2026-04-20 16:04:52,144 [INFO] Uploaded PDF to SharePoint: MJHughes OPEN JOBS/2601/Ticket Scans/Concrete/Tickets, 2805013.pdf
+2026-04-20 16:04:52,145 [INFO]   Renaming email to: 'Concrete Ticket 2805013 - 09/11/2024'
+2026-04-20 16:04:52,694 [INFO] Renamed email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTnAAA= subject to: 'Concrete Ticket 2805013 - 09/11/2024'
+2026-04-20 16:04:52,694 [INFO]   Marking email as read...
+2026-04-20 16:04:53,328 [INFO] Marked email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTnAAA= as read.
+2026-04-20 16:04:54,677 [INFO] Archived: 'Concrete Ticket 2805013 - 09/11/2024' → 'Concrete Tickets - Processed'
+2026-04-20 16:04:54,677 [INFO]   Done: 'Concrete Ticket 2805013 - 09/11/2024' — 1 ticket(s) written, review_needed=False
+2026-04-20 16:04:54,678 [INFO] =======================================================
+2026-04-20 16:04:54,678 [INFO] Processing: 'Concrete Ticket 109156 - 11/17/2025'
+2026-04-20 16:04:54,678 [INFO]   Downloading '2026-04-20 12-53.pdf'...
+2026-04-20 16:04:55,520 [INFO]   Rendering PDF pages...
+2026-04-20 16:04:57,246 [INFO]   Ticket type detected: concrete (score: 4 keywords matched)
+2026-04-20 16:04:57,330 [INFO]   [p1] Full-page QR pre-scan: found '2601-0180-313713-99' at Y=974px (page height 2147px)
+2026-04-20 16:04:59,384 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-20 16:04:59,385 [INFO]   Page 1: Claude detected 1 ticket(s)
+2026-04-20 16:04:59,385 [INFO]     Ticket 1: top=0.0%  bottom=100.0%
+2026-04-20 16:04:59,385 [INFO]   [p1/t1] Single full-page ticket — no crop needed
+2026-04-20 16:04:59,385 [INFO]   [p1/t1] Scanning for QR code...
+2026-04-20 16:04:59,385 [INFO]   [p1/t1] QR assigned from full-page scan (Y=974px within boundary 0–2147px)
+2026-04-20 16:04:59,385 [INFO] QR found at Y=974px on full page (2147px total) → assigned to ticket 1
+2026-04-20 16:04:59,385 [INFO]   [p1/t1] QR → Job: 2601  Location: 0180  Cost Code: 313713-99
+2026-04-20 16:04:59,386 [INFO]   [p1/t1] Running OCR...
+2026-04-20 16:05:01,646 [INFO]   Detected profile: 'Troutdale Sand & Gravel'
+2026-04-20 16:05:01,650 [INFO] OCR debug: corrected text saved to ocr_debug.txt
+2026-04-20 16:05:02,003 [INFO] OCR debug: ticket-number crop saved to ocr_debug_topright.png (original coords x=496-1654, y=0-1073)
+2026-04-20 16:05:02,155 [INFO] OCR debug: preprocessed first page saved to ocr_debug.png
+2026-04-20 16:05:02,155 [INFO]   Using AI extraction for: Concrete Ticket 109156 - 11/17/2025
+2026-04-20 16:05:02,596 [INFO]   AI extraction: vision mode (image + OCR text)
+2026-04-20 16:05:05,926 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-20 16:05:05,926 [INFO]   AI extraction result: {
+  "ticket_number": "109156",
+  "date": "11/17/2025",
+  "supplier": "Troutdale Sand & Gravel",
+  "slump": "4.00",
+  "qty_delivered": "20.00",
+  "helper_notes": "Class 2 RipRap",
+  "qr_sticker_text": "2601-0180-313713-99"
+}
+2026-04-20 16:05:05,927 [INFO]   [p1/t1] OCR → Ticket: 109156  Date: 11/17/2025  Supplier: Troutdale Sand & Gravel  Qty CY: 20.00
+2026-04-20 16:05:05,933 [INFO]   [p1/t1] Writing to Excel...
+2026-04-20 16:05:05,966 [INFO] Excel (concrete): wrote ticket 109156 to tab '2' row 7.
+2026-04-20 16:05:05,966 [INFO]   [p1/t1] Uploading crop PDF to SharePoint (ticket: 109156)...
+2026-04-20 16:05:10,647 [INFO] Uploaded PDF to SharePoint: MJHughes OPEN JOBS/2601/Ticket Scans/Concrete/Tickets, 109156.pdf
+2026-04-20 16:05:10,648 [INFO]   Renaming email to: 'Concrete Ticket 109156 - 11/17/2025'
+2026-04-20 16:05:11,233 [INFO] Renamed email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTmAAA= subject to: 'Concrete Ticket 109156 - 11/17/2025'
+2026-04-20 16:05:11,233 [INFO]   Marking email as read...
+2026-04-20 16:05:11,812 [INFO] Marked email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTmAAA= as read.
+2026-04-20 16:05:12,867 [INFO] Archived: 'Concrete Ticket 109156 - 11/17/2025' → 'Concrete Tickets - Processed'
+2026-04-20 16:05:12,867 [INFO]   Done: 'Concrete Ticket 109156 - 11/17/2025' — 1 ticket(s) written, review_needed=False
+2026-04-20 16:05:12,868 [INFO] =======================================================
+2026-04-20 16:05:12,868 [INFO] Processing: 'FW: [Scan] 2026-04-20 15:59'
+2026-04-20 16:05:12,868 [INFO]   Downloading '2026-04-20 15-59.pdf'...
+2026-04-20 16:05:13,791 [INFO]   Rendering PDF pages...
+2026-04-20 16:05:15,374 [INFO]   Ticket type detected: rock (score: 6 keywords matched)
+2026-04-20 16:05:17,778 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-20 16:05:17,779 [INFO]   Page 1: Claude detected 1 ticket(s)
+2026-04-20 16:05:17,779 [INFO]     Ticket 1: top=0.0%  bottom=100.0%
+2026-04-20 16:05:17,779 [INFO]   [p1/t1] Single full-page ticket — no crop needed
+2026-04-20 16:05:17,779 [INFO]   [p1/t1] Scanning for QR code...
+2026-04-20 16:05:17,902 [INFO] QR debug: first page saved to qr_debug.png (size 3689×1654)
+2026-04-20 16:05:17,902 [INFO]   QR p1 | step 1: full page (3689×1654)
+2026-04-20 16:05:18,003 [INFO]   QR p1 | full-page [original]: no barcode detected
+2026-04-20 16:05:18,070 [INFO]   QR p1 | full-page [grayscale]: no barcode detected
+2026-04-20 16:05:18,294 [INFO]   QR p1 | step 2: full page 2× (7378×3308)
+2026-04-20 16:05:18,694 [INFO]   QR p1 | full-page-2x [original]: no barcode detected
+2026-04-20 16:05:18,972 [INFO]   QR p1 | full-page-2x [grayscale]: no barcode detected
+2026-04-20 16:05:18,974 [INFO]   QR p1 | step 3: right-strip (923×1654, box=(2766, 0, 3689, 1654))
+2026-04-20 16:05:19,004 [INFO]   QR p1 | right-strip [original]: no barcode detected
+2026-04-20 16:05:19,027 [INFO]   QR p1 | right-strip [grayscale]: no barcode detected
+2026-04-20 16:05:19,027 [INFO]   QR p1 | step 4: upper-right (923×413, box=(2766, 0, 3689, 413))
+2026-04-20 16:05:19,036 [INFO]   QR p1 | upper-right [original]: no barcode detected
+2026-04-20 16:05:19,043 [INFO]   QR p1 | upper-right [grayscale]: no barcode detected
+2026-04-20 16:05:19,043 [INFO]   QR p1 | step 5: OCR fallback
+2026-04-20 16:05:19,948 [INFO]   QR p1 | OCR fallback: pattern not found in OCR text
+2026-04-20 16:05:19,952 [WARNING]   [p1/t1] QR DETECTION FAILED — no QR code found in region
+2026-04-20 16:05:19,952 [WARNING] REVIEW REQUIRED: 1 of 1 ticket(s) on page 1 missing ticket number — entire page flagged
+2026-04-20 16:05:20,072 [INFO]   [p2] Full-page QR pre-scan: found '2601-0620-312323-21' at Y=507px (page height 1654px)
+2026-04-20 16:05:22,037 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-20 16:05:22,038 [INFO]   Page 2: Claude detected 1 ticket(s)
+2026-04-20 16:05:22,038 [INFO]     Ticket 1: top=0.0%  bottom=100.0%
+2026-04-20 16:05:22,039 [INFO]   [p2/t1] Single full-page ticket — no crop needed
+2026-04-20 16:05:22,039 [INFO]   [p2/t1] Scanning for QR code...
+2026-04-20 16:05:22,039 [INFO]   [p2/t1] QR assigned from full-page scan (Y=507px within boundary 0–1654px)
+2026-04-20 16:05:22,039 [INFO] QR found at Y=507px on full page (1654px total) → assigned to ticket 1
+2026-04-20 16:05:22,039 [INFO]   [p2/t1] QR → Job: 2601  Location: 0620  Cost Code: 312323-21
+2026-04-20 16:05:22,039 [INFO]   [p2/t1] Running OCR...
+2026-04-20 16:05:23,554 [INFO]   Detected profile: 'Teevin Bros Land & Timber Co., LLC'
+2026-04-20 16:05:23,556 [INFO] OCR debug: corrected text saved to ocr_debug.txt
+2026-04-20 16:05:23,991 [INFO] OCR debug: ticket-number crop saved to ocr_debug_topright.png (original coords x=1508-3770, y=0-496)
+2026-04-20 16:05:24,143 [INFO] OCR debug: preprocessed first page saved to ocr_debug.png
+2026-04-20 16:05:24,144 [INFO]   Using AI extraction for: FW: [Scan] 2026-04-20 15:59
+2026-04-20 16:05:24,543 [INFO]   AI extraction: vision mode (image + OCR text)
+2026-04-20 16:05:26,796 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-20 16:05:26,797 [INFO]   AI extraction result: {"ticket_number": "17657", "date": "08/20/2025", "facility": "Bradley Quarry", "customer": "MJ Hughes Construction", "material": "3/4-0\"", "net_tons": 16.67, "qr_sticker_text": "3/4\"-0\""}
+2026-04-20 16:05:26,799 [INFO]   [p2/t1] OCR → Ticket: 17657  Date: 08/20/2025  Facility: Bradley Quarry  Net Tons: 16.67
+2026-04-20 16:05:28,071 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-20 16:05:28,072 [INFO]   Material verification: anticipated='boulders' actual='3/4-0"' → NO
+2026-04-20 16:05:28,072 [WARNING]   [p2/t1] WARNING: Material mismatch for ticket 17657 — Anticipated: boulders | Found: 3/4-0"
+2026-04-20 16:05:28,117 [INFO]   [p2/t1] Writing to Excel...
+2026-04-20 16:05:28,358 [INFO] Excel: wrote ticket 17657 to tab '12' row 11.
+2026-04-20 16:05:28,359 [INFO]   [p2/t1] Uploading crop PDF to SharePoint (ticket: 17657)...
+2026-04-20 16:05:32,994 [INFO] Uploaded PDF to SharePoint: MJHughes OPEN JOBS/2601/Ticket Scans/Rock/Tickets, 17657.pdf
+2026-04-20 16:05:33,112 [INFO]   [p3] Full-page QR pre-scan: found '2601-0620-312323-21' at Y=564px (page height 1654px)
+2026-04-20 16:05:35,296 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-20 16:05:35,297 [INFO]   Page 3: Claude detected 1 ticket(s)
+2026-04-20 16:05:35,297 [INFO]     Ticket 1: top=0.0%  bottom=100.0%
+2026-04-20 16:05:35,297 [INFO]   [p3/t1] Single full-page ticket — no crop needed
+2026-04-20 16:05:35,297 [INFO]   [p3/t1] Scanning for QR code...
+2026-04-20 16:05:35,297 [INFO]   [p3/t1] QR assigned from full-page scan (Y=564px within boundary 0–1654px)
+2026-04-20 16:05:35,297 [INFO] QR found at Y=564px on full page (1654px total) → assigned to ticket 1
+2026-04-20 16:05:35,297 [INFO]   [p3/t1] QR → Job: 2601  Location: 0620  Cost Code: 312323-21
+2026-04-20 16:05:35,297 [INFO]   [p3/t1] Running OCR...
+2026-04-20 16:05:36,885 [INFO]   Detected profile: 'Teevin Bros Land & Timber Co., LLC'
+2026-04-20 16:05:36,888 [INFO] OCR debug: corrected text saved to ocr_debug.txt
+2026-04-20 16:05:37,306 [INFO] OCR debug: ticket-number crop saved to ocr_debug_topright.png (original coords x=1494-3737, y=0-496)
+2026-04-20 16:05:37,474 [INFO] OCR debug: preprocessed first page saved to ocr_debug.png
+2026-04-20 16:05:37,474 [WARNING]   OCR confidence FAILED: date not found on header line
+2026-04-20 16:05:37,474 [WARNING] OCR confidence check failed (1 check(s) failed). Ticket will be flagged for manual review.
+2026-04-20 16:05:37,475 [WARNING]   [p3/t1] TICKET FLAGGED FOR REVIEW:
+2026-04-20 16:05:37,475 [WARNING]   [p3/t1]   - date not found on header line
+2026-04-20 16:05:37,480 [ERROR] Error logged → 'FW: [Scan] 2026-04-20 15:59': REVIEW REQUIRED: FW: [Scan] 2026-04-20 15:59 — date not found on header line
+2026-04-20 16:05:37,480 [WARNING] REVIEW REQUIRED: 1 of 1 ticket(s) on page 3 missing ticket number — entire page flagged
+2026-04-20 16:05:37,480 [INFO]   Partial success (1 ticket(s) written, review flag set) — renaming to: 'Rock Ticket 17657 - 08/20/2025 (partial)'
+2026-04-20 16:05:38,069 [INFO] Flagged email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAAAlYAAA= with category 'REVIEW REQUIRED'.
+2026-04-20 16:05:38,649 [INFO] Renamed email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAAAlYAAA= subject to: 'Rock Ticket 17657 - 08/20/2025 (partial)'
+2026-04-20 16:05:39,750 [INFO] Created mail folder 'Rock Tickets - Review Required' (id=AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQAuAAAAAACGS7jncFP_TrzrW1Hz7wysAQCf5kq4dgz5QZHK1WIWgeP-AAAAAWCiAAA=).
+2026-04-20 16:05:40,395 [INFO] Moved email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAAAlYAAA= to 'Rock Tickets - Review Required' folder (new id=AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAWCiAACf5kq4dgz5QZHK1WIWgeP-AAAABHnNAAA=).
+2026-04-20 16:05:41,068 [INFO] Marked email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAWCiAACf5kq4dgz5QZHK1WIWgeP-AAAABHnNAAA= as unread (flagged for review).
+2026-04-20 16:05:41,068 [INFO]   Done: 'FW: [Scan] 2026-04-20 15:59' — 1 ticket(s) written, review_needed=True
+2026-04-20 16:05:41,072 [INFO] Running batch outlier detection on 5 rock ticket(s): ['16800', '17583', '16815', '17637', '17657']
+2026-04-20 16:05:41,072 [INFO] Batch outlier check: 5 ticket(s), median=17583, no outliers detected.
+2026-04-20 16:05:43,645 [INFO] Uploaded ticket_tracker_2601.xlsx to SharePoint (38,001 bytes)
+2026-04-20 16:05:43,645 [INFO] Deleted local temp copy: C:\Users\dawson.h\AppData\Local\Temp\ticket_tracker_2601.xlsx
+2026-04-20 16:05:46,062 [INFO] Uploaded ticket_tracker_2601_concrete.xlsx to SharePoint (7,680 bytes)
+2026-04-20 16:05:46,062 [INFO] Deleted local temp copy: C:\Users\dawson.h\AppData\Local\Temp\ticket_tracker_2601_concrete.xlsx
+2026-04-20 16:05:46,672 [WARNING] Could not send run summary email: 403 Client Error: Forbidden for url: https://graph.microsoft.com/v1.0/users/dawson.h@mjhughes.com/sendMail
+2026-04-20 16:05:46,675 [INFO] =======================================================
+2026-04-20 16:05:46,675 [INFO] Complete — success: 5  sorted: 0  failed: 0  (failed emails remain unread for retry)
+2026-04-20 16:05:46,675 [INFO] =======================================================
+2026-04-20 16:15:58,496 [INFO] =======================================================
+2026-04-20 16:15:58,496 [INFO] Ticket Processing Automation — starting
+2026-04-20 16:15:58,496 [INFO] Run time: 2026-04-20 16:15:58
+2026-04-20 16:15:58,496 [INFO] =======================================================
+2026-04-20 16:15:58,497 [INFO] Credentials loaded from: C:\Users\dawson.h\Desktop\ticket-to-excel-automation\.env
+2026-04-20 16:15:58,497 [INFO] AZURE_TENANT_ID starts with: 'b4ed'
+2026-04-20 16:15:58,497 [INFO] Loaded ticket profile: 'CalPortland' (calportland.json)
+2026-04-20 16:15:58,497 [INFO] Loaded ticket profile: 'Generic (Unknown Supplier)' (generic.json)
+2026-04-20 16:15:58,499 [INFO] Loaded ticket profile: 'Knife River' (knife_river.json)
+2026-04-20 16:15:58,500 [INFO] Loaded ticket profile: 'Teevin Bros Land & Timber Co., LLC' (teevin_bros.json)
+2026-04-20 16:15:58,500 [INFO] Loaded ticket profile: 'Troutdale Sand & Gravel' (troutdale_sand_gravel.json)
+2026-04-20 16:15:58,500 [INFO] Loaded 5 ticket profile(s).
+2026-04-20 16:15:58,500 [INFO] Loaded 3 ticket type(s): ['rock', 'concrete', 'flagging']
+2026-04-20 16:15:59,513 [INFO] Authenticated with Microsoft Graph API.
+2026-04-20 16:16:02,303 [INFO] Downloaded ticket_tracker_2601.xlsx from SharePoint (45,234 bytes → C:\Users\dawson.h\AppData\Local\Temp\ticket_tracker_2601.xlsx)
+2026-04-20 16:16:05,333 [INFO] Downloaded ticket_tracker_2601_concrete.xlsx from SharePoint (14,779 bytes → C:\Users\dawson.h\AppData\Local\Temp\ticket_tracker_2601_concrete.xlsx)
+2026-04-20 16:16:05,346 [INFO] TOC materials loaded: 7 entry/entries.
+2026-04-20 16:16:05,346 [INFO] Loaded 7 TOC anticipated material entry/entries.
+2026-04-20 16:16:06,547 [INFO] Found 1 unread email(s) with PDF attachments.
+2026-04-20 16:16:06,548 [INFO] =======================================================
+2026-04-20 16:16:06,548 [INFO] Processing: 'Rock Ticket 17657 - 08/20/2025 (partial)'
+2026-04-20 16:16:06,548 [INFO]   Downloading '2026-04-20 15-59.pdf'...
+2026-04-20 16:16:07,324 [INFO]   Rendering PDF pages...
+2026-04-20 16:16:09,022 [INFO]   Ticket type detected: rock (score: 6 keywords matched)
+2026-04-20 16:16:09,053 [INFO]   Retry snapshot: 5 ticket number(s) already in Excel — will skip if re-encountered.
+2026-04-20 16:16:11,231 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-20 16:16:11,248 [INFO]   [p1] QR found via AI vision: '2601-0180-313713-99' at left-side
+2026-04-20 16:16:11,248 [INFO]   [p1] QR found via AI vision: '2601-0180-313713-99' (estimated Y=827px, page height 1654px)
+2026-04-20 16:16:13,454 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-20 16:16:13,455 [INFO]   Page 1: Claude detected 1 ticket(s)
+2026-04-20 16:16:13,455 [INFO]     Ticket 1: top=0.0%  bottom=100.0%
+2026-04-20 16:16:13,456 [INFO]   [p1/t1] Single full-page ticket — no crop needed
+2026-04-20 16:16:13,456 [INFO]   [p1/t1] Scanning for QR code...
+2026-04-20 16:16:13,456 [INFO]   [p1/t1] QR assigned from full-page scan (Y=827px within boundary 0–1654px)
+2026-04-20 16:16:13,456 [INFO] QR found at Y=827px on full page (1654px total) → assigned to ticket 1
+2026-04-20 16:16:13,456 [INFO]   [p1/t1] QR → Job: 2601  Location: 0180  Cost Code: 313713-99
+2026-04-20 16:16:13,456 [INFO]   [p1/t1] Running OCR...
+2026-04-20 16:16:15,176 [INFO]   Detected profile: 'Teevin Bros Land & Timber Co., LLC'
+2026-04-20 16:16:15,178 [INFO] OCR debug: corrected text saved to ocr_debug.txt
+2026-04-20 16:16:15,609 [INFO] OCR debug: ticket-number crop saved to ocr_debug_topright.png (original coords x=1475-3689, y=0-496)
+2026-04-20 16:16:15,799 [INFO] OCR debug: preprocessed first page saved to ocr_debug.png
+2026-04-20 16:16:15,799 [INFO]   Using AI extraction for: Rock Ticket 17657 - 08/20/2025 (partial)
+2026-04-20 16:16:16,224 [INFO]   AI extraction: vision mode (image + OCR text)
+2026-04-20 16:16:18,387 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-20 16:16:18,388 [INFO]   AI extraction result: {"ticket_number":"16799","date":"08/06/2025","facility":"Bradley Quarry","customer":"MJ Hughes Construction","material":"Bradley Rock Rip Rap","net_tons":"15.83","qr_sticker_text":"Class 3 RipRap"}
+2026-04-20 16:16:18,390 [INFO]   [p1/t1] OCR → Ticket: 16799  Date: 08/06/2025  Facility: Bradley Quarry  Net Tons: 15.83
+2026-04-20 16:16:19,940 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-20 16:16:19,941 [INFO]   Material verification: anticipated='rip rap class 3' actual='Bradley Rock Rip Rap' → YES
+2026-04-20 16:16:19,988 [INFO]   [p1/t1] Writing to Excel...
+2026-04-20 16:16:20,090 [INFO]   Multiple tabs matched QR '2601-0180-313713-99': '3', '4' — asking Claude to disambiguate
+2026-04-20 16:16:21,761 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-20 16:16:21,763 [INFO]   Tab disambiguation: Claude answered '2' for QR '2601-0180-313713-99' (candidates: ['3', '4'])
+2026-04-20 16:16:21,763 [INFO]   Multiple tabs matched QR '2601-0180-313713-99' — AI selected tab '4' based on material 'Bradley Rock Rip Rap'
+2026-04-20 16:16:21,905 [INFO] Excel: wrote ticket 16799 to tab '4' row 10.
+2026-04-20 16:16:21,905 [INFO]   [p1/t1] Uploading crop PDF to SharePoint (ticket: 16799)...
+2026-04-20 16:16:27,357 [INFO] Uploaded PDF to SharePoint: MJHughes OPEN JOBS/2601/Ticket Scans/Rock/Tickets, 16799.pdf
+2026-04-20 16:16:36,438 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-20 16:16:36,440 [INFO]   [p2] QR found via AI vision: '2601-0620-312323-21' at right-side
+2026-04-20 16:16:36,440 [INFO]   [p2] QR found via AI vision: '2601-0620-312323-21' (estimated Y=827px, page height 1654px)
+2026-04-20 16:16:38,496 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-20 16:16:38,497 [INFO]   Page 2: Claude detected 1 ticket(s)
+2026-04-20 16:16:38,497 [INFO]     Ticket 1: top=0.0%  bottom=100.0%
+2026-04-20 16:16:38,497 [INFO]   [p2/t1] Single full-page ticket — no crop needed
+2026-04-20 16:16:38,498 [INFO]   [p2/t1] Scanning for QR code...
+2026-04-20 16:16:38,498 [INFO]   [p2/t1] QR assigned from full-page scan (Y=827px within boundary 0–1654px)
+2026-04-20 16:16:38,498 [INFO] QR found at Y=827px on full page (1654px total) → assigned to ticket 1
+2026-04-20 16:16:38,498 [INFO]   [p2/t1] QR → Job: 2601  Location: 0620  Cost Code: 312323-21
+2026-04-20 16:16:38,498 [INFO]   [p2/t1] Running OCR...
+2026-04-20 16:16:40,000 [INFO]   Detected profile: 'Teevin Bros Land & Timber Co., LLC'
+2026-04-20 16:16:40,002 [INFO] OCR debug: corrected text saved to ocr_debug.txt
+2026-04-20 16:16:40,441 [INFO] OCR debug: ticket-number crop saved to ocr_debug_topright.png (original coords x=1508-3770, y=0-496)
+2026-04-20 16:16:40,609 [INFO] OCR debug: preprocessed first page saved to ocr_debug.png
+2026-04-20 16:16:40,610 [INFO]   Using AI extraction for: Rock Ticket 17657 - 08/20/2025 (partial)
+2026-04-20 16:16:41,024 [INFO]   AI extraction: vision mode (image + OCR text)
+2026-04-20 16:16:42,706 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-20 16:16:42,707 [INFO]   AI extraction result: {"ticket_number":"17657","date":"08/20/2025","facility":"Bradley Quarry","customer":"MJ Hughes Construction","material":"3/4-0\"","net_tons":"16.67","qr_sticker_text":"3/4\"-0\""}
+2026-04-20 16:16:42,708 [INFO]   [p2/t1] OCR → Ticket: 17657  Date: 08/20/2025  Facility: Bradley Quarry  Net Tons: 16.67
+2026-04-20 16:16:44,025 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-20 16:16:44,026 [INFO]   Material verification: anticipated='boulders' actual='3/4-0"' → NO
+2026-04-20 16:16:44,026 [WARNING]   [p2/t1] WARNING: Material mismatch for ticket 17657 — Anticipated: boulders | Found: 3/4-0"
+2026-04-20 16:16:44,054 [WARNING]   [p2/t1] DUPLICATE TICKET: '17657' already in tab '12'
+2026-04-20 16:16:44,063 [ERROR] Error logged → 'Rock Ticket 17657 - 08/20/2025 (partial)': DUPLICATE TICKET: 17657 - Rock Ticket 17657 - 08/20/2025 (partial) - 2026-04-20 16:16:44
+2026-04-20 16:16:44,063 [INFO]   [p2/t1] Skipping ticket 17657 — already processed in a previous attempt
+2026-04-20 16:16:46,688 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-20 16:16:46,689 [INFO]   [p3] QR found via AI vision: '2601-0620-312323-21' at left-side
+2026-04-20 16:16:46,689 [INFO]   [p3] QR found via AI vision: '2601-0620-312323-21' (estimated Y=827px, page height 1654px)
+2026-04-20 16:16:48,835 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-20 16:16:48,837 [INFO]   Page 3: Claude detected 1 ticket(s)
+2026-04-20 16:16:48,837 [INFO]     Ticket 1: top=0.0%  bottom=100.0%
+2026-04-20 16:16:48,837 [INFO]   [p3/t1] Single full-page ticket — no crop needed
+2026-04-20 16:16:48,837 [INFO]   [p3/t1] Scanning for QR code...
+2026-04-20 16:16:48,837 [INFO]   [p3/t1] QR assigned from full-page scan (Y=827px within boundary 0–1654px)
+2026-04-20 16:16:48,838 [INFO] QR found at Y=827px on full page (1654px total) → assigned to ticket 1
+2026-04-20 16:16:48,838 [INFO]   [p3/t1] QR → Job: 2601  Location: 0620  Cost Code: 312323-21
+2026-04-20 16:16:48,838 [INFO]   [p3/t1] Running OCR...
+2026-04-20 16:16:50,407 [INFO]   Detected profile: 'Teevin Bros Land & Timber Co., LLC'
+2026-04-20 16:16:50,409 [INFO] OCR debug: corrected text saved to ocr_debug.txt
+2026-04-20 16:16:50,836 [INFO] OCR debug: ticket-number crop saved to ocr_debug_topright.png (original coords x=1494-3737, y=0-496)
+2026-04-20 16:16:51,005 [INFO] OCR debug: preprocessed first page saved to ocr_debug.png
+2026-04-20 16:16:51,006 [WARNING]   OCR confidence FAILED: date not found on header line
+2026-04-20 16:16:51,006 [WARNING] OCR confidence check failed (1 check(s) failed). Ticket will be flagged for manual review.
+2026-04-20 16:16:51,007 [WARNING]   [p3/t1] TICKET FLAGGED FOR REVIEW:
+2026-04-20 16:16:51,008 [WARNING]   [p3/t1]   - date not found on header line
+2026-04-20 16:16:51,013 [ERROR] Error logged → 'Rock Ticket 17657 - 08/20/2025 (partial)': REVIEW REQUIRED: Rock Ticket 17657 - 08/20/2025 (partial) — date not found on header line
+2026-04-20 16:16:51,013 [WARNING] REVIEW REQUIRED: 1 of 1 ticket(s) on page 3 missing ticket number — entire page flagged
+2026-04-20 16:16:51,013 [INFO]   Partial success (2 ticket(s) written, review flag set) — renaming to: 'Rock Tickets 16799, 17657 - 08/06/2025 (partial)'
+2026-04-20 16:16:51,538 [INFO] Flagged email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTqAAA= with category 'REVIEW REQUIRED'.
+2026-04-20 16:16:52,176 [INFO] Renamed email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTqAAA= subject to: 'Rock Tickets 16799, 17657 - 08/06/2025 (partial)'
+2026-04-20 16:16:53,369 [INFO] Moved email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTqAAA= to 'Rock Tickets - Review Required' folder (new id=AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAWCiAACf5kq4dgz5QZHK1WIWgeP-AAAABHnOAAA=).
+2026-04-20 16:16:53,967 [INFO] Marked email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAWCiAACf5kq4dgz5QZHK1WIWgeP-AAAABHnOAAA= as unread (flagged for review).
+2026-04-20 16:16:53,967 [INFO]   Done: 'Rock Ticket 17657 - 08/20/2025 (partial)' — 2 ticket(s) written, review_needed=True
+2026-04-20 16:16:53,971 [INFO] Running batch outlier detection on 2 rock ticket(s): ['16799', '17657']
+2026-04-20 16:16:53,971 [INFO] Batch outlier check: 2 ticket(s), median=17228, no outliers detected.
+2026-04-20 16:16:56,408 [INFO] Uploaded ticket_tracker_2601.xlsx to SharePoint (38,035 bytes)
+2026-04-20 16:16:56,409 [INFO] Deleted local temp copy: C:\Users\dawson.h\AppData\Local\Temp\ticket_tracker_2601.xlsx
+2026-04-20 16:16:58,778 [INFO] Uploaded ticket_tracker_2601_concrete.xlsx to SharePoint (14,779 bytes)
+2026-04-20 16:16:58,779 [INFO] Deleted local temp copy: C:\Users\dawson.h\AppData\Local\Temp\ticket_tracker_2601_concrete.xlsx
+2026-04-20 16:16:59,451 [WARNING] Could not send run summary email: 403 Client Error: Forbidden for url: https://graph.microsoft.com/v1.0/users/dawson.h@mjhughes.com/sendMail
+2026-04-20 16:16:59,452 [INFO] =======================================================
+2026-04-20 16:16:59,452 [INFO] Complete — success: 1  sorted: 0  failed: 0  (failed emails remain unread for retry)
+2026-04-20 16:16:59,452 [INFO] =======================================================
+2026-04-20 16:22:36,563 [INFO] =======================================================
+2026-04-20 16:22:36,563 [INFO] Ticket Processing Automation — starting
+2026-04-20 16:22:36,563 [INFO] Run time: 2026-04-20 16:22:36
+2026-04-20 16:22:36,563 [INFO] =======================================================
+2026-04-20 16:22:36,563 [INFO] Credentials loaded from: C:\Users\dawson.h\Desktop\ticket-to-excel-automation\.env
+2026-04-20 16:22:36,563 [INFO] AZURE_TENANT_ID starts with: 'b4ed'
+2026-04-20 16:22:36,564 [INFO] Loaded ticket profile: 'CalPortland' (calportland.json)
+2026-04-20 16:22:36,564 [INFO] Loaded ticket profile: 'Generic (Unknown Supplier)' (generic.json)
+2026-04-20 16:22:36,566 [INFO] Loaded ticket profile: 'Knife River' (knife_river.json)
+2026-04-20 16:22:36,566 [INFO] Loaded ticket profile: 'Teevin Bros Land & Timber Co., LLC' (teevin_bros.json)
+2026-04-20 16:22:36,567 [INFO] Loaded ticket profile: 'Troutdale Sand & Gravel' (troutdale_sand_gravel.json)
+2026-04-20 16:22:36,567 [INFO] Loaded 5 ticket profile(s).
+2026-04-20 16:22:36,567 [INFO] Loaded 3 ticket type(s): ['rock', 'concrete', 'flagging']
+2026-04-20 16:22:37,275 [INFO] Authenticated with Microsoft Graph API.
+2026-04-20 16:22:40,812 [INFO] Downloaded ticket_tracker_2601.xlsx from SharePoint (45,262 bytes → C:\Users\dawson.h\AppData\Local\Temp\ticket_tracker_2601.xlsx)
+2026-04-20 16:22:43,707 [INFO] Downloaded ticket_tracker_2601_concrete.xlsx from SharePoint (14,779 bytes → C:\Users\dawson.h\AppData\Local\Temp\ticket_tracker_2601_concrete.xlsx)
+2026-04-20 16:22:43,721 [INFO] TOC materials loaded: 7 entry/entries.
+2026-04-20 16:22:43,721 [INFO] Loaded 7 TOC anticipated material entry/entries.
+2026-04-20 16:22:44,786 [INFO] Found 1 unread email(s) with PDF attachments.
+2026-04-20 16:22:44,787 [INFO] =======================================================
+2026-04-20 16:22:44,787 [INFO] Processing: 'Rock Tickets 16799, 17657 - 08/06/2025 (partial)'
+2026-04-20 16:22:44,787 [INFO]   Downloading '2026-04-20 15-59.pdf'...
+2026-04-20 16:22:45,514 [INFO]   Rendering PDF pages...
+2026-04-20 16:22:47,145 [INFO]   Ticket type detected: rock (score: 6 keywords matched)
+2026-04-20 16:22:47,176 [INFO]   Retry snapshot: 6 ticket number(s) already in Excel — will skip if re-encountered.
+2026-04-20 16:22:49,096 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-20 16:22:49,107 [INFO]   [p1] QR found via AI vision: '2601-0180-313713-99' at left-side
+2026-04-20 16:22:49,107 [INFO]   [p1] QR found via AI vision: '2601-0180-313713-99' (estimated Y=827px, page height 1654px)
+2026-04-20 16:22:50,671 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-20 16:22:50,672 [INFO]   Page 1: Claude detected 1 ticket(s)
+2026-04-20 16:22:50,672 [INFO]     Ticket 1: top=0.0%  bottom=100.0%
+2026-04-20 16:22:50,672 [INFO]   [p1/t1] Single full-page ticket — no crop needed
+2026-04-20 16:22:50,672 [INFO]   [p1/t1] Scanning for QR code...
+2026-04-20 16:22:50,672 [INFO]   [p1/t1] QR assigned from full-page scan (Y=827px within boundary 0–1654px)
+2026-04-20 16:22:50,672 [INFO] QR found at Y=827px on full page (1654px total) → assigned to ticket 1
+2026-04-20 16:22:50,672 [INFO]   [p1/t1] QR → Job: 2601  Location: 0180  Cost Code: 313713-99
+2026-04-20 16:22:50,672 [INFO]   [p1/t1] Running OCR...
+2026-04-20 16:22:52,302 [INFO]   Detected profile: 'Teevin Bros Land & Timber Co., LLC'
+2026-04-20 16:22:52,304 [INFO] OCR debug: corrected text saved to ocr_debug.txt
+2026-04-20 16:22:52,742 [INFO] OCR debug: ticket-number crop saved to ocr_debug_topright.png (original coords x=1475-3689, y=0-496)
+2026-04-20 16:22:52,930 [INFO] OCR debug: preprocessed first page saved to ocr_debug.png
+2026-04-20 16:22:52,930 [INFO]   Using AI extraction for: Rock Tickets 16799, 17657 - 08/06/2025 (partial)
+2026-04-20 16:22:53,337 [INFO]   AI extraction: vision mode (image + OCR text)
+2026-04-20 16:22:55,375 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-20 16:22:55,376 [INFO]   AI extraction result: {
+  "ticket_number": "16799",
+  "date": "08/06/2025",
+  "facility": "Bradley Quarry",
+  "customer": "MJ Hughes Construction",
+  "material": "Bradley Rock Rip Rap",
+  "net_tons": 15.83,
+  "qr_sticker_text": "Class 3 RipRap"
+}
+2026-04-20 16:22:55,376 [INFO]   Date from AI vision: 08/06/2025
+2026-04-20 16:22:55,377 [INFO]   [p1/t1] OCR → Ticket: 16799  Date: 08/06/2025  Facility: Bradley Quarry  Net Tons: 15.83
+2026-04-20 16:22:56,964 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-20 16:22:56,965 [INFO]   Material verification: anticipated='rip rap class 3' actual='Bradley Rock Rip Rap' → YES
+2026-04-20 16:22:57,001 [WARNING]   [p1/t1] DUPLICATE TICKET: '16799' already in tab '4'
+2026-04-20 16:22:57,007 [ERROR] Error logged → 'Rock Tickets 16799, 17657 - 08/06/2025 (partial)': DUPLICATE TICKET: 16799 - Rock Tickets 16799, 17657 - 08/06/2025 (partial) - 2026-04-20 16:22:57
+2026-04-20 16:22:57,008 [INFO]   [p1/t1] Skipping ticket 16799 — already processed in a previous attempt
+2026-04-20 16:22:59,361 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-20 16:22:59,361 [INFO]   [p2] QR found via AI vision: '2601-0620-312323-21' at right-side
+2026-04-20 16:22:59,362 [INFO]   [p2] QR found via AI vision: '2601-0620-312323-21' (estimated Y=827px, page height 1654px)
+2026-04-20 16:23:01,212 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-20 16:23:01,212 [INFO]   Page 2: Claude detected 1 ticket(s)
+2026-04-20 16:23:01,213 [INFO]     Ticket 1: top=0.0%  bottom=100.0%
+2026-04-20 16:23:01,213 [INFO]   [p2/t1] Single full-page ticket — no crop needed
+2026-04-20 16:23:01,213 [INFO]   [p2/t1] Scanning for QR code...
+2026-04-20 16:23:01,213 [INFO]   [p2/t1] QR assigned from full-page scan (Y=827px within boundary 0–1654px)
+2026-04-20 16:23:01,213 [INFO] QR found at Y=827px on full page (1654px total) → assigned to ticket 1
+2026-04-20 16:23:01,213 [INFO]   [p2/t1] QR → Job: 2601  Location: 0620  Cost Code: 312323-21
+2026-04-20 16:23:01,213 [INFO]   [p2/t1] Running OCR...
+2026-04-20 16:23:02,730 [INFO]   Detected profile: 'Teevin Bros Land & Timber Co., LLC'
+2026-04-20 16:23:02,732 [INFO] OCR debug: corrected text saved to ocr_debug.txt
+2026-04-20 16:23:03,163 [INFO] OCR debug: ticket-number crop saved to ocr_debug_topright.png (original coords x=1508-3770, y=0-496)
+2026-04-20 16:23:03,318 [INFO] OCR debug: preprocessed first page saved to ocr_debug.png
+2026-04-20 16:23:03,318 [INFO]   Using AI extraction for: Rock Tickets 16799, 17657 - 08/06/2025 (partial)
+2026-04-20 16:23:03,716 [INFO]   AI extraction: vision mode (image + OCR text)
+2026-04-20 16:23:05,653 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-20 16:23:05,654 [INFO]   AI extraction result: {
+  "ticket_number": "17657",
+  "date": "08/20/2025",
+  "facility": "Bradley Quarry",
+  "customer": "MJ Hughes Construction",
+  "material": "3/4-0\"",
+  "net_tons": 16.67,
+  "qr_sticker_text": "3/4\"-0\""
+}
+2026-04-20 16:23:05,654 [INFO]   Date from AI vision: 08/20/2025
+2026-04-20 16:23:05,655 [INFO]   [p2/t1] OCR → Ticket: 17657  Date: 08/20/2025  Facility: Bradley Quarry  Net Tons: 16.67
+2026-04-20 16:23:06,689 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-20 16:23:06,690 [INFO]   Material verification: anticipated='boulders' actual='3/4-0"' → NO
+2026-04-20 16:23:06,690 [WARNING]   [p2/t1] WARNING: Material mismatch for ticket 17657 — Anticipated: boulders | Found: 3/4-0"
+2026-04-20 16:23:06,715 [WARNING]   [p2/t1] DUPLICATE TICKET: '17657' already in tab '12'
+2026-04-20 16:23:06,721 [ERROR] Error logged → 'Rock Tickets 16799, 17657 - 08/06/2025 (partial)': DUPLICATE TICKET: 17657 - Rock Tickets 16799, 17657 - 08/06/2025 (partial) - 2026-04-20 16:23:06
+2026-04-20 16:23:06,721 [INFO]   [p2/t1] Skipping ticket 17657 — already processed in a previous attempt
+2026-04-20 16:23:09,085 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-20 16:23:09,085 [INFO]   [p3] QR found via AI vision: '2601-0620-312323-21' at left-side
+2026-04-20 16:23:09,086 [INFO]   [p3] QR found via AI vision: '2601-0620-312323-21' (estimated Y=827px, page height 1654px)
+2026-04-20 16:23:11,395 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-20 16:23:11,396 [INFO]   Page 3: Claude detected 1 ticket(s)
+2026-04-20 16:23:11,396 [INFO]     Ticket 1: top=0.0%  bottom=100.0%
+2026-04-20 16:23:11,396 [INFO]   [p3/t1] Single full-page ticket — no crop needed
+2026-04-20 16:23:11,396 [INFO]   [p3/t1] Scanning for QR code...
+2026-04-20 16:23:11,396 [INFO]   [p3/t1] QR assigned from full-page scan (Y=827px within boundary 0–1654px)
+2026-04-20 16:23:11,396 [INFO] QR found at Y=827px on full page (1654px total) → assigned to ticket 1
+2026-04-20 16:23:11,396 [INFO]   [p3/t1] QR → Job: 2601  Location: 0620  Cost Code: 312323-21
+2026-04-20 16:23:11,396 [INFO]   [p3/t1] Running OCR...
+2026-04-20 16:23:13,157 [INFO]   Detected profile: 'Teevin Bros Land & Timber Co., LLC'
+2026-04-20 16:23:13,160 [INFO] OCR debug: corrected text saved to ocr_debug.txt
+2026-04-20 16:23:13,643 [INFO] OCR debug: ticket-number crop saved to ocr_debug_topright.png (original coords x=1494-3737, y=0-496)
+2026-04-20 16:23:13,823 [INFO] OCR debug: preprocessed first page saved to ocr_debug.png
+2026-04-20 16:23:13,824 [INFO]   Using AI extraction for: Rock Tickets 16799, 17657 - 08/06/2025 (partial)
+2026-04-20 16:23:14,293 [INFO]   AI extraction: vision mode (image + OCR text)
+2026-04-20 16:23:16,733 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-20 16:23:16,734 [INFO]   AI extraction result: {
+  "ticket_number": "19672",
+  "date": "09/19/2025",
+  "facility": "Bradley Quarry",
+  "customer": "MJ Hughes Construction",
+  "material": "3/4-0\"",
+  "net_tons": "17.62",
+  "qr_sticker_text": "3/4\"-0\""
+}
+2026-04-20 16:23:16,735 [INFO]   Date from AI vision: 09/19/2025
+2026-04-20 16:23:16,737 [INFO]   [p3/t1] OCR → Ticket: 19672  Date: 09/19/2025  Facility: Bradley Quarry  Net Tons: 17.62
+2026-04-20 16:23:17,874 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-20 16:23:17,874 [INFO]   Material verification: anticipated='boulders' actual='3/4-0"' → NO
+2026-04-20 16:23:17,874 [WARNING]   [p3/t1] WARNING: Material mismatch for ticket 19672 — Anticipated: boulders | Found: 3/4-0"
+2026-04-20 16:23:17,901 [INFO]   [p3/t1] Writing to Excel...
+2026-04-20 16:23:18,132 [INFO] Excel: wrote ticket 19672 to tab '12' row 12.
+2026-04-20 16:23:18,132 [INFO]   [p3/t1] Uploading crop PDF to SharePoint (ticket: 19672)...
+2026-04-20 16:23:23,046 [INFO] Uploaded PDF to SharePoint: MJHughes OPEN JOBS/2601/Ticket Scans/Rock/Tickets, 19672.pdf
+2026-04-20 16:23:23,047 [INFO]   Renaming email to: 'Rock Tickets 16799, 17657, 19672 - 08/06/2025'
+2026-04-20 16:23:23,657 [INFO] Renamed email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTrAAA= subject to: 'Rock Tickets 16799, 17657, 19672 - 08/06/2025'
+2026-04-20 16:23:23,658 [INFO]   Marking email as read...
+2026-04-20 16:23:24,214 [INFO] Marked email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTrAAA= as read.
+2026-04-20 16:23:25,282 [INFO] Archived: 'Rock Tickets 16799, 17657 - 08/06/2025 (partial)' → 'Rock Tickets - Processed'
+2026-04-20 16:23:25,283 [INFO]   Done: 'Rock Tickets 16799, 17657 - 08/06/2025 (partial)' — 3 ticket(s) written, review_needed=False
+2026-04-20 16:23:25,285 [INFO] Running batch outlier detection on 3 rock ticket(s): ['16799', '17657', '19672']
+2026-04-20 16:23:25,404 [WARNING] WARNING: Ticket number 19672 may be a misread — differs from batch median 17657 by 2015. Please verify against original PDF.
+2026-04-20 16:23:25,559 [INFO] Batch outlier check: flagged 1 ticket(s) (median=17657).
+2026-04-20 16:23:28,299 [INFO] Uploaded ticket_tracker_2601.xlsx to SharePoint (38,109 bytes)
+2026-04-20 16:23:28,300 [INFO] Deleted local temp copy: C:\Users\dawson.h\AppData\Local\Temp\ticket_tracker_2601.xlsx
+2026-04-20 16:23:30,746 [INFO] Uploaded ticket_tracker_2601_concrete.xlsx to SharePoint (14,779 bytes)
+2026-04-20 16:23:30,747 [INFO] Deleted local temp copy: C:\Users\dawson.h\AppData\Local\Temp\ticket_tracker_2601_concrete.xlsx
+2026-04-20 16:23:31,309 [WARNING] Could not send run summary email: 403 Client Error: Forbidden for url: https://graph.microsoft.com/v1.0/users/dawson.h@mjhughes.com/sendMail
+2026-04-20 16:23:31,310 [INFO] =======================================================
+2026-04-20 16:23:31,310 [INFO] Complete — success: 1  sorted: 0  failed: 0  (failed emails remain unread for retry)
+2026-04-20 16:23:31,310 [INFO] =======================================================
+2026-04-21 08:39:30,601 [INFO] =======================================================
+2026-04-21 08:39:30,601 [INFO] Ticket Processing Automation — starting
+2026-04-21 08:39:30,601 [INFO] Run time: 2026-04-21 08:39:30
+2026-04-21 08:39:30,601 [INFO] =======================================================
+2026-04-21 08:39:30,602 [INFO] Credentials loaded from: C:\Users\dawson.h\Desktop\ticket-to-excel-automation\.env
+2026-04-21 08:39:30,602 [INFO] AZURE_TENANT_ID starts with: 'b4ed'
+2026-04-21 08:39:30,602 [INFO] Loaded ticket profile: 'CalPortland' (calportland.json)
+2026-04-21 08:39:30,602 [INFO] Loaded ticket profile: 'Generic (Unknown Supplier)' (generic.json)
+2026-04-21 08:39:30,603 [INFO] Loaded ticket profile: 'Knife River' (knife_river.json)
+2026-04-21 08:39:30,603 [INFO] Loaded ticket profile: 'Teevin Bros Land & Timber Co., LLC' (teevin_bros.json)
+2026-04-21 08:39:30,604 [INFO] Loaded ticket profile: 'Troutdale Sand & Gravel' (troutdale_sand_gravel.json)
+2026-04-21 08:39:30,604 [INFO] Loaded 5 ticket profile(s).
+2026-04-21 08:39:30,604 [INFO] Loaded 3 ticket type(s): ['rock', 'concrete', 'flagging']
+2026-04-21 08:39:31,594 [INFO] Authenticated with Microsoft Graph API.
+2026-04-21 08:39:31,595 [INFO] SharePoint site discovery attempt 1: GET https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/
+2026-04-21 08:39:32,276 [INFO]   → HTTP 200  body: {"@odata.context":"https://graph.microsoft.com/v1.0/$metadata#sites/$entity","createdDateTime":"2016-06-29T19:42:30.203Z","description":"","id":"vancouvermjhughes.sharepoint.com,aae8f340-7508-4e57-b378-4e7cf957a279,bba377d3-6f37-4c1c-95c4-1fa769f3894c","lastModifiedDateTime":"2026-04-21T15:17:01Z","name":"","webUrl":"https://vancouvermjhughes.sharepoint.com","displayName":"MJ Hughes Construction Team Site","root":{},"siteCollection":{"hostname":"vancouvermjhughes.sharepoint.com"}}
+2026-04-21 08:39:32,276 [INFO] SharePoint site found via: path lookup (https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/)
+2026-04-21 08:39:34,513 [INFO] Downloaded ticket_tracker_2601.xlsx from SharePoint (44,938 bytes → C:\Users\dawson.h\AppData\Local\Temp\ticket_tracker_2601.xlsx)
+2026-04-21 08:39:34,515 [INFO] SharePoint site discovery attempt 1: GET https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/
+2026-04-21 08:39:35,127 [INFO]   → HTTP 200  body: {"@odata.context":"https://graph.microsoft.com/v1.0/$metadata#sites/$entity","createdDateTime":"2016-06-29T19:42:30.203Z","description":"","id":"vancouvermjhughes.sharepoint.com,aae8f340-7508-4e57-b378-4e7cf957a279,bba377d3-6f37-4c1c-95c4-1fa769f3894c","lastModifiedDateTime":"2026-04-21T15:17:01Z","name":"","webUrl":"https://vancouvermjhughes.sharepoint.com","displayName":"MJ Hughes Construction Team Site","root":{},"siteCollection":{"hostname":"vancouvermjhughes.sharepoint.com"}}
+2026-04-21 08:39:35,127 [INFO] SharePoint site found via: path lookup (https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/)
+2026-04-21 08:39:37,351 [INFO] Downloaded ticket_tracker_2601_concrete.xlsx from SharePoint (14,779 bytes → C:\Users\dawson.h\AppData\Local\Temp\ticket_tracker_2601_concrete.xlsx)
+2026-04-21 08:39:37,364 [INFO] TOC materials loaded: 7 entry/entries.
+2026-04-21 08:39:37,364 [INFO] Loaded 7 TOC anticipated material entry/entries.
+2026-04-21 08:39:38,481 [INFO] Found 1 unread email(s) with PDF attachments.
+2026-04-21 08:39:38,481 [INFO] =======================================================
+2026-04-21 08:39:38,482 [INFO] Processing: 'Rock Tickets 16800, 17583, 16815, 17637 - 08/06/2025'
+2026-04-21 08:39:38,482 [INFO]   Downloading '2026-04-17 09-04.pdf'...
+2026-04-21 08:39:39,452 [INFO]   Rendering PDF pages...
+2026-04-21 08:39:41,368 [INFO]   Ticket type detected: rock (score: 6 keywords matched)
+2026-04-21 08:39:44,998 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 08:39:45,010 [INFO]   [p1] QR found via AI vision: '2601-0180-313713-99' at right-side
+2026-04-21 08:39:45,011 [INFO]   [p1] QR found via AI vision: '2601-0180-313713-99' (estimated Y=827px, page height 1654px)
+2026-04-21 08:39:47,326 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 08:39:47,327 [INFO]   Page 1: Claude detected 1 ticket(s)
+2026-04-21 08:39:47,327 [INFO]     Ticket 1: top=0.0%  bottom=100.0%
+2026-04-21 08:39:47,328 [INFO]   [p1/t1] Single full-page ticket — no crop needed
+2026-04-21 08:39:47,328 [INFO]   [p1/t1] Scanning for QR code...
+2026-04-21 08:39:47,328 [INFO]   [p1/t1] QR assigned from full-page scan (Y=827px within boundary 0–1654px)
+2026-04-21 08:39:47,328 [INFO] QR found at Y=827px on full page (1654px total) → assigned to ticket 1
+2026-04-21 08:39:47,328 [INFO]   [p1/t1] QR → Job: 2601  Location: 0180  Cost Code: 313713-99
+2026-04-21 08:39:47,328 [INFO]   [p1/t1] Running OCR...
+2026-04-21 08:39:49,047 [INFO]   Detected profile: 'Teevin Bros Land & Timber Co., LLC'
+2026-04-21 08:39:49,050 [INFO] OCR debug: corrected text saved to ocr_debug.txt
+2026-04-21 08:39:49,589 [INFO] OCR debug: ticket-number crop saved to ocr_debug_topright.png (original coords x=1533-3833, y=0-496)
+2026-04-21 08:39:49,780 [INFO] OCR debug: preprocessed first page saved to ocr_debug.png
+2026-04-21 08:39:49,781 [INFO]   Using AI extraction for: Rock Tickets 16800, 17583, 16815, 17637 - 08/06/2025
+2026-04-21 08:39:50,209 [INFO]   AI extraction: vision mode (image + OCR text)
+2026-04-21 08:39:53,696 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 08:39:53,697 [INFO]   AI extraction result: {
+  "ticket_number": "16800",
+  "date": "08/06/2025",
+  "facility": "Bradley Quarry",
+  "customer": "MJ Hughes Construction",
+  "material": "Bradley Rock Rip Rap",
+  "net_tons": 18.64,
+  "qr_sticker_text": "Class 2 RipRap"
+}
+2026-04-21 08:39:53,697 [INFO]   Date from AI vision: 08/06/2025
+2026-04-21 08:39:53,699 [INFO]   [p1/t1] OCR → Ticket: 16800  Date: 08/06/2025  Facility: Bradley Quarry  Net Tons: 18.64
+2026-04-21 08:39:55,797 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 08:39:55,798 [INFO]   Material verification: anticipated='rip rap class 3' actual='Bradley Rock Rip Rap' → YES
+2026-04-21 08:39:55,854 [INFO]   [p1/t1] Writing to Excel...
+2026-04-21 08:39:55,952 [INFO]   Multiple tabs matched QR '2601-0180-313713-99': '3', '4' — asking Claude to disambiguate
+2026-04-21 08:39:57,276 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 08:39:57,277 [INFO]   Tab disambiguation: Claude answered '1' for QR '2601-0180-313713-99' (candidates: ['3', '4'])
+2026-04-21 08:39:57,277 [INFO]   Multiple tabs matched QR '2601-0180-313713-99' — AI selected tab '3' based on material 'Bradley Rock Rip Rap'
+2026-04-21 08:39:57,421 [INFO] Excel: wrote ticket 16800 to tab '3' row 9.
+2026-04-21 08:39:57,421 [INFO]   [p1/t1] Uploading crop PDF to SharePoint (ticket: 16800)...
+2026-04-21 08:39:57,466 [INFO] SharePoint site discovery attempt 1: GET https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/
+2026-04-21 08:39:58,161 [INFO]   → HTTP 200  body: {"@odata.context":"https://graph.microsoft.com/v1.0/$metadata#sites/$entity","createdDateTime":"2016-06-29T19:42:30.203Z","description":"","id":"vancouvermjhughes.sharepoint.com,aae8f340-7508-4e57-b378-4e7cf957a279,bba377d3-6f37-4c1c-95c4-1fa769f3894c","lastModifiedDateTime":"2026-04-21T15:17:01Z","name":"","webUrl":"https://vancouvermjhughes.sharepoint.com","displayName":"MJ Hughes Construction Team Site","root":{},"siteCollection":{"hostname":"vancouvermjhughes.sharepoint.com"}}
+2026-04-21 08:39:58,161 [INFO] SharePoint site found via: path lookup (https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/)
+2026-04-21 08:40:02,783 [INFO] Uploaded PDF to SharePoint: MJHughes OPEN JOBS/2601/Ticket Scans/Rock/Tickets, 16800.pdf
+2026-04-21 08:40:05,616 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 08:40:05,626 [INFO]   [p2] QR found via AI vision: '2601-0620-312323-21' at right-side
+2026-04-21 08:40:05,626 [INFO]   [p2] QR found via AI vision: '2601-0620-312323-21' (estimated Y=827px, page height 1654px)
+2026-04-21 08:40:08,081 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 08:40:08,082 [INFO]   Page 2: Claude detected 1 ticket(s)
+2026-04-21 08:40:08,082 [INFO]     Ticket 1: top=0.0%  bottom=100.0%
+2026-04-21 08:40:08,083 [INFO]   [p2/t1] Single full-page ticket — no crop needed
+2026-04-21 08:40:08,083 [INFO]   [p2/t1] Scanning for QR code...
+2026-04-21 08:40:08,083 [INFO]   [p2/t1] QR assigned from full-page scan (Y=827px within boundary 0–1654px)
+2026-04-21 08:40:08,083 [INFO] QR found at Y=827px on full page (1654px total) → assigned to ticket 1
+2026-04-21 08:40:08,084 [INFO]   [p2/t1] QR → Job: 2601  Location: 0620  Cost Code: 312323-21
+2026-04-21 08:40:08,084 [INFO]   [p2/t1] Running OCR...
+2026-04-21 08:40:09,656 [INFO]   Detected profile: 'Teevin Bros Land & Timber Co., LLC'
+2026-04-21 08:40:09,658 [INFO] OCR debug: corrected text saved to ocr_debug.txt
+2026-04-21 08:40:10,111 [INFO] OCR debug: ticket-number crop saved to ocr_debug_topright.png (original coords x=1419-3548, y=0-496)
+2026-04-21 08:40:10,256 [INFO] OCR debug: preprocessed first page saved to ocr_debug.png
+2026-04-21 08:40:10,256 [INFO]   Using AI extraction for: Rock Tickets 16800, 17583, 16815, 17637 - 08/06/2025
+2026-04-21 08:40:10,675 [INFO]   AI extraction: vision mode (image + OCR text)
+2026-04-21 08:40:13,053 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 08:40:13,054 [INFO]   AI extraction result: {"ticket_number":"17583","date":"08/19/2025","facility":"Bradley Quarry","customer":"MJ Hughes Construction","material":"3/4-0\"","net_tons":17.40,"qr_sticker_text":"3/4\"-0\""}
+2026-04-21 08:40:13,054 [INFO]   Date from AI vision: 08/19/2025
+2026-04-21 08:40:13,057 [INFO]   [p2/t1] OCR → Ticket: 17583  Date: 08/19/2025  Facility: Bradley Quarry  Net Tons: 17.4
+2026-04-21 08:40:15,032 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 08:40:15,033 [INFO]   Material verification: anticipated='boulders' actual='3/4-0"' → NO
+2026-04-21 08:40:15,034 [WARNING]   [p2/t1] WARNING: Material mismatch for ticket 17583 — Anticipated: boulders | Found: 3/4-0"
+2026-04-21 08:40:15,066 [INFO]   [p2/t1] Writing to Excel...
+2026-04-21 08:40:15,323 [INFO] Excel: wrote ticket 17583 to tab '12' row 9.
+2026-04-21 08:40:15,324 [INFO]   [p2/t1] Uploading crop PDF to SharePoint (ticket: 17583)...
+2026-04-21 08:40:15,334 [INFO] SharePoint site discovery attempt 1: GET https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/
+2026-04-21 08:40:15,972 [INFO]   → HTTP 200  body: {"@odata.context":"https://graph.microsoft.com/v1.0/$metadata#sites/$entity","createdDateTime":"2016-06-29T19:42:30.203Z","description":"","id":"vancouvermjhughes.sharepoint.com,aae8f340-7508-4e57-b378-4e7cf957a279,bba377d3-6f37-4c1c-95c4-1fa769f3894c","lastModifiedDateTime":"2026-04-21T15:40:03Z","name":"","webUrl":"https://vancouvermjhughes.sharepoint.com","displayName":"MJ Hughes Construction Team Site","root":{},"siteCollection":{"hostname":"vancouvermjhughes.sharepoint.com"}}
+2026-04-21 08:40:15,972 [INFO] SharePoint site found via: path lookup (https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/)
+2026-04-21 08:40:21,038 [INFO] Uploaded PDF to SharePoint: MJHughes OPEN JOBS/2601/Ticket Scans/Rock/Tickets, 17583.pdf
+2026-04-21 08:40:23,755 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 08:40:23,756 [INFO]   [p3] QR found via AI vision: '2601-0180-313713-99' at right-side
+2026-04-21 08:40:23,757 [INFO]   [p3] QR found via AI vision: '2601-0180-313713-99' (estimated Y=827px, page height 1654px)
+2026-04-21 08:40:26,416 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 08:40:26,417 [INFO]   Page 3: Claude detected 1 ticket(s)
+2026-04-21 08:40:26,417 [INFO]     Ticket 1: top=0.0%  bottom=100.0%
+2026-04-21 08:40:26,417 [INFO]   [p3/t1] Single full-page ticket — no crop needed
+2026-04-21 08:40:26,417 [INFO]   [p3/t1] Scanning for QR code...
+2026-04-21 08:40:26,417 [INFO]   [p3/t1] QR assigned from full-page scan (Y=827px within boundary 0–1654px)
+2026-04-21 08:40:26,418 [INFO] QR found at Y=827px on full page (1654px total) → assigned to ticket 1
+2026-04-21 08:40:26,418 [INFO]   [p3/t1] QR → Job: 2601  Location: 0180  Cost Code: 313713-99
+2026-04-21 08:40:26,418 [INFO]   [p3/t1] Running OCR...
+2026-04-21 08:40:28,343 [INFO]   Detected profile: 'Teevin Bros Land & Timber Co., LLC'
+2026-04-21 08:40:28,346 [INFO] OCR debug: corrected text saved to ocr_debug.txt
+2026-04-21 08:40:28,943 [INFO] OCR debug: ticket-number crop saved to ocr_debug_topright.png (original coords x=1814-4536, y=0-496)
+2026-04-21 08:40:29,168 [INFO] OCR debug: preprocessed first page saved to ocr_debug.png
+2026-04-21 08:40:29,169 [INFO]   Using AI extraction for: Rock Tickets 16800, 17583, 16815, 17637 - 08/06/2025
+2026-04-21 08:40:29,617 [INFO]   AI extraction: vision mode (image + OCR text)
+2026-04-21 08:40:32,035 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 08:40:32,037 [INFO]   AI extraction result: {"ticket_number": "16815", "date": "08/06/2025", "facility": "Bradley Quarry", "customer": "MJ Hughes Construction", "material": "Bradley Rock Rip Rap", "net_tons": 19.27, "qr_sticker_text": "Class 3 RipRap"}
+2026-04-21 08:40:32,037 [INFO]   Date from AI vision: 08/06/2025
+2026-04-21 08:40:32,041 [INFO]   [p3/t1] OCR → Ticket: 16815  Date: 08/06/2025  Facility: Bradley Quarry  Net Tons: 19.27
+2026-04-21 08:40:33,531 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 08:40:33,532 [INFO]   Material verification: anticipated='rip rap class 3' actual='Bradley Rock Rip Rap' → YES
+2026-04-21 08:40:33,577 [INFO]   [p3/t1] Writing to Excel...
+2026-04-21 08:40:33,677 [INFO]   Multiple tabs matched QR '2601-0180-313713-99': '3', '4' — asking Claude to disambiguate
+2026-04-21 08:40:35,827 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 08:40:35,828 [INFO]   Tab disambiguation: Claude answered '2' for QR '2601-0180-313713-99' (candidates: ['3', '4'])
+2026-04-21 08:40:35,828 [INFO]   Multiple tabs matched QR '2601-0180-313713-99' — AI selected tab '4' based on material 'Bradley Rock Rip Rap'
+2026-04-21 08:40:35,956 [INFO] Excel: wrote ticket 16815 to tab '4' row 9.
+2026-04-21 08:40:35,956 [INFO]   [p3/t1] Uploading crop PDF to SharePoint (ticket: 16815)...
+2026-04-21 08:40:35,975 [INFO] SharePoint site discovery attempt 1: GET https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/
+2026-04-21 08:40:37,028 [INFO]   → HTTP 200  body: {"@odata.context":"https://graph.microsoft.com/v1.0/$metadata#sites/$entity","createdDateTime":"2016-06-29T19:42:30.203Z","description":"","id":"vancouvermjhughes.sharepoint.com,aae8f340-7508-4e57-b378-4e7cf957a279,bba377d3-6f37-4c1c-95c4-1fa769f3894c","lastModifiedDateTime":"2026-04-21T15:40:21Z","name":"","webUrl":"https://vancouvermjhughes.sharepoint.com","displayName":"MJ Hughes Construction Team Site","root":{},"siteCollection":{"hostname":"vancouvermjhughes.sharepoint.com"}}
+2026-04-21 08:40:37,028 [INFO] SharePoint site found via: path lookup (https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/)
+2026-04-21 08:40:41,388 [INFO] Uploaded PDF to SharePoint: MJHughes OPEN JOBS/2601/Ticket Scans/Rock/Tickets, 16815.pdf
+2026-04-21 08:40:43,715 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 08:40:43,717 [INFO]   [p4] QR found via AI vision: '2601-0620-312323-21' at right-side
+2026-04-21 08:40:43,717 [INFO]   [p4] QR found via AI vision: '2601-0620-312323-21' (estimated Y=827px, page height 1654px)
+2026-04-21 08:40:46,120 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 08:40:46,121 [INFO]   Page 4: Claude detected 1 ticket(s)
+2026-04-21 08:40:46,122 [INFO]     Ticket 1: top=0.0%  bottom=100.0%
+2026-04-21 08:40:46,122 [INFO]   [p4/t1] Single full-page ticket — no crop needed
+2026-04-21 08:40:46,122 [INFO]   [p4/t1] Scanning for QR code...
+2026-04-21 08:40:46,122 [INFO]   [p4/t1] QR assigned from full-page scan (Y=827px within boundary 0–1654px)
+2026-04-21 08:40:46,123 [INFO] QR found at Y=827px on full page (1654px total) → assigned to ticket 1
+2026-04-21 08:40:46,123 [INFO]   [p4/t1] QR → Job: 2601  Location: 0620  Cost Code: 312323-21
+2026-04-21 08:40:46,123 [INFO]   [p4/t1] Running OCR...
+2026-04-21 08:40:47,581 [INFO]   Detected profile: 'Teevin Bros Land & Timber Co., LLC'
+2026-04-21 08:40:47,584 [INFO] OCR debug: corrected text saved to ocr_debug.txt
+2026-04-21 08:40:48,024 [INFO] OCR debug: ticket-number crop saved to ocr_debug_topright.png (original coords x=1505-3764, y=0-496)
+2026-04-21 08:40:48,192 [INFO] OCR debug: preprocessed first page saved to ocr_debug.png
+2026-04-21 08:40:48,192 [INFO]   Using AI extraction for: Rock Tickets 16800, 17583, 16815, 17637 - 08/06/2025
+2026-04-21 08:40:48,596 [INFO]   AI extraction: vision mode (image + OCR text)
+2026-04-21 08:40:50,955 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 08:40:50,956 [INFO]   AI extraction result: {
+  "ticket_number": "17637",
+  "date": "08/20/2025",
+  "facility": "Bradley Quarry",
+  "customer": "MJ Hughes Construction",
+  "material": "3/4-0\"",
+  "net_tons": 16.88,
+  "qr_sticker_text": "3/4\"-0\""
+}
+2026-04-21 08:40:50,957 [INFO]   Date from AI vision: 08/20/2025
+2026-04-21 08:40:50,959 [INFO]   [p4/t1] OCR → Ticket: 17637  Date: 08/20/2025  Facility: Bradley Quarry  Net Tons: 16.88
+2026-04-21 08:40:52,454 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 08:40:52,455 [INFO]   Material verification: anticipated='boulders' actual='3/4-0"' → NO
+2026-04-21 08:40:52,456 [WARNING]   [p4/t1] WARNING: Material mismatch for ticket 17637 — Anticipated: boulders | Found: 3/4-0"
+2026-04-21 08:40:52,509 [INFO]   [p4/t1] Writing to Excel...
+2026-04-21 08:40:52,730 [INFO] Excel: wrote ticket 17637 to tab '12' row 10.
+2026-04-21 08:40:52,731 [INFO]   [p4/t1] Uploading crop PDF to SharePoint (ticket: 17637)...
+2026-04-21 08:40:52,742 [INFO] SharePoint site discovery attempt 1: GET https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/
+2026-04-21 08:40:53,365 [INFO]   → HTTP 200  body: {"@odata.context":"https://graph.microsoft.com/v1.0/$metadata#sites/$entity","createdDateTime":"2016-06-29T19:42:30.203Z","description":"","id":"vancouvermjhughes.sharepoint.com,aae8f340-7508-4e57-b378-4e7cf957a279,bba377d3-6f37-4c1c-95c4-1fa769f3894c","lastModifiedDateTime":"2026-04-21T15:40:41Z","name":"","webUrl":"https://vancouvermjhughes.sharepoint.com","displayName":"MJ Hughes Construction Team Site","root":{},"siteCollection":{"hostname":"vancouvermjhughes.sharepoint.com"}}
+2026-04-21 08:40:53,365 [INFO] SharePoint site found via: path lookup (https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/)
+2026-04-21 08:40:57,824 [INFO] Uploaded PDF to SharePoint: MJHughes OPEN JOBS/2601/Ticket Scans/Rock/Tickets, 17637.pdf
+2026-04-21 08:40:57,825 [INFO]   Renaming email to: 'Rock Tickets 16800, 17583, 16815, 17637 - 08/06/2025'
+2026-04-21 08:40:58,394 [INFO] Renamed email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTsAAA= subject to: 'Rock Tickets 16800, 17583, 16815, 17637 - 08/06/2025'
+2026-04-21 08:40:58,395 [INFO]   Marking email as read...
+2026-04-21 08:40:58,967 [INFO] Marked email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTsAAA= as read.
+2026-04-21 08:41:00,208 [INFO] Archived: 'Rock Tickets 16800, 17583, 16815, 17637 - 08/06/2025' → 'Rock Tickets - Processed'
+2026-04-21 08:41:00,208 [INFO]   Done: 'Rock Tickets 16800, 17583, 16815, 17637 - 08/06/2025' — 4 ticket(s) written, review_needed=False
+2026-04-21 08:41:00,213 [INFO] Running batch outlier detection on 4 rock ticket(s): ['16800', '17583', '16815', '17637']
+2026-04-21 08:41:00,213 [INFO] Batch outlier check: 4 ticket(s), median=17199, no outliers detected.
+2026-04-21 08:41:00,213 [INFO] SharePoint site discovery attempt 1: GET https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/
+2026-04-21 08:41:01,204 [INFO]   → HTTP 200  body: {"@odata.context":"https://graph.microsoft.com/v1.0/$metadata#sites/$entity","createdDateTime":"2016-06-29T19:42:30.203Z","description":"","id":"vancouvermjhughes.sharepoint.com,aae8f340-7508-4e57-b378-4e7cf957a279,bba377d3-6f37-4c1c-95c4-1fa769f3894c","lastModifiedDateTime":"2026-04-21T15:40:58Z","name":"","webUrl":"https://vancouvermjhughes.sharepoint.com","displayName":"MJ Hughes Construction Team Site","root":{},"siteCollection":{"hostname":"vancouvermjhughes.sharepoint.com"}}
+2026-04-21 08:41:01,204 [INFO] SharePoint site found via: path lookup (https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/)
+2026-04-21 08:41:03,274 [INFO] Uploaded ticket_tracker_2601.xlsx to SharePoint (37,971 bytes)
+2026-04-21 08:41:03,275 [INFO] Deleted local temp copy: C:\Users\dawson.h\AppData\Local\Temp\ticket_tracker_2601.xlsx
+2026-04-21 08:41:03,275 [INFO] SharePoint site discovery attempt 1: GET https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/
+2026-04-21 08:41:03,945 [INFO]   → HTTP 200  body: {"@odata.context":"https://graph.microsoft.com/v1.0/$metadata#sites/$entity","createdDateTime":"2016-06-29T19:42:30.203Z","description":"","id":"vancouvermjhughes.sharepoint.com,aae8f340-7508-4e57-b378-4e7cf957a279,bba377d3-6f37-4c1c-95c4-1fa769f3894c","lastModifiedDateTime":"2026-04-21T15:41:03Z","name":"","webUrl":"https://vancouvermjhughes.sharepoint.com","displayName":"MJ Hughes Construction Team Site","root":{},"siteCollection":{"hostname":"vancouvermjhughes.sharepoint.com"}}
+2026-04-21 08:41:03,945 [INFO] SharePoint site found via: path lookup (https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/)
+2026-04-21 08:41:05,710 [INFO] Uploaded ticket_tracker_2601_concrete.xlsx to SharePoint (14,779 bytes)
+2026-04-21 08:41:05,711 [INFO] Deleted local temp copy: C:\Users\dawson.h\AppData\Local\Temp\ticket_tracker_2601_concrete.xlsx
+2026-04-21 08:41:06,716 [INFO] Run summary email sent to dawson.h@mjhughes.com.
+2026-04-21 08:41:06,716 [INFO] =======================================================
+2026-04-21 08:41:06,716 [INFO] Complete — success: 1  sorted: 0  failed: 0  (failed emails remain unread for retry)
+2026-04-21 08:41:06,716 [INFO] =======================================================
+2026-04-21 09:43:45,719 [INFO] =======================================================
+2026-04-21 09:43:45,719 [INFO] Ticket Processing Automation — starting
+2026-04-21 09:43:45,719 [INFO] Run time: 2026-04-21 09:43:45
+2026-04-21 09:43:45,719 [INFO] =======================================================
+2026-04-21 09:43:45,719 [INFO] Credentials loaded from: C:\Users\dawson.h\Desktop\ticket-to-excel-automation\.env
+2026-04-21 09:43:45,720 [INFO] AZURE_TENANT_ID starts with: 'b4ed'
+2026-04-21 09:43:45,720 [INFO] Loaded ticket profile: 'CalPortland' (calportland.json)
+2026-04-21 09:43:45,721 [INFO] Loaded ticket profile: 'Generic (Unknown Supplier)' (generic.json)
+2026-04-21 09:43:45,721 [INFO] Loaded ticket profile: 'Knife River' (knife_river.json)
+2026-04-21 09:43:45,721 [INFO] Loaded ticket profile: 'Teevin Bros Land & Timber Co., LLC' (teevin_bros.json)
+2026-04-21 09:43:45,722 [INFO] Loaded ticket profile: 'Troutdale Sand & Gravel' (troutdale_sand_gravel.json)
+2026-04-21 09:43:45,722 [INFO] Loaded 5 ticket profile(s).
+2026-04-21 09:43:45,722 [INFO] Loaded 3 ticket type(s): ['rock', 'concrete', 'flagging']
+2026-04-21 09:43:46,510 [INFO] Authenticated with Microsoft Graph API.
+2026-04-21 09:43:46,510 [INFO] SharePoint site discovery attempt 1: GET https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/
+2026-04-21 09:43:47,315 [INFO]   → HTTP 200  body: {"@odata.context":"https://graph.microsoft.com/v1.0/$metadata#sites/$entity","createdDateTime":"2016-06-29T19:42:30.203Z","description":"","id":"vancouvermjhughes.sharepoint.com,aae8f340-7508-4e57-b378-4e7cf957a279,bba377d3-6f37-4c1c-95c4-1fa769f3894c","lastModifiedDateTime":"2026-04-21T16:23:24Z","name":"","webUrl":"https://vancouvermjhughes.sharepoint.com","displayName":"MJ Hughes Construction Team Site","root":{},"siteCollection":{"hostname":"vancouvermjhughes.sharepoint.com"}}
+2026-04-21 09:43:47,315 [INFO] SharePoint site found via: path lookup (https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/)
+2026-04-21 09:43:49,415 [INFO] Downloaded ticket_tracker_2601.xlsx from SharePoint (44,932 bytes → C:\Users\dawson.h\AppData\Local\Temp\ticket_tracker_2601.xlsx)
+2026-04-21 09:43:49,417 [INFO] SharePoint site discovery attempt 1: GET https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/
+2026-04-21 09:43:50,100 [INFO]   → HTTP 200  body: {"@odata.context":"https://graph.microsoft.com/v1.0/$metadata#sites/$entity","createdDateTime":"2016-06-29T19:42:30.203Z","description":"","id":"vancouvermjhughes.sharepoint.com,aae8f340-7508-4e57-b378-4e7cf957a279,bba377d3-6f37-4c1c-95c4-1fa769f3894c","lastModifiedDateTime":"2026-04-21T16:23:24Z","name":"","webUrl":"https://vancouvermjhughes.sharepoint.com","displayName":"MJ Hughes Construction Team Site","root":{},"siteCollection":{"hostname":"vancouvermjhughes.sharepoint.com"}}
+2026-04-21 09:43:50,100 [INFO] SharePoint site found via: path lookup (https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/)
+2026-04-21 09:43:52,242 [INFO] Downloaded ticket_tracker_2601_concrete.xlsx from SharePoint (14,597 bytes → C:\Users\dawson.h\AppData\Local\Temp\ticket_tracker_2601_concrete.xlsx)
+2026-04-21 09:43:52,257 [INFO] TOC materials loaded: 7 entry/entries.
+2026-04-21 09:43:52,257 [INFO] Loaded 7 TOC anticipated material entry/entries.
+2026-04-21 09:43:53,348 [INFO] Found 1 unread email(s) with PDF attachments.
+2026-04-21 09:43:53,349 [INFO] =======================================================
+2026-04-21 09:43:53,349 [INFO] Processing: 'Rock Tickets 16800, 17583, 16815, 17637 - 08/06/2025'
+2026-04-21 09:43:53,349 [INFO]   Downloading '2026-04-17 09-04.pdf'...
+2026-04-21 09:43:54,250 [INFO]   Rendering PDF pages...
+2026-04-21 09:43:56,134 [INFO]   Ticket type detected: rock (score: 6 keywords matched)
+2026-04-21 09:43:58,792 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 09:43:58,805 [INFO]   [p1] QR found via AI vision: '2601-0180-313713-99' at right-side
+2026-04-21 09:43:58,806 [INFO]   [p1] QR found via AI vision: '2601-0180-313713-99' (estimated Y=827px, page height 1654px)
+2026-04-21 09:44:00,431 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 09:44:00,432 [INFO]   Page 1: Claude detected 1 ticket(s)
+2026-04-21 09:44:00,432 [INFO]     Ticket 1: top=0.0%  bottom=100.0%
+2026-04-21 09:44:00,432 [INFO]   [p1/t1] Single full-page ticket — no crop needed
+2026-04-21 09:44:00,432 [INFO]   [p1/t1] Scanning for QR code...
+2026-04-21 09:44:00,433 [INFO]   [p1/t1] QR assigned from full-page scan (Y=827px within boundary 0–1654px)
+2026-04-21 09:44:00,433 [INFO] QR found at Y=827px on full page (1654px total) → assigned to ticket 1
+2026-04-21 09:44:00,433 [INFO]   [p1/t1] QR → Job: 2601  Location: 0180  Cost Code: 313713-99
+2026-04-21 09:44:00,433 [INFO]   [p1/t1] Running OCR...
+2026-04-21 09:44:02,086 [INFO]   Detected profile: 'Teevin Bros Land & Timber Co., LLC'
+2026-04-21 09:44:02,089 [INFO] OCR debug: corrected text saved to ocr_debug.txt
+2026-04-21 09:44:02,522 [INFO] OCR debug: ticket-number crop saved to ocr_debug_topright.png (original coords x=1533-3833, y=0-496)
+2026-04-21 09:44:02,711 [INFO] OCR debug: preprocessed first page saved to ocr_debug.png
+2026-04-21 09:44:02,711 [INFO]   Using AI extraction for: Rock Tickets 16800, 17583, 16815, 17637 - 08/06/2025
+2026-04-21 09:44:03,107 [INFO]   AI extraction: vision mode (image + OCR text)
+2026-04-21 09:44:05,645 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 09:44:05,647 [INFO]   AI extraction result: {"ticket_number": "16800", "date": "08/06/2025", "facility": "Bradley Quarry", "customer": "MJ Hughes Construction", "material": "Bradley Rock Rip Rap", "net_tons": 18.64, "qr_sticker_text": "Class 2 RipRap"}
+2026-04-21 09:44:05,647 [INFO]   Date from AI vision: 08/06/2025
+2026-04-21 09:44:05,649 [INFO]   [p1/t1] OCR → Ticket: 16800  Date: 08/06/2025  Facility: Bradley Quarry  Net Tons: 18.64
+2026-04-21 09:44:07,346 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 09:44:07,348 [INFO]   Material verification: anticipated='rip rap class 3' actual='Bradley Rock Rip Rap' → YES
+2026-04-21 09:44:07,394 [INFO]   [p1/t1] Writing to Excel...
+2026-04-21 09:44:07,489 [INFO]   Multiple tabs matched QR '2601-0180-313713-99': '3', '4' — asking Claude to disambiguate
+2026-04-21 09:44:08,864 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 09:44:08,865 [INFO]   Tab disambiguation: Claude answered '1' for QR '2601-0180-313713-99' (candidates: ['3', '4'])
+2026-04-21 09:44:08,866 [INFO]   Multiple tabs matched QR '2601-0180-313713-99' — AI selected tab '3' based on material 'Bradley Rock Rip Rap'
+2026-04-21 09:44:08,996 [INFO] Excel: wrote ticket 16800 to tab '3' row 9.
+2026-04-21 09:44:08,996 [INFO]   [p1/t1] Uploading crop PDF to SharePoint (ticket: 16800)...
+2026-04-21 09:44:09,037 [INFO] SharePoint site discovery attempt 1: GET https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/
+2026-04-21 09:44:09,631 [INFO]   → HTTP 200  body: {"@odata.context":"https://graph.microsoft.com/v1.0/$metadata#sites/$entity","createdDateTime":"2016-06-29T19:42:30.203Z","description":"","id":"vancouvermjhughes.sharepoint.com,aae8f340-7508-4e57-b378-4e7cf957a279,bba377d3-6f37-4c1c-95c4-1fa769f3894c","lastModifiedDateTime":"2026-04-21T16:23:24Z","name":"","webUrl":"https://vancouvermjhughes.sharepoint.com","displayName":"MJ Hughes Construction Team Site","root":{},"siteCollection":{"hostname":"vancouvermjhughes.sharepoint.com"}}
+2026-04-21 09:44:09,631 [INFO] SharePoint site found via: path lookup (https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/)
+2026-04-21 09:44:13,991 [INFO] Uploaded PDF to SharePoint: MJHughes OPEN JOBS/2601/Ticket Scans/Rock/Tickets, 16800.pdf
+2026-04-21 09:44:16,618 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 09:44:16,620 [INFO]   [p2] QR found via AI vision: '2601-0620-312323-21' at right-side
+2026-04-21 09:44:16,621 [INFO]   [p2] QR found via AI vision: '2601-0620-312323-21' (estimated Y=827px, page height 1654px)
+2026-04-21 09:44:19,002 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 09:44:19,003 [INFO]   Page 2: Claude detected 1 ticket(s)
+2026-04-21 09:44:19,003 [INFO]     Ticket 1: top=0.0%  bottom=100.0%
+2026-04-21 09:44:19,004 [INFO]   [p2/t1] Single full-page ticket — no crop needed
+2026-04-21 09:44:19,004 [INFO]   [p2/t1] Scanning for QR code...
+2026-04-21 09:44:19,004 [INFO]   [p2/t1] QR assigned from full-page scan (Y=827px within boundary 0–1654px)
+2026-04-21 09:44:19,005 [INFO] QR found at Y=827px on full page (1654px total) → assigned to ticket 1
+2026-04-21 09:44:19,005 [INFO]   [p2/t1] QR → Job: 2601  Location: 0620  Cost Code: 312323-21
+2026-04-21 09:44:19,005 [INFO]   [p2/t1] Running OCR...
+2026-04-21 09:44:20,420 [INFO]   Detected profile: 'Teevin Bros Land & Timber Co., LLC'
+2026-04-21 09:44:20,423 [INFO] OCR debug: corrected text saved to ocr_debug.txt
+2026-04-21 09:44:20,805 [INFO] OCR debug: ticket-number crop saved to ocr_debug_topright.png (original coords x=1419-3548, y=0-496)
+2026-04-21 09:44:20,948 [INFO] OCR debug: preprocessed first page saved to ocr_debug.png
+2026-04-21 09:44:20,949 [INFO]   Using AI extraction for: Rock Tickets 16800, 17583, 16815, 17637 - 08/06/2025
+2026-04-21 09:44:21,336 [INFO]   AI extraction: vision mode (image + OCR text)
+2026-04-21 09:44:23,599 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 09:44:23,600 [INFO]   AI extraction result: {"ticket_number":"17583","date":"08/19/2025","facility":"Bradley Quarry","customer":"MJ Hughes Construction","material":"3/4-0\"","net_tons":17.40,"qr_sticker_text":"3/4\"-0\""}
+2026-04-21 09:44:23,600 [INFO]   Date from AI vision: 08/19/2025
+2026-04-21 09:44:23,601 [INFO]   [p2/t1] OCR → Ticket: 17583  Date: 08/19/2025  Facility: Bradley Quarry  Net Tons: 17.4
+2026-04-21 09:44:24,755 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 09:44:24,757 [INFO]   Material verification: anticipated='boulders' actual='3/4-0"' → NO
+2026-04-21 09:44:24,757 [WARNING]   [p2/t1] WARNING: Material mismatch for ticket 17583 — Anticipated: boulders | Found: 3/4-0"
+2026-04-21 09:44:24,785 [INFO]   [p2/t1] Writing to Excel...
+2026-04-21 09:44:25,034 [INFO] Excel: wrote ticket 17583 to tab '12' row 9.
+2026-04-21 09:44:25,034 [INFO]   [p2/t1] Uploading crop PDF to SharePoint (ticket: 17583)...
+2026-04-21 09:44:25,045 [INFO] SharePoint site discovery attempt 1: GET https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/
+2026-04-21 09:44:25,713 [INFO]   → HTTP 200  body: {"@odata.context":"https://graph.microsoft.com/v1.0/$metadata#sites/$entity","createdDateTime":"2016-06-29T19:42:30.203Z","description":"","id":"vancouvermjhughes.sharepoint.com,aae8f340-7508-4e57-b378-4e7cf957a279,bba377d3-6f37-4c1c-95c4-1fa769f3894c","lastModifiedDateTime":"2026-04-21T16:44:14Z","name":"","webUrl":"https://vancouvermjhughes.sharepoint.com","displayName":"MJ Hughes Construction Team Site","root":{},"siteCollection":{"hostname":"vancouvermjhughes.sharepoint.com"}}
+2026-04-21 09:44:25,714 [INFO] SharePoint site found via: path lookup (https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/)
+2026-04-21 09:44:30,398 [INFO] Uploaded PDF to SharePoint: MJHughes OPEN JOBS/2601/Ticket Scans/Rock/Tickets, 17583.pdf
+2026-04-21 09:44:32,446 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 09:44:32,447 [INFO]   [p3] QR found via AI vision: '2601-0180-313713-99' at right-side
+2026-04-21 09:44:32,447 [INFO]   [p3] QR found via AI vision: '2601-0180-313713-99' (estimated Y=827px, page height 1654px)
+2026-04-21 09:44:34,372 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 09:44:34,373 [INFO]   Page 3: Claude detected 1 ticket(s)
+2026-04-21 09:44:34,373 [INFO]     Ticket 1: top=0.0%  bottom=100.0%
+2026-04-21 09:44:34,374 [INFO]   [p3/t1] Single full-page ticket — no crop needed
+2026-04-21 09:44:34,374 [INFO]   [p3/t1] Scanning for QR code...
+2026-04-21 09:44:34,375 [INFO]   [p3/t1] QR assigned from full-page scan (Y=827px within boundary 0–1654px)
+2026-04-21 09:44:34,375 [INFO] QR found at Y=827px on full page (1654px total) → assigned to ticket 1
+2026-04-21 09:44:34,375 [INFO]   [p3/t1] QR → Job: 2601  Location: 0180  Cost Code: 313713-99
+2026-04-21 09:44:34,375 [INFO]   [p3/t1] Running OCR...
+2026-04-21 09:44:36,220 [INFO]   Detected profile: 'Teevin Bros Land & Timber Co., LLC'
+2026-04-21 09:44:36,222 [INFO] OCR debug: corrected text saved to ocr_debug.txt
+2026-04-21 09:44:36,746 [INFO] OCR debug: ticket-number crop saved to ocr_debug_topright.png (original coords x=1814-4536, y=0-496)
+2026-04-21 09:44:36,941 [INFO] OCR debug: preprocessed first page saved to ocr_debug.png
+2026-04-21 09:44:36,941 [INFO]   Using AI extraction for: Rock Tickets 16800, 17583, 16815, 17637 - 08/06/2025
+2026-04-21 09:44:37,369 [INFO]   AI extraction: vision mode (image + OCR text)
+2026-04-21 09:44:39,647 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 09:44:39,649 [INFO]   AI extraction result: {"ticket_number": "16815", "date": "08/06/2025", "facility": "Bradley Quarry", "customer": "MJ Hughes Construction", "material": "Bradley Rock Rip Rap", "net_tons": 19.27, "qr_sticker_text": "Class 3 RipRap"}
+2026-04-21 09:44:39,649 [INFO]   Date from AI vision: 08/06/2025
+2026-04-21 09:44:39,650 [INFO]   [p3/t1] OCR → Ticket: 16815  Date: 08/06/2025  Facility: Bradley Quarry  Net Tons: 19.27
+2026-04-21 09:44:41,076 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 09:44:41,077 [INFO]   Material verification: anticipated='rip rap class 3' actual='Bradley Rock Rip Rap' → YES
+2026-04-21 09:44:41,127 [INFO]   [p3/t1] Writing to Excel...
+2026-04-21 09:44:41,243 [INFO]   Multiple tabs matched QR '2601-0180-313713-99': '3', '4' — asking Claude to disambiguate
+2026-04-21 09:44:43,731 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 09:44:43,732 [INFO]   Tab disambiguation: Claude answered '2' for QR '2601-0180-313713-99' (candidates: ['3', '4'])
+2026-04-21 09:44:43,732 [INFO]   Multiple tabs matched QR '2601-0180-313713-99' — AI selected tab '4' based on material 'Bradley Rock Rip Rap'
+2026-04-21 09:44:43,870 [INFO] Excel: wrote ticket 16815 to tab '4' row 9.
+2026-04-21 09:44:43,870 [INFO]   [p3/t1] Uploading crop PDF to SharePoint (ticket: 16815)...
+2026-04-21 09:44:43,883 [INFO] SharePoint site discovery attempt 1: GET https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/
+2026-04-21 09:44:44,473 [INFO]   → HTTP 200  body: {"@odata.context":"https://graph.microsoft.com/v1.0/$metadata#sites/$entity","createdDateTime":"2016-06-29T19:42:30.203Z","description":"","id":"vancouvermjhughes.sharepoint.com,aae8f340-7508-4e57-b378-4e7cf957a279,bba377d3-6f37-4c1c-95c4-1fa769f3894c","lastModifiedDateTime":"2026-04-21T16:44:30Z","name":"","webUrl":"https://vancouvermjhughes.sharepoint.com","displayName":"MJ Hughes Construction Team Site","root":{},"siteCollection":{"hostname":"vancouvermjhughes.sharepoint.com"}}
+2026-04-21 09:44:44,473 [INFO] SharePoint site found via: path lookup (https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/)
+2026-04-21 09:44:48,863 [INFO] Uploaded PDF to SharePoint: MJHughes OPEN JOBS/2601/Ticket Scans/Rock/Tickets, 16815.pdf
+2026-04-21 09:44:51,648 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 09:44:51,649 [INFO]   [p4] QR found via AI vision: '2601-0620-312323-21' at right-side
+2026-04-21 09:44:51,649 [INFO]   [p4] QR found via AI vision: '2601-0620-312323-21' (estimated Y=827px, page height 1654px)
+2026-04-21 09:44:53,501 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 09:44:53,503 [INFO]   Page 4: Claude detected 1 ticket(s)
+2026-04-21 09:44:53,503 [INFO]     Ticket 1: top=0.0%  bottom=100.0%
+2026-04-21 09:44:53,504 [INFO]   [p4/t1] Single full-page ticket — no crop needed
+2026-04-21 09:44:53,504 [INFO]   [p4/t1] Scanning for QR code...
+2026-04-21 09:44:53,505 [INFO]   [p4/t1] QR assigned from full-page scan (Y=827px within boundary 0–1654px)
+2026-04-21 09:44:53,505 [INFO] QR found at Y=827px on full page (1654px total) → assigned to ticket 1
+2026-04-21 09:44:53,506 [INFO]   [p4/t1] QR → Job: 2601  Location: 0620  Cost Code: 312323-21
+2026-04-21 09:44:53,506 [INFO]   [p4/t1] Running OCR...
+2026-04-21 09:44:54,991 [INFO]   Detected profile: 'Teevin Bros Land & Timber Co., LLC'
+2026-04-21 09:44:54,993 [INFO] OCR debug: corrected text saved to ocr_debug.txt
+2026-04-21 09:44:55,460 [INFO] OCR debug: ticket-number crop saved to ocr_debug_topright.png (original coords x=1505-3764, y=0-496)
+2026-04-21 09:44:55,622 [INFO] OCR debug: preprocessed first page saved to ocr_debug.png
+2026-04-21 09:44:55,622 [INFO]   Using AI extraction for: Rock Tickets 16800, 17583, 16815, 17637 - 08/06/2025
+2026-04-21 09:44:56,057 [INFO]   AI extraction: vision mode (image + OCR text)
+2026-04-21 09:44:58,056 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 09:44:58,058 [INFO]   AI extraction result: {"ticket_number":"17637","date":"08/20/2025","facility":"Bradley Quarry","customer":"MJ Hughes Construction","material":"3/4-0\"","net_tons":16.88,"qr_sticker_text":"3/4\"-0\""}
+2026-04-21 09:44:58,058 [INFO]   Date from AI vision: 08/20/2025
+2026-04-21 09:44:58,060 [INFO]   [p4/t1] OCR → Ticket: 17637  Date: 08/20/2025  Facility: Bradley Quarry  Net Tons: 16.88
+2026-04-21 09:44:59,303 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 09:44:59,304 [INFO]   Material verification: anticipated='boulders' actual='3/4-0"' → NO
+2026-04-21 09:44:59,304 [WARNING]   [p4/t1] WARNING: Material mismatch for ticket 17637 — Anticipated: boulders | Found: 3/4-0"
+2026-04-21 09:44:59,361 [INFO]   [p4/t1] Writing to Excel...
+2026-04-21 09:44:59,611 [INFO] Excel: wrote ticket 17637 to tab '12' row 10.
+2026-04-21 09:44:59,611 [INFO]   [p4/t1] Uploading crop PDF to SharePoint (ticket: 17637)...
+2026-04-21 09:44:59,623 [INFO] SharePoint site discovery attempt 1: GET https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/
+2026-04-21 09:45:00,249 [INFO]   → HTTP 200  body: {"@odata.context":"https://graph.microsoft.com/v1.0/$metadata#sites/$entity","createdDateTime":"2016-06-29T19:42:30.203Z","description":"","id":"vancouvermjhughes.sharepoint.com,aae8f340-7508-4e57-b378-4e7cf957a279,bba377d3-6f37-4c1c-95c4-1fa769f3894c","lastModifiedDateTime":"2026-04-21T16:44:49Z","name":"","webUrl":"https://vancouvermjhughes.sharepoint.com","displayName":"MJ Hughes Construction Team Site","root":{},"siteCollection":{"hostname":"vancouvermjhughes.sharepoint.com"}}
+2026-04-21 09:45:00,250 [INFO] SharePoint site found via: path lookup (https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/)
+2026-04-21 09:45:04,858 [INFO] Uploaded PDF to SharePoint: MJHughes OPEN JOBS/2601/Ticket Scans/Rock/Tickets, 17637.pdf
+2026-04-21 09:45:04,859 [INFO]   Renaming email to: 'Rock Tickets 16800, 17583, 16815, 17637 - 08/06/2025'
+2026-04-21 09:45:05,438 [INFO] Renamed email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTtAAA= subject to: 'Rock Tickets 16800, 17583, 16815, 17637 - 08/06/2025'
+2026-04-21 09:45:05,438 [INFO]   Marking email as read...
+2026-04-21 09:45:06,124 [INFO] Marked email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTtAAA= as read.
+2026-04-21 09:45:07,362 [INFO] Archived: 'Rock Tickets 16800, 17583, 16815, 17637 - 08/06/2025' → 'Rock Tickets - Processed'
+2026-04-21 09:45:07,362 [INFO]   Done: 'Rock Tickets 16800, 17583, 16815, 17637 - 08/06/2025' — 4 ticket(s) written, review_needed=False
+2026-04-21 09:45:07,367 [INFO] Running batch outlier detection on 4 rock ticket(s): ['16800', '17583', '16815', '17637']
+2026-04-21 09:45:07,367 [INFO] Batch outlier check: 4 ticket(s), median=17199, no outliers detected.
+2026-04-21 09:45:07,367 [INFO] SharePoint site discovery attempt 1: GET https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/
+2026-04-21 09:45:08,018 [INFO]   → HTTP 200  body: {"@odata.context":"https://graph.microsoft.com/v1.0/$metadata#sites/$entity","createdDateTime":"2016-06-29T19:42:30.203Z","description":"","id":"vancouvermjhughes.sharepoint.com,aae8f340-7508-4e57-b378-4e7cf957a279,bba377d3-6f37-4c1c-95c4-1fa769f3894c","lastModifiedDateTime":"2026-04-21T16:45:05Z","name":"","webUrl":"https://vancouvermjhughes.sharepoint.com","displayName":"MJ Hughes Construction Team Site","root":{},"siteCollection":{"hostname":"vancouvermjhughes.sharepoint.com"}}
+2026-04-21 09:45:08,018 [INFO] SharePoint site found via: path lookup (https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/)
+2026-04-21 09:45:10,077 [INFO] Uploaded ticket_tracker_2601.xlsx to SharePoint (37,972 bytes)
+2026-04-21 09:45:10,078 [INFO] Deleted local temp copy: C:\Users\dawson.h\AppData\Local\Temp\ticket_tracker_2601.xlsx
+2026-04-21 09:45:10,078 [INFO] SharePoint site discovery attempt 1: GET https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/
+2026-04-21 09:45:10,744 [INFO]   → HTTP 200  body: {"@odata.context":"https://graph.microsoft.com/v1.0/$metadata#sites/$entity","createdDateTime":"2016-06-29T19:42:30.203Z","description":"","id":"vancouvermjhughes.sharepoint.com,aae8f340-7508-4e57-b378-4e7cf957a279,bba377d3-6f37-4c1c-95c4-1fa769f3894c","lastModifiedDateTime":"2026-04-21T16:45:10Z","name":"","webUrl":"https://vancouvermjhughes.sharepoint.com","displayName":"MJ Hughes Construction Team Site","root":{},"siteCollection":{"hostname":"vancouvermjhughes.sharepoint.com"}}
+2026-04-21 09:45:10,744 [INFO] SharePoint site found via: path lookup (https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/)
+2026-04-21 09:45:12,460 [INFO] Uploaded ticket_tracker_2601_concrete.xlsx to SharePoint (14,597 bytes)
+2026-04-21 09:45:12,460 [INFO] Deleted local temp copy: C:\Users\dawson.h\AppData\Local\Temp\ticket_tracker_2601_concrete.xlsx
+2026-04-21 09:45:13,578 [INFO] Run summary email sent to dawson.h@mjhughes.com.
+2026-04-21 09:45:13,578 [INFO] =======================================================
+2026-04-21 09:45:13,579 [INFO] Complete — success: 1  sorted: 0  failed: 0  (failed emails remain unread for retry)
+2026-04-21 09:45:13,579 [INFO] =======================================================
+2026-04-21 09:58:17,410 [INFO] =======================================================
+2026-04-21 09:58:17,411 [INFO] Ticket Processing Automation — starting
+2026-04-21 09:58:17,411 [INFO] Run time: 2026-04-21 09:58:17
+2026-04-21 09:58:17,411 [INFO] =======================================================
+2026-04-21 09:58:17,411 [INFO] Credentials loaded from: C:\Users\dawson.h\Desktop\ticket-to-excel-automation\.env
+2026-04-21 09:58:17,411 [INFO] AZURE_TENANT_ID starts with: 'b4ed'
+2026-04-21 09:58:17,412 [INFO] Loaded ticket profile: 'CalPortland' (calportland.json)
+2026-04-21 09:58:17,412 [INFO] Loaded ticket profile: 'Generic (Unknown Supplier)' (generic.json)
+2026-04-21 09:58:17,413 [INFO] Loaded ticket profile: 'Knife River' (knife_river.json)
+2026-04-21 09:58:17,413 [INFO] Loaded ticket profile: 'Teevin Bros Land & Timber Co., LLC' (teevin_bros.json)
+2026-04-21 09:58:17,413 [INFO] Loaded ticket profile: 'Troutdale Sand & Gravel' (troutdale_sand_gravel.json)
+2026-04-21 09:58:17,413 [INFO] Loaded 5 ticket profile(s).
+2026-04-21 09:58:17,414 [INFO] Loaded 3 ticket type(s): ['rock', 'concrete', 'flagging']
+2026-04-21 09:58:18,334 [INFO] Authenticated with Microsoft Graph API.
+2026-04-21 09:58:18,335 [INFO] SharePoint site discovery attempt 1: GET https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/
+2026-04-21 09:58:19,215 [INFO]   → HTTP 200  body: {"@odata.context":"https://graph.microsoft.com/v1.0/$metadata#sites/$entity","createdDateTime":"2016-06-29T19:42:30.203Z","description":"","id":"vancouvermjhughes.sharepoint.com,aae8f340-7508-4e57-b378-4e7cf957a279,bba377d3-6f37-4c1c-95c4-1fa769f3894c","lastModifiedDateTime":"2026-04-21T16:53:08Z","name":"","webUrl":"https://vancouvermjhughes.sharepoint.com","displayName":"MJ Hughes Construction Team Site","root":{},"siteCollection":{"hostname":"vancouvermjhughes.sharepoint.com"}}
+2026-04-21 09:58:19,216 [INFO] SharePoint site found via: path lookup (https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/)
+2026-04-21 09:58:21,512 [INFO] Downloaded ticket_tracker_2601.xlsx from SharePoint (44,939 bytes → C:\Users\dawson.h\AppData\Local\Temp\ticket_tracker_2601.xlsx)
+2026-04-21 09:58:21,515 [INFO] SharePoint site discovery attempt 1: GET https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/
+2026-04-21 09:58:22,181 [INFO]   → HTTP 200  body: {"@odata.context":"https://graph.microsoft.com/v1.0/$metadata#sites/$entity","createdDateTime":"2016-06-29T19:42:30.203Z","description":"","id":"vancouvermjhughes.sharepoint.com,aae8f340-7508-4e57-b378-4e7cf957a279,bba377d3-6f37-4c1c-95c4-1fa769f3894c","lastModifiedDateTime":"2026-04-21T16:53:08Z","name":"","webUrl":"https://vancouvermjhughes.sharepoint.com","displayName":"MJ Hughes Construction Team Site","root":{},"siteCollection":{"hostname":"vancouvermjhughes.sharepoint.com"}}
+2026-04-21 09:58:22,181 [INFO] SharePoint site found via: path lookup (https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/)
+2026-04-21 09:58:24,443 [INFO] Downloaded ticket_tracker_2601_concrete.xlsx from SharePoint (13,647 bytes → C:\Users\dawson.h\AppData\Local\Temp\ticket_tracker_2601_concrete.xlsx)
+2026-04-21 09:58:24,456 [INFO] TOC materials loaded: 7 entry/entries.
+2026-04-21 09:58:24,457 [INFO] Loaded 7 TOC anticipated material entry/entries.
+2026-04-21 09:58:28,564 [INFO] Found 6 unread email(s) with PDF attachments.
+2026-04-21 09:58:28,565 [INFO] =======================================================
+2026-04-21 09:58:28,565 [INFO] Processing: 'Rock Tickets 16800, 17583, 16815, 17637 - 08/06/2025'
+2026-04-21 09:58:28,566 [INFO]   Downloading '2026-04-17 09-04.pdf'...
+2026-04-21 09:58:29,419 [INFO]   Rendering PDF pages...
+2026-04-21 09:58:31,153 [INFO]   Ticket type detected: rock (score: 6 keywords matched)
+2026-04-21 09:58:33,788 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 09:58:33,799 [INFO]   [p1] QR found via AI vision: '2601-0180-313713-99' at right-side
+2026-04-21 09:58:33,799 [INFO]   [p1] QR found via AI vision: '2601-0180-313713-99' (estimated Y=827px, page height 1654px)
+2026-04-21 09:58:35,589 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 09:58:35,591 [INFO]   Page 1: Claude detected 1 ticket(s)
+2026-04-21 09:58:35,591 [INFO]     Ticket 1: top=0.0%  bottom=100.0%
+2026-04-21 09:58:35,591 [INFO]   [p1/t1] Single full-page ticket — no crop needed
+2026-04-21 09:58:35,592 [INFO]   [p1/t1] Scanning for QR code...
+2026-04-21 09:58:35,592 [INFO]   [p1/t1] QR assigned from full-page scan (Y=827px within boundary 0–1654px)
+2026-04-21 09:58:35,592 [INFO] QR found at Y=827px on full page (1654px total) → assigned to ticket 1
+2026-04-21 09:58:35,592 [INFO]   [p1/t1] QR → Job: 2601  Location: 0180  Cost Code: 313713-99
+2026-04-21 09:58:35,592 [INFO]   [p1/t1] Running OCR...
+2026-04-21 09:58:37,175 [INFO]   Detected profile: 'Teevin Bros Land & Timber Co., LLC'
+2026-04-21 09:58:37,178 [INFO] OCR debug: corrected text saved to ocr_debug.txt
+2026-04-21 09:58:37,631 [INFO] OCR debug: ticket-number crop saved to ocr_debug_topright.png (original coords x=1533-3833, y=0-496)
+2026-04-21 09:58:37,829 [INFO] OCR debug: preprocessed first page saved to ocr_debug.png
+2026-04-21 09:58:37,829 [INFO]   Using AI extraction for: Rock Tickets 16800, 17583, 16815, 17637 - 08/06/2025
+2026-04-21 09:58:38,470 [INFO]   AI extraction: vision mode (image + OCR text)
+2026-04-21 09:58:40,758 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 09:58:40,759 [INFO]   AI extraction result: {
+  "ticket_number": "16800",
+  "date": "08/06/2025",
+  "facility": "Bradley Quarry",
+  "customer": "MJ Hughes Construction",
+  "material": "Bradley Rock Rip Rap",
+  "net_tons": 18.64,
+  "qr_sticker_text": "Class 2 RipRap"
+}
+2026-04-21 09:58:40,760 [INFO]   Date from AI vision: 08/06/2025
+2026-04-21 09:58:40,762 [INFO]   [p1/t1] OCR → Ticket: 16800  Date: 08/06/2025  Facility: Bradley Quarry  Net Tons: 18.64
+2026-04-21 09:58:42,176 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 09:58:42,177 [INFO]   Material verification: anticipated='rip rap class 3' actual='Bradley Rock Rip Rap' → YES
+2026-04-21 09:58:42,224 [INFO]   [p1/t1] Writing to Excel...
+2026-04-21 09:58:42,325 [INFO]   Multiple tabs matched QR '2601-0180-313713-99': '3', '4' — asking Claude to disambiguate
+2026-04-21 09:58:43,802 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 09:58:43,802 [INFO]   Tab disambiguation: Claude answered '1' for QR '2601-0180-313713-99' (candidates: ['3', '4'])
+2026-04-21 09:58:43,803 [INFO]   Multiple tabs matched QR '2601-0180-313713-99' — AI selected tab '3' based on material 'Bradley Rock Rip Rap'
+2026-04-21 09:58:43,941 [INFO] Excel: wrote ticket 16800 to tab '3' row 9.
+2026-04-21 09:58:43,942 [INFO]   [p1/t1] Uploading crop PDF to SharePoint (ticket: 16800)...
+2026-04-21 09:58:43,982 [INFO] SharePoint site discovery attempt 1: GET https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/
+2026-04-21 09:58:44,607 [INFO]   → HTTP 200  body: {"@odata.context":"https://graph.microsoft.com/v1.0/$metadata#sites/$entity","createdDateTime":"2016-06-29T19:42:30.203Z","description":"","id":"vancouvermjhughes.sharepoint.com,aae8f340-7508-4e57-b378-4e7cf957a279,bba377d3-6f37-4c1c-95c4-1fa769f3894c","lastModifiedDateTime":"2026-04-21T16:53:08Z","name":"","webUrl":"https://vancouvermjhughes.sharepoint.com","displayName":"MJ Hughes Construction Team Site","root":{},"siteCollection":{"hostname":"vancouvermjhughes.sharepoint.com"}}
+2026-04-21 09:58:44,608 [INFO] SharePoint site found via: path lookup (https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/)
+2026-04-21 09:58:49,054 [INFO] Uploaded PDF to SharePoint: MJHughes OPEN JOBS/2601/Ticket Scans/Rock/Tickets, 16800.pdf
+2026-04-21 09:58:51,333 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 09:58:51,334 [INFO]   [p2] QR found via AI vision: '2601-0620-312323-21' at right-side
+2026-04-21 09:58:51,334 [INFO]   [p2] QR found via AI vision: '2601-0620-312323-21' (estimated Y=827px, page height 1654px)
+2026-04-21 09:58:53,093 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 09:58:53,095 [INFO]   Page 2: Claude detected 1 ticket(s)
+2026-04-21 09:58:53,095 [INFO]     Ticket 1: top=0.0%  bottom=100.0%
+2026-04-21 09:58:53,096 [INFO]   [p2/t1] Single full-page ticket — no crop needed
+2026-04-21 09:58:53,096 [INFO]   [p2/t1] Scanning for QR code...
+2026-04-21 09:58:53,096 [INFO]   [p2/t1] QR assigned from full-page scan (Y=827px within boundary 0–1654px)
+2026-04-21 09:58:53,096 [INFO] QR found at Y=827px on full page (1654px total) → assigned to ticket 1
+2026-04-21 09:58:53,096 [INFO]   [p2/t1] QR → Job: 2601  Location: 0620  Cost Code: 312323-21
+2026-04-21 09:58:53,097 [INFO]   [p2/t1] Running OCR...
+2026-04-21 09:58:54,503 [INFO]   Detected profile: 'Teevin Bros Land & Timber Co., LLC'
+2026-04-21 09:58:54,505 [INFO] OCR debug: corrected text saved to ocr_debug.txt
+2026-04-21 09:58:54,890 [INFO] OCR debug: ticket-number crop saved to ocr_debug_topright.png (original coords x=1419-3548, y=0-496)
+2026-04-21 09:58:55,043 [INFO] OCR debug: preprocessed first page saved to ocr_debug.png
+2026-04-21 09:58:55,043 [INFO]   Using AI extraction for: Rock Tickets 16800, 17583, 16815, 17637 - 08/06/2025
+2026-04-21 09:58:55,434 [INFO]   AI extraction: vision mode (image + OCR text)
+2026-04-21 09:58:57,705 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 09:58:57,706 [INFO]   AI extraction result: {"ticket_number":"17583","date":"08/19/2025","facility":"Bradley Quarry","customer":"MJ Hughes Construction","material":"3/4-0\"","net_tons":17.40,"qr_sticker_text":"3/4\"-0\""}
+2026-04-21 09:58:57,707 [INFO]   Date from AI vision: 08/19/2025
+2026-04-21 09:58:57,708 [INFO]   [p2/t1] OCR → Ticket: 17583  Date: 08/19/2025  Facility: Bradley Quarry  Net Tons: 17.4
+2026-04-21 09:58:58,936 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 09:58:58,937 [INFO]   Material verification: anticipated='boulders' actual='3/4-0"' → NO
+2026-04-21 09:58:58,938 [WARNING]   [p2/t1] WARNING: Material mismatch for ticket 17583 — Anticipated: boulders | Found: 3/4-0"
+2026-04-21 09:58:58,970 [INFO]   [p2/t1] Writing to Excel...
+2026-04-21 09:58:59,202 [INFO] Excel: wrote ticket 17583 to tab '12' row 9.
+2026-04-21 09:58:59,202 [INFO]   [p2/t1] Uploading crop PDF to SharePoint (ticket: 17583)...
+2026-04-21 09:58:59,213 [INFO] SharePoint site discovery attempt 1: GET https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/
+2026-04-21 09:58:59,840 [INFO]   → HTTP 200  body: {"@odata.context":"https://graph.microsoft.com/v1.0/$metadata#sites/$entity","createdDateTime":"2016-06-29T19:42:30.203Z","description":"","id":"vancouvermjhughes.sharepoint.com,aae8f340-7508-4e57-b378-4e7cf957a279,bba377d3-6f37-4c1c-95c4-1fa769f3894c","lastModifiedDateTime":"2026-04-21T16:58:49Z","name":"","webUrl":"https://vancouvermjhughes.sharepoint.com","displayName":"MJ Hughes Construction Team Site","root":{},"siteCollection":{"hostname":"vancouvermjhughes.sharepoint.com"}}
+2026-04-21 09:58:59,841 [INFO] SharePoint site found via: path lookup (https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/)
+2026-04-21 09:59:04,439 [INFO] Uploaded PDF to SharePoint: MJHughes OPEN JOBS/2601/Ticket Scans/Rock/Tickets, 17583.pdf
+2026-04-21 09:59:07,404 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 09:59:07,405 [INFO]   [p3] QR found via AI vision: '2601-0180-313713-99' at right-side
+2026-04-21 09:59:07,406 [INFO]   [p3] QR found via AI vision: '2601-0180-313713-99' (estimated Y=827px, page height 1654px)
+2026-04-21 09:59:09,460 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 09:59:09,461 [INFO]   Page 3: Claude detected 1 ticket(s)
+2026-04-21 09:59:09,462 [INFO]     Ticket 1: top=0.0%  bottom=100.0%
+2026-04-21 09:59:09,462 [INFO]   [p3/t1] Single full-page ticket — no crop needed
+2026-04-21 09:59:09,462 [INFO]   [p3/t1] Scanning for QR code...
+2026-04-21 09:59:09,462 [INFO]   [p3/t1] QR assigned from full-page scan (Y=827px within boundary 0–1654px)
+2026-04-21 09:59:09,462 [INFO] QR found at Y=827px on full page (1654px total) → assigned to ticket 1
+2026-04-21 09:59:09,462 [INFO]   [p3/t1] QR → Job: 2601  Location: 0180  Cost Code: 313713-99
+2026-04-21 09:59:09,463 [INFO]   [p3/t1] Running OCR...
+2026-04-21 09:59:11,202 [INFO]   Detected profile: 'Teevin Bros Land & Timber Co., LLC'
+2026-04-21 09:59:11,204 [INFO] OCR debug: corrected text saved to ocr_debug.txt
+2026-04-21 09:59:11,709 [INFO] OCR debug: ticket-number crop saved to ocr_debug_topright.png (original coords x=1814-4536, y=0-496)
+2026-04-21 09:59:11,903 [INFO] OCR debug: preprocessed first page saved to ocr_debug.png
+2026-04-21 09:59:11,903 [INFO]   Using AI extraction for: Rock Tickets 16800, 17583, 16815, 17637 - 08/06/2025
+2026-04-21 09:59:12,291 [INFO]   AI extraction: vision mode (image + OCR text)
+2026-04-21 09:59:14,158 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 09:59:14,159 [INFO]   AI extraction result: {"ticket_number": "16815", "date": "08/06/2025", "facility": "Bradley Quarry", "customer": "MJ Hughes Construction", "material": "Bradley Rock Rip Rap", "net_tons": 19.27, "qr_sticker_text": "Class 3 RipRap"}
+2026-04-21 09:59:14,159 [INFO]   Date from AI vision: 08/06/2025
+2026-04-21 09:59:14,161 [INFO]   [p3/t1] OCR → Ticket: 16815  Date: 08/06/2025  Facility: Bradley Quarry  Net Tons: 19.27
+2026-04-21 09:59:16,243 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 09:59:16,244 [INFO]   Material verification: anticipated='rip rap class 3' actual='Bradley Rock Rip Rap' → YES
+2026-04-21 09:59:16,288 [INFO]   [p3/t1] Writing to Excel...
+2026-04-21 09:59:16,385 [INFO]   Multiple tabs matched QR '2601-0180-313713-99': '3', '4' — asking Claude to disambiguate
+2026-04-21 09:59:17,900 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 09:59:17,901 [INFO]   Tab disambiguation: Claude answered '2' for QR '2601-0180-313713-99' (candidates: ['3', '4'])
+2026-04-21 09:59:17,901 [INFO]   Multiple tabs matched QR '2601-0180-313713-99' — AI selected tab '4' based on material 'Bradley Rock Rip Rap'
+2026-04-21 09:59:18,037 [INFO] Excel: wrote ticket 16815 to tab '4' row 9.
+2026-04-21 09:59:18,037 [INFO]   [p3/t1] Uploading crop PDF to SharePoint (ticket: 16815)...
+2026-04-21 09:59:18,049 [INFO] SharePoint site discovery attempt 1: GET https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/
+2026-04-21 09:59:18,674 [INFO]   → HTTP 200  body: {"@odata.context":"https://graph.microsoft.com/v1.0/$metadata#sites/$entity","createdDateTime":"2016-06-29T19:42:30.203Z","description":"","id":"vancouvermjhughes.sharepoint.com,aae8f340-7508-4e57-b378-4e7cf957a279,bba377d3-6f37-4c1c-95c4-1fa769f3894c","lastModifiedDateTime":"2026-04-21T16:59:04Z","name":"","webUrl":"https://vancouvermjhughes.sharepoint.com","displayName":"MJ Hughes Construction Team Site","root":{},"siteCollection":{"hostname":"vancouvermjhughes.sharepoint.com"}}
+2026-04-21 09:59:18,675 [INFO] SharePoint site found via: path lookup (https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/)
+2026-04-21 09:59:23,288 [INFO] Uploaded PDF to SharePoint: MJHughes OPEN JOBS/2601/Ticket Scans/Rock/Tickets, 16815.pdf
+2026-04-21 09:59:25,257 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 09:59:25,258 [INFO]   [p4] QR found via AI vision: '2601-0620-312323-21' at right-side
+2026-04-21 09:59:25,258 [INFO]   [p4] QR found via AI vision: '2601-0620-312323-21' (estimated Y=827px, page height 1654px)
+2026-04-21 09:59:31,423 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 09:59:31,424 [INFO]   Page 4: Claude detected 1 ticket(s)
+2026-04-21 09:59:31,425 [INFO]     Ticket 1: top=0.0%  bottom=100.0%
+2026-04-21 09:59:31,425 [INFO]   [p4/t1] Single full-page ticket — no crop needed
+2026-04-21 09:59:31,426 [INFO]   [p4/t1] Scanning for QR code...
+2026-04-21 09:59:31,426 [INFO]   [p4/t1] QR assigned from full-page scan (Y=827px within boundary 0–1654px)
+2026-04-21 09:59:31,426 [INFO] QR found at Y=827px on full page (1654px total) → assigned to ticket 1
+2026-04-21 09:59:31,427 [INFO]   [p4/t1] QR → Job: 2601  Location: 0620  Cost Code: 312323-21
+2026-04-21 09:59:31,427 [INFO]   [p4/t1] Running OCR...
+2026-04-21 09:59:33,027 [INFO]   Detected profile: 'Teevin Bros Land & Timber Co., LLC'
+2026-04-21 09:59:33,030 [INFO] OCR debug: corrected text saved to ocr_debug.txt
+2026-04-21 09:59:33,491 [INFO] OCR debug: ticket-number crop saved to ocr_debug_topright.png (original coords x=1505-3764, y=0-496)
+2026-04-21 09:59:33,671 [INFO] OCR debug: preprocessed first page saved to ocr_debug.png
+2026-04-21 09:59:33,671 [INFO]   Using AI extraction for: Rock Tickets 16800, 17583, 16815, 17637 - 08/06/2025
+2026-04-21 09:59:34,122 [INFO]   AI extraction: vision mode (image + OCR text)
+2026-04-21 09:59:36,248 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 09:59:36,249 [INFO]   AI extraction result: {"ticket_number":"17637","date":"08/20/2025","facility":"Bradley Quarry","customer":"MJ Hughes Construction","material":"3/4-0\"","net_tons":16.88,"qr_sticker_text":"3/4\"-0\""}
+2026-04-21 09:59:36,249 [INFO]   Date from AI vision: 08/20/2025
+2026-04-21 09:59:36,250 [INFO]   [p4/t1] OCR → Ticket: 17637  Date: 08/20/2025  Facility: Bradley Quarry  Net Tons: 16.88
+2026-04-21 09:59:37,460 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 09:59:37,461 [INFO]   Material verification: anticipated='boulders' actual='3/4-0"' → NO
+2026-04-21 09:59:37,461 [WARNING]   [p4/t1] WARNING: Material mismatch for ticket 17637 — Anticipated: boulders | Found: 3/4-0"
+2026-04-21 09:59:37,522 [INFO]   [p4/t1] Writing to Excel...
+2026-04-21 09:59:37,759 [INFO] Excel: wrote ticket 17637 to tab '12' row 10.
+2026-04-21 09:59:37,759 [INFO]   [p4/t1] Uploading crop PDF to SharePoint (ticket: 17637)...
+2026-04-21 09:59:37,770 [INFO] SharePoint site discovery attempt 1: GET https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/
+2026-04-21 09:59:38,381 [INFO]   → HTTP 200  body: {"@odata.context":"https://graph.microsoft.com/v1.0/$metadata#sites/$entity","createdDateTime":"2016-06-29T19:42:30.203Z","description":"","id":"vancouvermjhughes.sharepoint.com,aae8f340-7508-4e57-b378-4e7cf957a279,bba377d3-6f37-4c1c-95c4-1fa769f3894c","lastModifiedDateTime":"2026-04-21T16:59:23Z","name":"","webUrl":"https://vancouvermjhughes.sharepoint.com","displayName":"MJ Hughes Construction Team Site","root":{},"siteCollection":{"hostname":"vancouvermjhughes.sharepoint.com"}}
+2026-04-21 09:59:38,381 [INFO] SharePoint site found via: path lookup (https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/)
+2026-04-21 09:59:43,127 [INFO] Uploaded PDF to SharePoint: MJHughes OPEN JOBS/2601/Ticket Scans/Rock/Tickets, 17637.pdf
+2026-04-21 09:59:43,128 [INFO]   Renaming email to: 'Rock Tickets 16800, 17583, 16815, 17637 - 08/06/2025'
+2026-04-21 09:59:43,705 [INFO] Renamed email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTuAAA= subject to: 'Rock Tickets 16800, 17583, 16815, 17637 - 08/06/2025'
+2026-04-21 09:59:43,705 [INFO]   Marking email as read...
+2026-04-21 09:59:44,348 [INFO] Marked email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTuAAA= as read.
+2026-04-21 09:59:45,518 [INFO] Archived: 'Rock Tickets 16800, 17583, 16815, 17637 - 08/06/2025' → 'Rock Tickets - Processed'
+2026-04-21 09:59:45,519 [INFO]   Done: 'Rock Tickets 16800, 17583, 16815, 17637 - 08/06/2025' — 4 ticket(s) written, review_needed=False
+2026-04-21 09:59:45,523 [INFO] =======================================================
+2026-04-21 09:59:45,523 [INFO] Processing: 'Concrete Ticket 2805126 - 09/11/2024'
+2026-04-21 09:59:45,523 [INFO]   Downloading '2026-04-20 11-19.pdf'...
+2026-04-21 09:59:46,550 [INFO]   Rendering PDF pages...
+2026-04-21 09:59:48,115 [INFO]   Ticket type detected: concrete (score: 4 keywords matched)
+2026-04-21 09:59:51,266 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 09:59:51,267 [INFO]   [p1] QR found via AI vision: '2601-0180-313713-99' at bottom-right
+2026-04-21 09:59:51,268 [INFO]   [p1] QR found via AI vision: '2601-0180-313713-99' (estimated Y=1816px, page height 2137px)
+2026-04-21 09:59:55,201 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 09:59:55,201 [INFO]   Page 1: Claude detected 1 ticket(s)
+2026-04-21 09:59:55,202 [INFO]     Ticket 1: top=0.0%  bottom=100.0%
+2026-04-21 09:59:55,202 [INFO]   [p1/t1] Single full-page ticket — no crop needed
+2026-04-21 09:59:55,202 [INFO]   [p1/t1] Scanning for QR code...
+2026-04-21 09:59:55,203 [INFO]   [p1/t1] QR assigned from full-page scan (Y=1816px within boundary 0–2137px)
+2026-04-21 09:59:55,203 [INFO] QR found at Y=1816px on full page (2137px total) → assigned to ticket 1
+2026-04-21 09:59:55,203 [INFO]   [p1/t1] QR → Job: 2601  Location: 0180  Cost Code: 313713-99
+2026-04-21 09:59:55,204 [INFO]   [p1/t1] Running OCR...
+2026-04-21 09:59:56,917 [INFO]   Detected profile: 'CalPortland'
+2026-04-21 09:59:56,920 [INFO] OCR debug: corrected text saved to ocr_debug.txt
+2026-04-21 09:59:57,241 [INFO] OCR debug: ticket-number crop saved to ocr_debug_topright.png (original coords x=0-1654, y=0-854)
+2026-04-21 09:59:57,376 [INFO] OCR debug: preprocessed first page saved to ocr_debug.png
+2026-04-21 09:59:57,376 [INFO]   Using AI extraction for: Concrete Ticket 2805126 - 09/11/2024
+2026-04-21 09:59:57,755 [INFO]   AI extraction: vision mode (image + OCR text)
+2026-04-21 10:00:01,676 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 10:00:01,677 [INFO]   AI extraction result: {"ticket_number":"2805126","date":"09/11/2024","supplier":"CalPortland","slump":"4.00","qty_delivered":"2.00","helper_notes":"4000 PSI WITH 25% SL","qr_sticker_text":"Class 2 RipRap"}
+2026-04-21 10:00:01,678 [INFO]   Date from AI vision: 09/11/2024
+2026-04-21 10:00:01,679 [INFO]   [p1/t1] OCR → Ticket: 2805126  Date: 09/11/2024  Supplier: CalPortland  Qty CY: 2.00
+2026-04-21 10:00:01,683 [INFO]   [p1/t1] Writing to Excel...
+2026-04-21 10:00:01,704 [INFO] Excel (concrete): wrote ticket 2805126 to tab '2' row 5.
+2026-04-21 10:00:01,705 [INFO]   [p1/t1] Uploading crop PDF to SharePoint (ticket: 2805126)...
+2026-04-21 10:00:01,712 [INFO] SharePoint site discovery attempt 1: GET https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/
+2026-04-21 10:00:02,523 [INFO]   → HTTP 200  body: {"@odata.context":"https://graph.microsoft.com/v1.0/$metadata#sites/$entity","createdDateTime":"2016-06-29T19:42:30.203Z","description":"","id":"vancouvermjhughes.sharepoint.com,aae8f340-7508-4e57-b378-4e7cf957a279,bba377d3-6f37-4c1c-95c4-1fa769f3894c","lastModifiedDateTime":"2026-04-21T16:59:43Z","name":"","webUrl":"https://vancouvermjhughes.sharepoint.com","displayName":"MJ Hughes Construction Team Site","root":{},"siteCollection":{"hostname":"vancouvermjhughes.sharepoint.com"}}
+2026-04-21 10:00:02,523 [INFO] SharePoint site found via: path lookup (https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/)
+2026-04-21 10:00:07,877 [INFO] Uploaded PDF to SharePoint: MJHughes OPEN JOBS/2601/Ticket Scans/Concrete/Tickets, 2805126.pdf
+2026-04-21 10:00:07,878 [INFO]   Renaming email to: 'Concrete Ticket 2805126 - 09/11/2024'
+2026-04-21 10:00:08,457 [INFO] Renamed email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTyAAA= subject to: 'Concrete Ticket 2805126 - 09/11/2024'
+2026-04-21 10:00:08,458 [INFO]   Marking email as read...
+2026-04-21 10:00:09,086 [INFO] Marked email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTyAAA= as read.
+2026-04-21 10:00:10,461 [INFO] Archived: 'Concrete Ticket 2805126 - 09/11/2024' → 'Concrete Tickets - Processed'
+2026-04-21 10:00:10,461 [INFO]   Done: 'Concrete Ticket 2805126 - 09/11/2024' — 1 ticket(s) written, review_needed=False
+2026-04-21 10:00:10,462 [INFO] =======================================================
+2026-04-21 10:00:10,462 [INFO] Processing: 'Concrete Ticket 2805013 - 09/11/2024'
+2026-04-21 10:00:10,462 [INFO]   Downloading '2026-04-20 12-42.pdf'...
+2026-04-21 10:00:11,743 [INFO]   Rendering PDF pages...
+2026-04-21 10:00:13,155 [INFO]   Ticket type detected: concrete (score: 4 keywords matched)
+2026-04-21 10:00:13,158 [INFO]   Retry snapshot: 1 ticket number(s) already in Excel — will skip if re-encountered.
+2026-04-21 10:00:15,939 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 10:00:15,940 [INFO]   [p1] QR found via AI vision: '2601-0180-313713-99' at top-right
+2026-04-21 10:00:15,940 [INFO]   [p1] QR found via AI vision: '2601-0180-313713-99' (estimated Y=321px, page height 2144px)
+2026-04-21 10:00:18,814 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 10:00:18,815 [INFO]   Page 1: Claude detected 1 ticket(s)
+2026-04-21 10:00:18,816 [INFO]     Ticket 1: top=0.0%  bottom=100.0%
+2026-04-21 10:00:18,817 [INFO]   [p1/t1] Single full-page ticket — no crop needed
+2026-04-21 10:00:18,817 [INFO]   [p1/t1] Scanning for QR code...
+2026-04-21 10:00:18,817 [INFO]   [p1/t1] QR assigned from full-page scan (Y=321px within boundary 0–2144px)
+2026-04-21 10:00:18,817 [INFO] QR found at Y=321px on full page (2144px total) → assigned to ticket 1
+2026-04-21 10:00:18,818 [INFO]   [p1/t1] QR → Job: 2601  Location: 0180  Cost Code: 313713-99
+2026-04-21 10:00:18,818 [INFO]   [p1/t1] Running OCR...
+2026-04-21 10:00:20,628 [INFO]   Detected profile: 'CalPortland'
+2026-04-21 10:00:20,631 [INFO] OCR debug: corrected text saved to ocr_debug.txt
+2026-04-21 10:00:21,015 [INFO] OCR debug: ticket-number crop saved to ocr_debug_topright.png (original coords x=0-1654, y=0-857)
+2026-04-21 10:00:21,157 [INFO] OCR debug: preprocessed first page saved to ocr_debug.png
+2026-04-21 10:00:21,157 [INFO]   Using AI extraction for: Concrete Ticket 2805013 - 09/11/2024
+2026-04-21 10:00:21,590 [INFO]   AI extraction: vision mode (image + OCR text)
+2026-04-21 10:00:25,045 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 10:00:25,046 [INFO]   AI extraction result: {
+  "ticket_number": "2805013",
+  "date": "09/11/2024",
+  "supplier": "CalPortland",
+  "slump": "4.00",
+  "qty_delivered": "8.00",
+  "helper_notes": "4000 PSI WITH 25% SL",
+  "qr_sticker_text": "Class 2 RipRap"
+}
+2026-04-21 10:00:25,046 [INFO]   Date from AI vision: 09/11/2024
+2026-04-21 10:00:25,047 [INFO]   [p1/t1] OCR → Ticket: 2805013  Date: 09/11/2024  Supplier: CalPortland  Qty CY: 8.00
+2026-04-21 10:00:25,051 [INFO]   [p1/t1] Writing to Excel...
+2026-04-21 10:00:25,074 [INFO] Excel (concrete): wrote ticket 2805013 to tab '2' row 6.
+2026-04-21 10:00:25,074 [INFO]   [p1/t1] Uploading crop PDF to SharePoint (ticket: 2805013)...
+2026-04-21 10:00:25,080 [INFO] SharePoint site discovery attempt 1: GET https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/
+2026-04-21 10:00:25,696 [INFO]   → HTTP 200  body: {"@odata.context":"https://graph.microsoft.com/v1.0/$metadata#sites/$entity","createdDateTime":"2016-06-29T19:42:30.203Z","description":"","id":"vancouvermjhughes.sharepoint.com,aae8f340-7508-4e57-b378-4e7cf957a279,bba377d3-6f37-4c1c-95c4-1fa769f3894c","lastModifiedDateTime":"2026-04-21T17:00:08Z","name":"","webUrl":"https://vancouvermjhughes.sharepoint.com","displayName":"MJ Hughes Construction Team Site","root":{},"siteCollection":{"hostname":"vancouvermjhughes.sharepoint.com"}}
+2026-04-21 10:00:25,696 [INFO] SharePoint site found via: path lookup (https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/)
+2026-04-21 10:00:30,187 [INFO] Uploaded PDF to SharePoint: MJHughes OPEN JOBS/2601/Ticket Scans/Concrete/Tickets, 2805013.pdf
+2026-04-21 10:00:30,189 [INFO]   Renaming email to: 'Concrete Ticket 2805013 - 09/11/2024'
+2026-04-21 10:00:30,770 [INFO] Renamed email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTxAAA= subject to: 'Concrete Ticket 2805013 - 09/11/2024'
+2026-04-21 10:00:30,770 [INFO]   Marking email as read...
+2026-04-21 10:00:31,434 [INFO] Marked email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTxAAA= as read.
+2026-04-21 10:00:32,640 [INFO] Archived: 'Concrete Ticket 2805013 - 09/11/2024' → 'Concrete Tickets - Processed'
+2026-04-21 10:00:32,641 [INFO]   Done: 'Concrete Ticket 2805013 - 09/11/2024' — 1 ticket(s) written, review_needed=False
+2026-04-21 10:00:32,642 [INFO] =======================================================
+2026-04-21 10:00:32,642 [INFO] Processing: 'REVIEW REQUIRED - FW: [Scan] 2026-04-20 12:53'
+2026-04-21 10:00:32,642 [INFO]   Downloading '2026-04-20 12-53.pdf'...
+2026-04-21 10:00:33,618 [INFO]   Rendering PDF pages...
+2026-04-21 10:00:35,179 [INFO]   Ticket type detected: concrete (score: 4 keywords matched)
+2026-04-21 10:00:35,182 [INFO]   Retry snapshot: 2 ticket number(s) already in Excel — will skip if re-encountered.
+2026-04-21 10:00:37,984 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 10:00:37,989 [INFO]   [p1] QR found via AI vision: '2601-0180-313713-99' at bottom-right
+2026-04-21 10:00:37,990 [INFO]   [p1] QR found via AI vision: '2601-0180-313713-99' (estimated Y=1824px, page height 2147px)
+2026-04-21 10:00:40,738 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 10:00:40,739 [INFO]   Page 1: Claude detected 1 ticket(s)
+2026-04-21 10:00:40,739 [INFO]     Ticket 1: top=0.0%  bottom=100.0%
+2026-04-21 10:00:40,740 [INFO]   [p1/t1] Single full-page ticket — no crop needed
+2026-04-21 10:00:40,740 [INFO]   [p1/t1] Scanning for QR code...
+2026-04-21 10:00:40,740 [INFO]   [p1/t1] QR assigned from full-page scan (Y=1824px within boundary 0–2147px)
+2026-04-21 10:00:40,741 [INFO] QR found at Y=1824px on full page (2147px total) → assigned to ticket 1
+2026-04-21 10:00:40,741 [INFO]   [p1/t1] QR → Job: 2601  Location: 0180  Cost Code: 313713-99
+2026-04-21 10:00:40,741 [INFO]   [p1/t1] Running OCR...
+2026-04-21 10:00:42,678 [INFO]   Detected profile: 'Troutdale Sand & Gravel'
+2026-04-21 10:00:42,683 [INFO] OCR debug: corrected text saved to ocr_debug.txt
+2026-04-21 10:00:42,985 [INFO] OCR debug: ticket-number crop saved to ocr_debug_topright.png (original coords x=496-1654, y=0-1073)
+2026-04-21 10:00:43,114 [INFO] OCR debug: preprocessed first page saved to ocr_debug.png
+2026-04-21 10:00:43,114 [INFO]   Using AI extraction for: REVIEW REQUIRED - FW: [Scan] 2026-04-20 12:53
+2026-04-21 10:00:43,481 [INFO]   AI extraction: vision mode (image + OCR text)
+2026-04-21 10:00:46,858 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 10:00:46,860 [INFO]   AI extraction result: {
+  "ticket_number": "129156",
+  "date": "11/17/2025",
+  "supplier": "Troutdale Sand & Gravel",
+  "slump": "4.00",
+  "qty_delivered": "10.00",
+  "helper_notes": "Class 2 RipRap",
+  "qr_sticker_text": "2601-0180-313713-99"
+}
+2026-04-21 10:00:46,861 [INFO]   Date from AI vision: 11/17/2025
+2026-04-21 10:00:46,861 [INFO]   [p1/t1] OCR → Ticket: 129156  Date: 11/17/2025  Supplier: Troutdale Sand & Gravel  Qty CY: 10.00
+2026-04-21 10:00:46,865 [INFO]   [p1/t1] Writing to Excel...
+2026-04-21 10:00:46,887 [INFO] Excel (concrete): wrote ticket 129156 to tab '2' row 7.
+2026-04-21 10:00:46,887 [INFO]   [p1/t1] Uploading crop PDF to SharePoint (ticket: 129156)...
+2026-04-21 10:00:46,895 [INFO] SharePoint site discovery attempt 1: GET https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/
+2026-04-21 10:00:47,570 [INFO]   → HTTP 200  body: {"@odata.context":"https://graph.microsoft.com/v1.0/$metadata#sites/$entity","createdDateTime":"2016-06-29T19:42:30.203Z","description":"","id":"vancouvermjhughes.sharepoint.com,aae8f340-7508-4e57-b378-4e7cf957a279,bba377d3-6f37-4c1c-95c4-1fa769f3894c","lastModifiedDateTime":"2026-04-21T17:00:30Z","name":"","webUrl":"https://vancouvermjhughes.sharepoint.com","displayName":"MJ Hughes Construction Team Site","root":{},"siteCollection":{"hostname":"vancouvermjhughes.sharepoint.com"}}
+2026-04-21 10:00:47,570 [INFO] SharePoint site found via: path lookup (https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/)
+2026-04-21 10:00:52,272 [INFO] Uploaded PDF to SharePoint: MJHughes OPEN JOBS/2601/Ticket Scans/Concrete/Tickets, 129156.pdf
+2026-04-21 10:00:52,273 [INFO]   Renaming email to: 'Concrete Ticket 129156 - 11/17/2025'
+2026-04-21 10:00:52,971 [INFO] Renamed email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTzAAA= subject to: 'Concrete Ticket 129156 - 11/17/2025'
+2026-04-21 10:00:52,972 [INFO]   Marking email as read...
+2026-04-21 10:00:53,558 [INFO] Marked email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTzAAA= as read.
+2026-04-21 10:00:54,703 [INFO] Archived: 'REVIEW REQUIRED - FW: [Scan] 2026-04-20 12:53' → 'Concrete Tickets - Processed'
+2026-04-21 10:00:54,703 [INFO]   Done: 'REVIEW REQUIRED - FW: [Scan] 2026-04-20 12:53' — 1 ticket(s) written, review_needed=False
+2026-04-21 10:00:54,705 [INFO] =======================================================
+2026-04-21 10:00:54,705 [INFO] Processing: 'Concrete Ticket 109156 - 11/17/2025'
+2026-04-21 10:00:54,706 [INFO]   Downloading '2026-04-20 12-53.pdf'...
+2026-04-21 10:00:55,545 [INFO]   Rendering PDF pages...
+2026-04-21 10:00:57,186 [INFO]   Ticket type detected: concrete (score: 4 keywords matched)
+2026-04-21 10:00:57,190 [INFO]   Retry snapshot: 3 ticket number(s) already in Excel — will skip if re-encountered.
+2026-04-21 10:00:59,390 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 10:00:59,391 [INFO]   [p1] QR found via AI vision: '2601-0180-313713-99' at bottom-right
+2026-04-21 10:00:59,391 [INFO]   [p1] QR found via AI vision: '2601-0180-313713-99' (estimated Y=1824px, page height 2147px)
+2026-04-21 10:01:01,889 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 10:01:01,889 [INFO]   Page 1: Claude detected 1 ticket(s)
+2026-04-21 10:01:01,890 [INFO]     Ticket 1: top=0.0%  bottom=100.0%
+2026-04-21 10:01:01,890 [INFO]   [p1/t1] Single full-page ticket — no crop needed
+2026-04-21 10:01:01,890 [INFO]   [p1/t1] Scanning for QR code...
+2026-04-21 10:01:01,890 [INFO]   [p1/t1] QR assigned from full-page scan (Y=1824px within boundary 0–2147px)
+2026-04-21 10:01:01,890 [INFO] QR found at Y=1824px on full page (2147px total) → assigned to ticket 1
+2026-04-21 10:01:01,891 [INFO]   [p1/t1] QR → Job: 2601  Location: 0180  Cost Code: 313713-99
+2026-04-21 10:01:01,891 [INFO]   [p1/t1] Running OCR...
+2026-04-21 10:01:03,924 [INFO]   Detected profile: 'Troutdale Sand & Gravel'
+2026-04-21 10:01:03,929 [INFO] OCR debug: corrected text saved to ocr_debug.txt
+2026-04-21 10:01:04,260 [INFO] OCR debug: ticket-number crop saved to ocr_debug_topright.png (original coords x=496-1654, y=0-1073)
+2026-04-21 10:01:04,406 [INFO] OCR debug: preprocessed first page saved to ocr_debug.png
+2026-04-21 10:01:04,406 [INFO]   Using AI extraction for: Concrete Ticket 109156 - 11/17/2025
+2026-04-21 10:01:04,865 [INFO]   AI extraction: vision mode (image + OCR text)
+2026-04-21 10:01:08,279 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 10:01:08,280 [INFO]   AI extraction result: {
+  "ticket_number": "109156",
+  "date": "11/17/2025",
+  "supplier": "Troutdale Sand & Gravel",
+  "slump": "4.00",
+  "qty_delivered": "20.00",
+  "helper_notes": "Class 2 RipRap",
+  "qr_sticker_text": "2601-0180-313713-99"
+}
+2026-04-21 10:01:08,281 [INFO]   Date from AI vision: 11/17/2025
+2026-04-21 10:01:08,282 [INFO]   [p1/t1] OCR → Ticket: 109156  Date: 11/17/2025  Supplier: Troutdale Sand & Gravel  Qty CY: 20.00
+2026-04-21 10:01:08,285 [INFO]   [p1/t1] Writing to Excel...
+2026-04-21 10:01:08,306 [INFO] Excel (concrete): wrote ticket 109156 to tab '2' row 8.
+2026-04-21 10:01:08,306 [INFO]   [p1/t1] Uploading crop PDF to SharePoint (ticket: 109156)...
+2026-04-21 10:01:08,313 [INFO] SharePoint site discovery attempt 1: GET https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/
+2026-04-21 10:01:09,038 [INFO]   → HTTP 200  body: {"@odata.context":"https://graph.microsoft.com/v1.0/$metadata#sites/$entity","createdDateTime":"2016-06-29T19:42:30.203Z","description":"","id":"vancouvermjhughes.sharepoint.com,aae8f340-7508-4e57-b378-4e7cf957a279,bba377d3-6f37-4c1c-95c4-1fa769f3894c","lastModifiedDateTime":"2026-04-21T17:00:52Z","name":"","webUrl":"https://vancouvermjhughes.sharepoint.com","displayName":"MJ Hughes Construction Team Site","root":{},"siteCollection":{"hostname":"vancouvermjhughes.sharepoint.com"}}
+2026-04-21 10:01:09,038 [INFO] SharePoint site found via: path lookup (https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/)
+2026-04-21 10:01:13,848 [INFO] Uploaded PDF to SharePoint: MJHughes OPEN JOBS/2601/Ticket Scans/Concrete/Tickets, 109156.pdf
+2026-04-21 10:01:13,850 [INFO]   Renaming email to: 'Concrete Ticket 109156 - 11/17/2025'
+2026-04-21 10:01:14,400 [INFO] Renamed email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTwAAA= subject to: 'Concrete Ticket 109156 - 11/17/2025'
+2026-04-21 10:01:14,400 [INFO]   Marking email as read...
+2026-04-21 10:01:15,045 [INFO] Marked email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTwAAA= as read.
+2026-04-21 10:01:16,222 [INFO] Archived: 'Concrete Ticket 109156 - 11/17/2025' → 'Concrete Tickets - Processed'
+2026-04-21 10:01:16,223 [INFO]   Done: 'Concrete Ticket 109156 - 11/17/2025' — 1 ticket(s) written, review_needed=False
+2026-04-21 10:01:16,224 [INFO] =======================================================
+2026-04-21 10:01:16,224 [INFO] Processing: 'Rock Tickets 16799, 17657, 19672 - 08/06/2025'
+2026-04-21 10:01:16,224 [INFO]   Downloading '2026-04-20 15-59.pdf'...
+2026-04-21 10:01:17,358 [INFO]   Rendering PDF pages...
+2026-04-21 10:01:18,919 [INFO]   Ticket type detected: rock (score: 6 keywords matched)
+2026-04-21 10:01:18,946 [INFO]   Retry snapshot: 4 ticket number(s) already in Excel — will skip if re-encountered.
+2026-04-21 10:01:21,050 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 10:01:21,052 [INFO]   [p1] QR found via AI vision: '2601-0180-313713-99' at left-side
+2026-04-21 10:01:21,052 [INFO]   [p1] QR found via AI vision: '2601-0180-313713-99' (estimated Y=827px, page height 1654px)
+2026-04-21 10:01:22,791 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 10:01:22,792 [INFO]   Page 1: Claude detected 1 ticket(s)
+2026-04-21 10:01:22,792 [INFO]     Ticket 1: top=0.0%  bottom=100.0%
+2026-04-21 10:01:22,792 [INFO]   [p1/t1] Single full-page ticket — no crop needed
+2026-04-21 10:01:22,792 [INFO]   [p1/t1] Scanning for QR code...
+2026-04-21 10:01:22,793 [INFO]   [p1/t1] QR assigned from full-page scan (Y=827px within boundary 0–1654px)
+2026-04-21 10:01:22,793 [INFO] QR found at Y=827px on full page (1654px total) → assigned to ticket 1
+2026-04-21 10:01:22,793 [INFO]   [p1/t1] QR → Job: 2601  Location: 0180  Cost Code: 313713-99
+2026-04-21 10:01:22,793 [INFO]   [p1/t1] Running OCR...
+2026-04-21 10:01:24,396 [INFO]   Detected profile: 'Teevin Bros Land & Timber Co., LLC'
+2026-04-21 10:01:24,398 [INFO] OCR debug: corrected text saved to ocr_debug.txt
+2026-04-21 10:01:24,798 [INFO] OCR debug: ticket-number crop saved to ocr_debug_topright.png (original coords x=1475-3689, y=0-496)
+2026-04-21 10:01:24,970 [INFO] OCR debug: preprocessed first page saved to ocr_debug.png
+2026-04-21 10:01:24,971 [INFO]   Using AI extraction for: Rock Tickets 16799, 17657, 19672 - 08/06/2025
+2026-04-21 10:01:25,366 [INFO]   AI extraction: vision mode (image + OCR text)
+2026-04-21 10:01:27,978 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 10:01:27,979 [INFO]   AI extraction result: {
+  "ticket_number": "16799",
+  "date": "08/06/2025",
+  "facility": "Bradley Quarry",
+  "customer": "MJ Hughes Construction",
+  "material": "Bradley Rock Rip Rap",
+  "net_tons": 15.83,
+  "qr_sticker_text": "Class 3 RipRap"
+}
+2026-04-21 10:01:27,979 [INFO]   Date from AI vision: 08/06/2025
+2026-04-21 10:01:27,981 [INFO]   [p1/t1] OCR → Ticket: 16799  Date: 08/06/2025  Facility: Bradley Quarry  Net Tons: 15.83
+2026-04-21 10:01:29,945 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 10:01:29,946 [INFO]   Material verification: anticipated='rip rap class 3' actual='Bradley Rock Rip Rap' → YES
+2026-04-21 10:01:30,005 [INFO]   [p1/t1] Writing to Excel...
+2026-04-21 10:01:30,099 [INFO]   Multiple tabs matched QR '2601-0180-313713-99': '3', '4' — asking Claude to disambiguate
+2026-04-21 10:01:31,791 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 10:01:31,791 [INFO]   Tab disambiguation: Claude answered '2' for QR '2601-0180-313713-99' (candidates: ['3', '4'])
+2026-04-21 10:01:31,792 [INFO]   Multiple tabs matched QR '2601-0180-313713-99' — AI selected tab '4' based on material 'Bradley Rock Rip Rap'
+2026-04-21 10:01:31,923 [INFO] Excel: wrote ticket 16799 to tab '4' row 10.
+2026-04-21 10:01:31,923 [INFO]   [p1/t1] Uploading crop PDF to SharePoint (ticket: 16799)...
+2026-04-21 10:01:31,935 [INFO] SharePoint site discovery attempt 1: GET https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/
+2026-04-21 10:01:32,551 [INFO]   → HTTP 200  body: {"@odata.context":"https://graph.microsoft.com/v1.0/$metadata#sites/$entity","createdDateTime":"2016-06-29T19:42:30.203Z","description":"","id":"vancouvermjhughes.sharepoint.com,aae8f340-7508-4e57-b378-4e7cf957a279,bba377d3-6f37-4c1c-95c4-1fa769f3894c","lastModifiedDateTime":"2026-04-21T17:01:14Z","name":"","webUrl":"https://vancouvermjhughes.sharepoint.com","displayName":"MJ Hughes Construction Team Site","root":{},"siteCollection":{"hostname":"vancouvermjhughes.sharepoint.com"}}
+2026-04-21 10:01:32,552 [INFO] SharePoint site found via: path lookup (https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/)
+2026-04-21 10:01:37,294 [INFO] Uploaded PDF to SharePoint: MJHughes OPEN JOBS/2601/Ticket Scans/Rock/Tickets, 16799.pdf
+2026-04-21 10:01:39,672 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 10:01:39,673 [INFO]   [p2] QR found via AI vision: '2601-0620-312323-21' at right-side
+2026-04-21 10:01:39,673 [INFO]   [p2] QR found via AI vision: '2601-0620-312323-21' (estimated Y=827px, page height 1654px)
+2026-04-21 10:01:41,766 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 10:01:41,767 [INFO]   Page 2: Claude detected 1 ticket(s)
+2026-04-21 10:01:41,767 [INFO]     Ticket 1: top=0.0%  bottom=100.0%
+2026-04-21 10:01:41,768 [INFO]   [p2/t1] Single full-page ticket — no crop needed
+2026-04-21 10:01:41,768 [INFO]   [p2/t1] Scanning for QR code...
+2026-04-21 10:01:41,768 [INFO]   [p2/t1] QR assigned from full-page scan (Y=827px within boundary 0–1654px)
+2026-04-21 10:01:41,768 [INFO] QR found at Y=827px on full page (1654px total) → assigned to ticket 1
+2026-04-21 10:01:41,768 [INFO]   [p2/t1] QR → Job: 2601  Location: 0620  Cost Code: 312323-21
+2026-04-21 10:01:41,769 [INFO]   [p2/t1] Running OCR...
+2026-04-21 10:01:43,294 [INFO]   Detected profile: 'Teevin Bros Land & Timber Co., LLC'
+2026-04-21 10:01:43,296 [INFO] OCR debug: corrected text saved to ocr_debug.txt
+2026-04-21 10:01:43,715 [INFO] OCR debug: ticket-number crop saved to ocr_debug_topright.png (original coords x=1508-3770, y=0-496)
+2026-04-21 10:01:43,877 [INFO] OCR debug: preprocessed first page saved to ocr_debug.png
+2026-04-21 10:01:43,878 [INFO]   Using AI extraction for: Rock Tickets 16799, 17657, 19672 - 08/06/2025
+2026-04-21 10:01:44,319 [INFO]   AI extraction: vision mode (image + OCR text)
+2026-04-21 10:01:47,030 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 10:01:47,031 [INFO]   AI extraction result: {"ticket_number":"17657","date":"08/20/2025","facility":"Bradley Quarry","customer":"MJ Hughes Construction","material":"3/4-0\"","net_tons":16.67,"qr_sticker_text":"3/4\"-0\""}
+2026-04-21 10:01:47,032 [INFO]   Date from AI vision: 08/20/2025
+2026-04-21 10:01:47,033 [INFO]   [p2/t1] OCR → Ticket: 17657  Date: 08/20/2025  Facility: Bradley Quarry  Net Tons: 16.67
+2026-04-21 10:01:48,361 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 10:01:48,362 [INFO]   Material verification: anticipated='boulders' actual='3/4-0"' → NO
+2026-04-21 10:01:48,363 [WARNING]   [p2/t1] WARNING: Material mismatch for ticket 17657 — Anticipated: boulders | Found: 3/4-0"
+2026-04-21 10:01:48,405 [INFO]   [p2/t1] Writing to Excel...
+2026-04-21 10:01:48,635 [INFO] Excel: wrote ticket 17657 to tab '12' row 11.
+2026-04-21 10:01:48,636 [INFO]   [p2/t1] Uploading crop PDF to SharePoint (ticket: 17657)...
+2026-04-21 10:01:48,646 [INFO] SharePoint site discovery attempt 1: GET https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/
+2026-04-21 10:01:49,515 [INFO]   → HTTP 200  body: {"@odata.context":"https://graph.microsoft.com/v1.0/$metadata#sites/$entity","createdDateTime":"2016-06-29T19:42:30.203Z","description":"","id":"vancouvermjhughes.sharepoint.com,aae8f340-7508-4e57-b378-4e7cf957a279,bba377d3-6f37-4c1c-95c4-1fa769f3894c","lastModifiedDateTime":"2026-04-21T17:01:37Z","name":"","webUrl":"https://vancouvermjhughes.sharepoint.com","displayName":"MJ Hughes Construction Team Site","root":{},"siteCollection":{"hostname":"vancouvermjhughes.sharepoint.com"}}
+2026-04-21 10:01:49,516 [INFO] SharePoint site found via: path lookup (https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/)
+2026-04-21 10:01:54,209 [INFO] Uploaded PDF to SharePoint: MJHughes OPEN JOBS/2601/Ticket Scans/Rock/Tickets, 17657.pdf
+2026-04-21 10:01:57,550 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 10:01:57,551 [INFO]   [p3] QR found via AI vision: '2601-0620-312323-21' at left-side
+2026-04-21 10:01:57,551 [INFO]   [p3] QR found via AI vision: '2601-0620-312323-21' (estimated Y=827px, page height 1654px)
+2026-04-21 10:02:00,376 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 10:02:00,378 [INFO]   Page 3: Claude detected 1 ticket(s)
+2026-04-21 10:02:00,378 [INFO]     Ticket 1: top=0.0%  bottom=100.0%
+2026-04-21 10:02:00,379 [INFO]   [p3/t1] Single full-page ticket — no crop needed
+2026-04-21 10:02:00,379 [INFO]   [p3/t1] Scanning for QR code...
+2026-04-21 10:02:00,379 [INFO]   [p3/t1] QR assigned from full-page scan (Y=827px within boundary 0–1654px)
+2026-04-21 10:02:00,379 [INFO] QR found at Y=827px on full page (1654px total) → assigned to ticket 1
+2026-04-21 10:02:00,379 [INFO]   [p3/t1] QR → Job: 2601  Location: 0620  Cost Code: 312323-21
+2026-04-21 10:02:00,379 [INFO]   [p3/t1] Running OCR...
+2026-04-21 10:02:01,906 [INFO]   Detected profile: 'Teevin Bros Land & Timber Co., LLC'
+2026-04-21 10:02:01,908 [INFO] OCR debug: corrected text saved to ocr_debug.txt
+2026-04-21 10:02:02,315 [INFO] OCR debug: ticket-number crop saved to ocr_debug_topright.png (original coords x=1494-3737, y=0-496)
+2026-04-21 10:02:02,479 [INFO] OCR debug: preprocessed first page saved to ocr_debug.png
+2026-04-21 10:02:02,480 [INFO]   Using AI extraction for: Rock Tickets 16799, 17657, 19672 - 08/06/2025
+2026-04-21 10:02:02,863 [INFO]   AI extraction: vision mode (image + OCR text)
+2026-04-21 10:02:05,497 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 10:02:05,498 [INFO]   AI extraction result: {
+  "ticket_number": "19672",
+  "date": "09/19/2025",
+  "facility": "Bradley Quarry",
+  "customer": "MJ Hughes Construction",
+  "material": "3/4-0\"",
+  "net_tons": "17.62",
+  "qr_sticker_text": "3/4\"-0\""
+}
+2026-04-21 10:02:05,499 [INFO]   Date from AI vision: 09/19/2025
+2026-04-21 10:02:05,500 [INFO]   [p3/t1] OCR → Ticket: 19672  Date: 09/19/2025  Facility: Bradley Quarry  Net Tons: 17.62
+2026-04-21 10:02:06,710 [INFO] HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-04-21 10:02:06,711 [INFO]   Material verification: anticipated='boulders' actual='3/4-0"' → NO
+2026-04-21 10:02:06,711 [WARNING]   [p3/t1] WARNING: Material mismatch for ticket 19672 — Anticipated: boulders | Found: 3/4-0"
+2026-04-21 10:02:06,740 [INFO]   [p3/t1] Writing to Excel...
+2026-04-21 10:02:06,980 [INFO] Excel: wrote ticket 19672 to tab '12' row 12.
+2026-04-21 10:02:06,980 [INFO]   [p3/t1] Uploading crop PDF to SharePoint (ticket: 19672)...
+2026-04-21 10:02:06,991 [INFO] SharePoint site discovery attempt 1: GET https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/
+2026-04-21 10:02:07,668 [INFO]   → HTTP 200  body: {"@odata.context":"https://graph.microsoft.com/v1.0/$metadata#sites/$entity","createdDateTime":"2016-06-29T19:42:30.203Z","description":"","id":"vancouvermjhughes.sharepoint.com,aae8f340-7508-4e57-b378-4e7cf957a279,bba377d3-6f37-4c1c-95c4-1fa769f3894c","lastModifiedDateTime":"2026-04-21T17:01:54Z","name":"","webUrl":"https://vancouvermjhughes.sharepoint.com","displayName":"MJ Hughes Construction Team Site","root":{},"siteCollection":{"hostname":"vancouvermjhughes.sharepoint.com"}}
+2026-04-21 10:02:07,668 [INFO] SharePoint site found via: path lookup (https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/)
+2026-04-21 10:02:12,606 [INFO] Uploaded PDF to SharePoint: MJHughes OPEN JOBS/2601/Ticket Scans/Rock/Tickets, 19672.pdf
+2026-04-21 10:02:12,608 [INFO]   Renaming email to: 'Rock Tickets 16799, 17657, 19672 - 08/06/2025'
+2026-04-21 10:02:13,169 [INFO] Renamed email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTvAAA= subject to: 'Rock Tickets 16799, 17657, 19672 - 08/06/2025'
+2026-04-21 10:02:13,169 [INFO]   Marking email as read...
+2026-04-21 10:02:13,842 [INFO] Marked email AAMkAGJhMTljYmM4LTk5MmQtNGYzYy1iMjVkLTQxYjIyYmJjYjAwZQBGAAAAAACGS7jncFP_TrzrW1Hz7wysBwCf5kq4dgz5QZHK1WIWgeP-AAAAAAEMAACf5kq4dgz5QZHK1WIWgeP-AAAAACTvAAA= as read.
+2026-04-21 10:02:14,998 [INFO] Archived: 'Rock Tickets 16799, 17657, 19672 - 08/06/2025' → 'Rock Tickets - Processed'
+2026-04-21 10:02:14,999 [INFO]   Done: 'Rock Tickets 16799, 17657, 19672 - 08/06/2025' — 3 ticket(s) written, review_needed=False
+2026-04-21 10:02:15,002 [INFO] Running batch outlier detection on 7 rock ticket(s): ['16800', '17583', '16815', '17637', '16799', '17657', '19672']
+2026-04-21 10:02:15,103 [WARNING] WARNING: Ticket number 19672 may be a misread — differs from batch median 17583 by 2089. Please verify against original PDF.
+2026-04-21 10:02:15,242 [INFO] Batch outlier check: flagged 1 ticket(s) (median=17583).
+2026-04-21 10:02:15,243 [INFO] SharePoint site discovery attempt 1: GET https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/
+2026-04-21 10:02:15,941 [INFO]   → HTTP 200  body: {"@odata.context":"https://graph.microsoft.com/v1.0/$metadata#sites/$entity","createdDateTime":"2016-06-29T19:42:30.203Z","description":"","id":"vancouvermjhughes.sharepoint.com,aae8f340-7508-4e57-b378-4e7cf957a279,bba377d3-6f37-4c1c-95c4-1fa769f3894c","lastModifiedDateTime":"2026-04-21T17:02:12Z","name":"","webUrl":"https://vancouvermjhughes.sharepoint.com","displayName":"MJ Hughes Construction Team Site","root":{},"siteCollection":{"hostname":"vancouvermjhughes.sharepoint.com"}}
+2026-04-21 10:02:15,941 [INFO] SharePoint site found via: path lookup (https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/)
+2026-04-21 10:02:18,455 [INFO] Uploaded ticket_tracker_2601.xlsx to SharePoint (38,108 bytes)
+2026-04-21 10:02:18,457 [INFO] Deleted local temp copy: C:\Users\dawson.h\AppData\Local\Temp\ticket_tracker_2601.xlsx
+2026-04-21 10:02:18,457 [INFO] SharePoint site discovery attempt 1: GET https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/
+2026-04-21 10:02:19,079 [INFO]   → HTTP 200  body: {"@odata.context":"https://graph.microsoft.com/v1.0/$metadata#sites/$entity","createdDateTime":"2016-06-29T19:42:30.203Z","description":"","id":"vancouvermjhughes.sharepoint.com,aae8f340-7508-4e57-b378-4e7cf957a279,bba377d3-6f37-4c1c-95c4-1fa769f3894c","lastModifiedDateTime":"2026-04-21T17:02:18Z","name":"","webUrl":"https://vancouvermjhughes.sharepoint.com","displayName":"MJ Hughes Construction Team Site","root":{},"siteCollection":{"hostname":"vancouvermjhughes.sharepoint.com"}}
+2026-04-21 10:02:19,079 [INFO] SharePoint site found via: path lookup (https://graph.microsoft.com/v1.0/sites/vancouvermjhughes.sharepoint.com:/)
+2026-04-21 10:02:20,934 [INFO] Uploaded ticket_tracker_2601_concrete.xlsx to SharePoint (6,778 bytes)
+2026-04-21 10:02:20,935 [INFO] Deleted local temp copy: C:\Users\dawson.h\AppData\Local\Temp\ticket_tracker_2601_concrete.xlsx
+2026-04-21 10:02:21,695 [INFO] Run summary email sent to dawson.h@mjhughes.com.
+2026-04-21 10:02:21,695 [INFO] =======================================================
+2026-04-21 10:02:21,695 [INFO] Complete — success: 6  sorted: 0  failed: 0  (failed emails remain unread for retry)
+2026-04-21 10:02:21,695 [INFO] =======================================================

@@ -42,6 +42,6 @@
     "Sradiey": "Bradley"
   },
   "confidence_checks": [
-    "valid_date_on_line_2"
+    "supplier_name_in_text"
   ]
 }
