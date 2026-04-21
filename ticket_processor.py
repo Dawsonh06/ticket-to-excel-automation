@@ -57,7 +57,12 @@ from PIL import Image, ImageDraw, ImageEnhance
 import pytesseract                   # OCR engine wrapper
 import cv2                             # image utility operations
 import numpy as np
-import zxingcpp                        # QR / barcode decoder (reliable, no external DLLs)
+try:
+    from pyzbar.pyzbar import decode as pyzbar_decode
+    from pyzbar.pyzbar import ZBarSymbol
+    PYZBAR_AVAILABLE = True
+except ImportError:
+    PYZBAR_AVAILABLE = False
 import openpyxl
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment
@@ -995,25 +1000,25 @@ def preprocess_for_ocr(image: Image.Image) -> Image.Image:
 # ============================================================
 def _zxing_scan(image: "Image.Image", label: str, page_num: int) -> Optional[dict]:
     """
-    Try QR detection on *image* using zxingcpp with two variants:
+    Try QR detection on *image* using pyzbar with two variants:
       1. Original PIL image (colour)
       2. Grayscale
 
-    zxingcpp accepts PIL images directly; no numpy/cv2 conversion needed.
     Returns a parsed QR dict on the first match, or None.
     When OCR_DEBUG=1 every attempt is logged.
     """
+    if not PYZBAR_AVAILABLE:
+        return None
+
     variants = [
         ("original",   image),
         ("grayscale",  image.convert("L")),
     ]
 
     for var_name, img in variants:
-        results = zxingcpp.read_barcodes(img)
+        results = pyzbar_decode(img, symbols=[ZBarSymbol.QRCODE])
         for r in results:
-            if not r.valid:
-                continue
-            text = r.text.strip()
+            text = r.data.decode("utf-8").strip()
             if OCR_DEBUG:
                 logging.info(
                     f"  QR p{page_num} | {label} [{var_name}]: found {text!r}"
@@ -1029,7 +1034,7 @@ def _zxing_scan(image: "Image.Image", label: str, page_num: int) -> Optional[dic
                     f"  QR p{page_num} | {label} [{var_name}]: "
                     f"barcode found but pattern not matched"
                 )
-        if OCR_DEBUG and not any(r.valid for r in results):
+        if OCR_DEBUG and not results:
             logging.info(
                 f"  QR p{page_num} | {label} [{var_name}]: no barcode detected"
             )
@@ -1048,7 +1053,7 @@ def extract_qr_code(images: list) -> Optional[dict]:
       5. OCR fallback — pytesseract --psm 6 regex search on full page
 
     Each image region is tried with both colour and grayscale variants via
-    zxingcpp.  When OCR_DEBUG=1 every attempt and its outcome is logged, and
+    pyzbar.  When OCR_DEBUG=1 every attempt and its outcome is logged, and
     the first page is saved to qr_debug.png for inspection.
 
     Returns:
@@ -1156,36 +1161,38 @@ def _scan_full_page_for_qr(
 ) -> "tuple[Optional[dict], Optional[int]]":
     """Scan the full page image for a QR code without any cropping.
 
-    Tries zxingcpp on the original colour image then grayscale.  Stops at
+    Tries pyzbar on the original colour image then grayscale.  Stops at
     the first result that matches ``QR_PATTERN``.
 
     Returns:
         ``(qr_data, y_center_px)`` when a matching code is found, where
-        ``y_center_px`` is the average Y coordinate of the QR code's four
-        corners in the full-page coordinate space.
+        ``y_center_px`` is the average Y coordinate of the QR code's bounding
+        polygon in the full-page coordinate space.
         ``(None, None)`` when no matching code is found.
 
     This is the primary QR scan for multi-ticket pages.  Cropped regions
     are used only for OCR/AI extraction — QR detection stays on the full
     page so that codes near a crop boundary are not lost.
     """
+    if not PYZBAR_AVAILABLE:
+        return None, None
+
     variants = [
         ("original",  page_image),
         ("grayscale", page_image.convert("L")),
     ]
     for _var_name, img in variants:
-        results = zxingcpp.read_barcodes(img)
+        results = pyzbar_decode(img, symbols=[ZBarSymbol.QRCODE])
         for r in results:
-            if not r.valid:
-                continue
-            text = r.text.strip()
+            text = r.data.decode("utf-8").strip()
             if not QR_PATTERN.search(text):
                 continue
-            pos      = r.position
+            polygon  = r.polygon
             y_center = (
-                pos.top_left.y + pos.top_right.y
-                + pos.bottom_left.y + pos.bottom_right.y
-            ) // 4
+                sum(p.y for p in polygon) // len(polygon)
+                if polygon
+                else r.rect.top + r.rect.height // 2
+            )
             return _parse_qr_string(text), y_center
     return None, None
 
@@ -1198,7 +1205,7 @@ def _ai_scan_qr_from_image(
 
     Sends the full page image to Claude with a structured prompt asking it to
     locate and decode any QR code sticker matching the job-location-costcode
-    pattern.  This is the primary QR detection method; zxingcpp is the fallback.
+    pattern.  This is the primary QR detection method; pyzbar is the fallback.
 
     Returns:
         ``(qr_data, y_center_px)`` when Claude finds a valid matching QR code,
@@ -4153,7 +4160,7 @@ def process_email(
                 _current_step = f"scanning QR code on page {page_num}"
 
                 # Pre-scan the full uncropped page for a QR code.  AI vision
-                # is tried first; zxingcpp is the fallback.  Running before
+                # is tried first; pyzbar is the fallback.  Running before
                 # any cropping ensures codes near a crop boundary are not lost.
                 # The result is passed into both the duplicate-copy filter and
                 # the per-ticket QR step below.
@@ -4173,14 +4180,14 @@ def process_email(
                     )
                     if page_qr_data:
                         logging.info(
-                            f"  [p{page_num}] QR found via zxingcpp (AI missed it): "
+                            f"  [p{page_num}] QR found via pyzbar (AI missed it): "
                             f"'{page_qr_data['raw']}' at Y={page_qr_y}px "
                             f"(page height {page_image.size[1]}px)"
                         )
                     else:
                         logging.info(
                             f"  [p{page_num}] QR not found by either method "
-                            f"(AI vision + zxingcpp)"
+                            f"(AI vision + pyzbar)"
                         )
 
                 boundaries = detect_ticket_boundaries(page_image, page_num)

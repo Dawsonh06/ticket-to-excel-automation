@@ -28,8 +28,8 @@ Pillow>=10.0.0
 #   Linux   : sudo apt install tesseract-ocr
 pytesseract>=0.3.10
 
-# QR / barcode decoder – more reliable than cv2.QRCodeDetector, no external DLLs
-zxing-cpp>=2.0.0
+# QR / barcode decoder – cross-platform, requires libzbar0 system package
+pyzbar
 
 # OpenCV – still used for image utility operations
 opencv-python>=4.8.0
