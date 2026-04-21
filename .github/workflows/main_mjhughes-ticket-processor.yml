@@ -15,9 +15,10 @@ env:
   PYTHON_VERSION: '3.11' # set this to the python version to use (supports 3.6, 3.7, 3.8)
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
     permissions:
+      id-token: write #This is required for requesting the JWT
       contents: read #This is required for actions/checkout
 
     steps:
@@ -37,37 +38,6 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      # Optional: Add step to run tests here
-
-      - name: Zip artifact for deployment
-        run: zip release.zip ./* -r
-
-      - name: Upload artifact for deployment job
-        uses: actions/upload-artifact@v4
-        with:
-          name: python-app
-          path: |
-            release.zip
-            !venv/
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
-    permissions:
-      id-token: write #This is required for requesting the JWT
-      contents: read #This is required for actions/checkout
-
-    steps:
-      - name: Download artifact from build job
-        uses: actions/download-artifact@v4
-        with:
-          name: python-app
-
-      - name: Unzip artifact for deployment
-        run: |
-          unzip release.zip
-          rm release.zip
-        
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -76,10 +46,11 @@ jobs:
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_399A6B5EF56B4BD39AE7F2B65F714FEC }}
 
       - name: 'Deploy to Azure Functions'
-        uses: Azure/functions-action@v1
+        uses: azure/functions-action@v1
         id: deploy-to-function
         with:
           app-name: 'mjhughes-ticket-processor'
           slot-name: 'Production'
           package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
-          
+          app-type: 'functionAppLinux'
+          scm-do-build-during-deployment: 'true'
