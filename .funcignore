@@ -1,0 +1,14 @@
+.git
+.github
+.env
+__pycache__
+*.pyc
+.venv
+venv
+release.zip
+test_unzip
+ocr_debug*
+processor.log
+error_log.txt
+known_facilities.txt
+unknown_suppliers.txt

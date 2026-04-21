@@ -7,11 +7,10 @@ Runs on a timer trigger and delegates to ticket_processor.main().
 
 import logging
 import subprocess
-import sys
 
 import azure.functions as func
 
-app = func.FunctionApp()
+app = func.FunctionApp(http_auth_level=func.AuthLevel.ANONYMOUS)
 
 
 def ensure_dependencies():
@@ -33,17 +32,16 @@ def ensure_dependencies():
         )
 
 
-# Timer schedule: every 5 minutes.  Adjust the cron expression in host.json or
-# here if a different interval is needed.
 @app.timer_trigger(
-    schedule="0 */5 * * * *",
-    arg_name="timer",
+    schedule="0 0 0 * * *",
+    arg_name="myTimer",
     run_on_startup=False,
     use_monitor=False,
 )
-def ticket_processor_timer(timer: func.TimerRequest) -> None:
-    """Azure Functions timer trigger — runs ticket_processor.main()."""
+def ticket_processor_timer(myTimer: func.TimerRequest) -> None:
+    if myTimer.past_due:
+        logging.info("Timer is past due")
+    logging.info("Ticket processor timer triggered")
     ensure_dependencies()
-
-    import ticket_processor
-    ticket_processor.main()
+    from ticket_processor import main
+    main()
