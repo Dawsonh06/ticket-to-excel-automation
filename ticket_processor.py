@@ -61,8 +61,16 @@ try:
     from pyzbar.pyzbar import decode as pyzbar_decode
     from pyzbar.pyzbar import ZBarSymbol
     PYZBAR_AVAILABLE = True
-except ImportError:
+    logging.info("pyzbar loaded successfully")
+except Exception:
     PYZBAR_AVAILABLE = False
+    logging.info("pyzbar not available - using AI vision for QR detection")
+
+try:
+    import zxingcpp
+    ZXINGCPP_AVAILABLE = True
+except Exception:
+    ZXINGCPP_AVAILABLE = False
 import openpyxl
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment
@@ -1116,21 +1124,18 @@ def extract_qr_code(images: list) -> Optional[dict]:
             return result
 
         # ── Step 5: OCR fallback ──────────────────────────────────────────
-        if OCR_DEBUG:
-            logging.info(f"  QR p{page_num} | step 5: OCR fallback")
+        logging.info(f"  QR p{page_num} | step 5: OCR text fallback on crop image")
         ocr_text = pytesseract.image_to_string(image, config="--psm 6 --oem 3")
         match = QR_PATTERN.search(ocr_text)
         if match:
-            if OCR_DEBUG:
-                logging.info(
-                    f"  QR p{page_num} | OCR fallback: MATCH {match.group(0)!r}"
-                )
+            logging.info(
+                f"  QR p{page_num} | QR found via OCR text: {match.group(0)!r}"
+            )
             return _parse_qr_string(match.group(0))
         else:
-            if OCR_DEBUG:
-                logging.info(
-                    f"  QR p{page_num} | OCR fallback: pattern not found in OCR text"
-                )
+            logging.info(
+                f"  QR p{page_num} | OCR fallback: pattern not found in crop OCR text"
+            )
 
     return None   # Pattern not found on any page
 
@@ -4222,10 +4227,32 @@ def process_email(
                             f"(page height {page_image.size[1]}px)"
                         )
                     else:
+                        # Step 3: OCR text search on the full page image.
+                        # Runs after AI vision and pyzbar both fail.  The QR
+                        # sticker always has the code printed in plain text
+                        # beside the QR image, so even when the image can't be
+                        # decoded the text can be OCR'd directly.
                         logging.info(
-                            f"  [p{page_num}] QR not found by either method "
-                            f"(AI vision + pyzbar)"
+                            f"  [p{page_num}] QR: AI + pyzbar failed — "
+                            "Step 3: trying full-page OCR text search..."
                         )
+                        _page_ocr_text = pytesseract.image_to_string(
+                            page_image, config="--psm 6 --oem 3"
+                        )
+                        _ocr_qr_match = QR_PATTERN.search(_page_ocr_text)
+                        if _ocr_qr_match:
+                            _ocr_qr_raw  = _ocr_qr_match.group(0)
+                            page_qr_data = _parse_qr_string(_ocr_qr_raw)
+                            page_qr_y    = page_image.size[1] // 2  # center; unknown
+                            logging.info(
+                                f"  [p{page_num}] QR found via OCR text: "
+                                f"'{_ocr_qr_raw}' (Y estimated to page centre)"
+                            )
+                        else:
+                            logging.info(
+                                f"  [p{page_num}] QR not found by any method "
+                                "(AI vision + pyzbar + OCR)"
+                            )
 
                 boundaries = detect_ticket_boundaries(page_image, page_num)
                 boundaries = _apply_duplicate_copy_filter(
