@@ -115,7 +115,8 @@ pytesseract.pytesseract.tesseract_cmd = _tesseract_cmd
 
 MAILBOX           = os.getenv("MAILBOX_ADDRESS",       "help@mjhughes.com")
 SUMMARY_RECIPIENT = os.getenv("SUMMARY_EMAIL",         "dawson.h@mjhughes.com")
-_JOB_NUMBER       = os.getenv("SHAREPOINT_JOB_FOLDER", "2601")
+_JOB_NUMBER       = os.getenv("JOB_NUMBER",           "2601")          # matches QR codes
+_SP_JOB_FOLDER    = os.getenv("SHAREPOINT_JOB_FOLDER", _JOB_NUMBER)    # actual SharePoint folder name
 
 _EXCEL_FILENAME          = os.getenv("EXCEL_FILE_ROCK",     f"ticket_tracker_{_JOB_NUMBER}.xlsx")
 _EXCEL_FILENAME_CONCRETE = os.getenv("EXCEL_FILE_CONCRETE", f"ticket_tracker_{_JOB_NUMBER}_concrete.xlsx")
@@ -876,7 +877,7 @@ def send_run_summary_email(
     subject  = f"Ticket Processor Run Summary - {subj_ts}"
     sp_path  = (
         f"/Shared Documents/{SHAREPOINT_FOLDER}"
-        f"/{_JOB_NUMBER}/{_EXCEL_FILENAME}"
+        f"/{_SP_JOB_FOLDER}/{_EXCEL_FILENAME}"
     )
 
     lines: list[str] = [
@@ -3183,8 +3184,8 @@ def _next_data_row(
     return data_start_row
 
 
-def write_to_excel(qr_data: dict, ticket_data: dict, notes: str = "", toc_materials: Optional[dict] = None) -> None:
-    """Write one ticket row into ticket_tracker_2601.xlsx.
+def write_to_excel(qr_data: dict, ticket_data: dict, notes: str = "", toc_materials: Optional[dict] = None, excel_path: str = None) -> None:
+    """Write one ticket row into the rock Excel tracker for a job.
 
     - Opens the existing workbook (raises FileNotFoundError if absent).
     - Finds the pre-built tab whose B3 cost code matches the QR code suffix.
@@ -3192,6 +3193,9 @@ def write_to_excel(qr_data: dict, ticket_data: dict, notes: str = "", toc_materi
     - Finds the first empty data row (row 9+) and writes to the mapped columns.
     - Does NOT touch rows 1-8 (pre-built header), the TOC tab, or columns
       G, H, I, K (those are human-filled).
+
+    *excel_path* — explicit local path to the workbook.  Defaults to EXCEL_FILE
+    (the primary-job tracker) when not provided.
 
     Column mapping:
         A (_COL_TICKET_DATE) — ticket date
@@ -3206,11 +3210,11 @@ def write_to_excel(qr_data: dict, ticket_data: dict, notes: str = "", toc_materi
         notes="DUPLICATE TICKET" → all written cells orange
         empty required field     → that cell yellow + warning logged
     """
-    excel_path = Path(EXCEL_FILE)
+    excel_path = Path(excel_path) if excel_path else Path(EXCEL_FILE)
     if not excel_path.exists():
         raise FileNotFoundError(
             f"Excel workbook not found: {excel_path}\n"
-            "Place ticket_tracker_2601.xlsx at that path before running."
+            "Ensure the tracker has been downloaded from SharePoint."
         )
 
     workbook = openpyxl.load_workbook(excel_path)
@@ -3278,8 +3282,12 @@ def write_to_excel_concrete(
     ticket_data: dict,
     notes: str = "",
     toc_materials: Optional[dict] = None,
+    excel_path: str = None,
 ) -> None:
-    """Write one concrete ticket row into ticket_tracker_2601_concrete.xlsx.
+    """Write one concrete ticket row into the concrete Excel tracker for a job.
+
+    *excel_path* — explicit local path to the workbook.  Defaults to
+    EXCEL_FILE_CONCRETE (the primary-job tracker) when not provided.
 
     Column mapping (data starts at row 5):
         A (_CONCRETE_COL_TICKET_DATE) — ticket date
@@ -3294,11 +3302,11 @@ def write_to_excel_concrete(
     Tab matching: looks up the QR code in column B of the concrete TOC tab
     and writes to the tab whose title equals that TOC row number (e.g. "2").
     """
-    excel_path = Path(EXCEL_FILE_CONCRETE)
+    excel_path = Path(excel_path) if excel_path else Path(EXCEL_FILE_CONCRETE)
     if not excel_path.exists():
         raise FileNotFoundError(
             f"Concrete Excel workbook not found: {excel_path}\n"
-            f"Download {_EXCEL_FILENAME_CONCRETE} from SharePoint before running."
+            "Ensure the tracker has been downloaded from SharePoint."
         )
 
     workbook = openpyxl.load_workbook(excel_path)
@@ -3458,24 +3466,38 @@ def _ensure_job_folder_structure(
         logging.info(f"Created folder structure for new job: {job_number}")
 
 
+def _sanitize_sharepoint_folder_name(name: str) -> str:
+    """Return *name* safe for use as a SharePoint folder name.
+
+    Replaces forward-slashes with hyphens and removes characters that
+    SharePoint prohibits in folder names.
+    """
+    name = name.replace("/", "-")
+    for ch in '\\*?"<>|:#':
+        name = name.replace(ch, "")
+    return name.strip()
+
+
 def upload_to_sharepoint(
     client: GraphClient,
     pdf_bytes: bytes,
     job_number: str,
     ticket_numbers: list[str],
     subfolder: str = "",
+    material_subfolder: str = "",
 ) -> str:
     """Upload a ticket PDF to the job's Ticket Scans folder on SharePoint.
 
     Destination path (no subfolder):
         /Shared Documents/MJHughes OPEN JOBS/{job_number}/Ticket Scans/{filename}
 
-    Destination path (with subfolder, e.g. "Rock"):
+    Destination path (type subfolder only, e.g. "Rock"):
         /Shared Documents/MJHughes OPEN JOBS/{job_number}/Ticket Scans/Rock/{filename}
 
-    The job folder and Ticket Scans subfolder are created automatically if
-    they do not already exist.  When *subfolder* is given, that level is also
-    created if missing.
+    Destination path (type + material subfolder, e.g. "Rock" / "Class 2 RipRap"):
+        /Shared Documents/MJHughes OPEN JOBS/{job_number}/Ticket Scans/Rock/Class 2 RipRap/{filename}
+
+    All missing folders are created automatically.
 
     File naming convention: "Tickets, [TicketNumber1], [TicketNumber2].pdf"
     Single ticket example : Tickets, 16800.pdf
@@ -3500,6 +3522,16 @@ def upload_to_sharepoint(
         if created:
             logging.info(f"Created subfolder: Ticket Scans/{subfolder}")
         scans_path = type_path
+
+    if material_subfolder:
+        mat_path   = f"{scans_path}/{material_subfolder}"
+        rel_path   = f"Ticket Scans/{subfolder}/{material_subfolder}" if subfolder else f"Ticket Scans/{material_subfolder}"
+        created    = _ensure_sharepoint_folder(client, site_id, drive_id, mat_path)
+        if created:
+            logging.info(f"Created subfolder: {rel_path}")
+        else:
+            logging.info(f"Folder already exists: {rel_path}")
+        scans_path = mat_path
 
     upload_url = (
         f"{GRAPH_BASE}/sites/{site_id}/drives/{drive_id}"
@@ -3633,20 +3665,23 @@ def _download_excel_file(
     client: GraphClient,
     sp_filename: str,
     local_path: str,
+    job_folder: str = None,
 ) -> bool:
     """Download one Excel tracker from SharePoint to a local temp path.
 
     SharePoint path:
-        /Shared Documents/MJHughes OPEN JOBS/{_JOB_NUMBER}/{sp_filename}
+        /Shared Documents/MJHughes OPEN JOBS/{job_folder}/{sp_filename}
 
+    *job_folder* defaults to _SP_JOB_FOLDER when not provided.
     Returns True on success, False on any failure (logs a warning).
     """
+    job_folder = job_folder or _SP_JOB_FOLDER
     try:
         site_id  = _sharepoint_site_id(client)
         drive_id = _sharepoint_drive_id(client, site_id)
         url = (
             f"{GRAPH_BASE}/sites/{site_id}/drives/{drive_id}"
-            f"/root:/{SHAREPOINT_FOLDER}/{_JOB_NUMBER}/{sp_filename}:/content"
+            f"/root:/{SHAREPOINT_FOLDER}/{job_folder}/{sp_filename}:/content"
         )
         response  = client.get(url)
         temp_path = Path(local_path)
@@ -3666,15 +3701,18 @@ def _upload_excel_file(
     client: GraphClient,
     sp_filename: str,
     local_path: str,
+    job_folder: str = None,
 ) -> None:
     """Upload one Excel tracker to SharePoint, overwriting the existing file.
 
     SharePoint path:
-        /Shared Documents/MJHughes OPEN JOBS/{_JOB_NUMBER}/{sp_filename}
+        /Shared Documents/MJHughes OPEN JOBS/{job_folder}/{sp_filename}
 
+    *job_folder* defaults to _SP_JOB_FOLDER when not provided.
     Raises on any HTTP or IO error — the caller logs a CRITICAL message and
     keeps the local temp copy so the data is not lost.
     """
+    job_folder = job_folder or _SP_JOB_FOLDER
     temp_path = Path(local_path)
     if not temp_path.exists():
         raise FileNotFoundError(
@@ -3685,7 +3723,7 @@ def _upload_excel_file(
     drive_id = _sharepoint_drive_id(client, site_id)
     url = (
         f"{GRAPH_BASE}/sites/{site_id}/drives/{drive_id}"
-        f"/root:/{SHAREPOINT_FOLDER}/{_JOB_NUMBER}/{sp_filename}:/content"
+        f"/root:/{SHAREPOINT_FOLDER}/{job_folder}/{sp_filename}:/content"
     )
     data = temp_path.read_bytes()
     client.put_binary(
@@ -3695,6 +3733,96 @@ def _upload_excel_file(
         ),
     )
     logging.info(f"Uploaded {sp_filename} to SharePoint ({len(data):,} bytes)")
+
+
+# ============================================================
+# MULTI-JOB ROUTING HELPERS
+# ============================================================
+
+def _excel_local_path(job_number: str, is_concrete: bool = False) -> str:
+    """Return the local temp path for a job's Excel tracker."""
+    suffix   = "_concrete" if is_concrete else ""
+    filename = f"ticket_tracker_{job_number}{suffix}.xlsx"
+    return str(_LOCAL_TEMP_DIR / filename)
+
+
+# Cache: job_number → True/False (whether the SP folder exists).
+# Pre-populated with the configured fallback folder so we never make a
+# round-trip to validate it — it must exist or the run would have failed earlier.
+_sp_job_folder_cache: dict[str, bool] = {_SP_JOB_FOLDER: True}
+
+
+def _sp_job_folder_exists(client: GraphClient, job_number: str) -> bool:
+    """Return True if /MJHughes OPEN JOBS/{job_number} exists in SharePoint.
+
+    Results are cached for the lifetime of the run.
+    """
+    if job_number in _sp_job_folder_cache:
+        return _sp_job_folder_cache[job_number]
+    try:
+        site_id  = _sharepoint_site_id(client)
+        drive_id = _sharepoint_drive_id(client, site_id)
+        check_url = (
+            f"{GRAPH_BASE}/sites/{site_id}/drives/{drive_id}"
+            f"/root:/{SHAREPOINT_FOLDER}/{job_number}"
+        )
+        client.get(check_url)
+        _sp_job_folder_cache[job_number] = True
+        return True
+    except requests.exceptions.HTTPError as exc:
+        if exc.response is not None and exc.response.status_code == 404:
+            _sp_job_folder_cache[job_number] = False
+            return False
+        raise
+
+
+def _resolve_sp_job_folder(client: GraphClient, job_number: str) -> str:
+    """Return the SharePoint folder name to use for *job_number*.
+
+    If /MJHughes OPEN JOBS/{job_number} exists, returns *job_number*.
+    Otherwise falls back to *_SP_JOB_FOLDER* and logs a warning.
+    """
+    if _sp_job_folder_exists(client, job_number):
+        return job_number
+    logging.warning(
+        f"Job folder {job_number!r} not found in SharePoint — "
+        f"falling back to {_SP_JOB_FOLDER!r}"
+    )
+    return _SP_JOB_FOLDER
+
+
+# Cache: (job_number, is_concrete) → True/False (download outcome).
+_excel_downloaded: dict[tuple, bool] = {}
+
+
+def _get_or_download_excel(
+    client: GraphClient,
+    job_number: str,
+    is_concrete: bool = False,
+) -> Optional[str]:
+    """Return the local path of a job's Excel tracker, downloading if needed.
+
+    On the first call for a given (job_number, is_concrete) pair, downloads the
+    file from SharePoint using the exact job folder.  Returns None when the
+    download fails or has already failed this run.
+    """
+    local_path = _excel_local_path(job_number, is_concrete)
+    cache_key  = (job_number, is_concrete)
+
+    if Path(local_path).exists():
+        return local_path
+
+    if _excel_downloaded.get(cache_key) is False:
+        return None  # already tried and failed this run
+
+    sp_filename = (
+        f"ticket_tracker_{job_number}_concrete.xlsx"
+        if is_concrete
+        else f"ticket_tracker_{job_number}.xlsx"
+    )
+    ok = _download_excel_file(client, sp_filename, local_path, job_folder=job_number)
+    _excel_downloaded[cache_key] = ok
+    return local_path if ok else None
 
 
 # ============================================================
@@ -4499,30 +4627,41 @@ def process_email(
                             types_seen.add(detected_type)
                         continue   # skip Excel write AND PDF upload
 
-                    # Unknown job — skip Excel write, warn; PDF still uploaded below
-                    if job.upper() != _JOB_NUMBER.upper():
+                    # Resolve the effective SharePoint folder for this job.
+                    # Falls back to _SP_JOB_FOLDER when the job folder doesn't
+                    # exist in SharePoint yet (logged as a warning inside).
+                    effective_job = _resolve_sp_job_folder(client, job)
+                    _is_concrete  = (detected_type == "concrete")
+                    _current_step = f"writing ticket {tn} to Excel"
+
+                    # Lazy-download this job's Excel tracker if not yet on disk.
+                    job_excel_path = _get_or_download_excel(
+                        client, effective_job, is_concrete=_is_concrete
+                    )
+                    write_succeeded = True
+
+                    if job_excel_path is None:
                         logging.warning(
-                            f"{res['tag']} WARNING: New job number {job!r} detected. "
-                            f"No Excel file found at /MJHughes OPEN JOBS/{job}/"
-                            f"ticket_tracker_{job}.xlsx. "
-                            "Please create the tracker for this job manually."
+                            f"{res['tag']} WARNING: Cannot fetch Excel for job "
+                            f"{effective_job!r} — skipping Excel write."
                         )
+                        write_succeeded = False
                     else:
-                        # Known job — write to the correct Excel tracker
-                        write_succeeded = True
-                        _is_concrete    = (detected_type == "concrete")
-                        _current_step   = f"writing ticket {tn} to Excel"
                         try:
                             if res["is_duplicate"]:
                                 logging.info(f"{res['tag']} Writing duplicate row to Excel...")
                                 _dup_notes = _append_note("DUPLICATE TICKET", notes)
                                 if _is_concrete:
-                                    write_to_excel_concrete(qr_d, td, notes=_dup_notes)
+                                    write_to_excel_concrete(
+                                        qr_d, td, notes=_dup_notes,
+                                        excel_path=job_excel_path,
+                                    )
                                 else:
                                     write_to_excel(
                                         qr_d, td,
                                         notes=_dup_notes,
                                         toc_materials=toc_materials,
+                                        excel_path=job_excel_path,
                                     )
                                 any_review_needed = True
                                 duplicate_count  += 1
@@ -4530,12 +4669,16 @@ def process_email(
                             else:
                                 logging.info(f"{res['tag']} Writing to Excel...")
                                 if _is_concrete:
-                                    write_to_excel_concrete(qr_d, td, notes=notes)
+                                    write_to_excel_concrete(
+                                        qr_d, td, notes=notes,
+                                        excel_path=job_excel_path,
+                                    )
                                 else:
                                     write_to_excel(
                                         qr_d, td,
                                         notes=notes,
                                         toc_materials=toc_materials,
+                                        excel_path=job_excel_path,
                                     )
                         except AmbiguousTabError as amb_exc:
                             logging.warning(str(amb_exc))
@@ -4543,31 +4686,52 @@ def process_email(
                             write_succeeded   = False
                             review_reasons.append(str(amb_exc))
 
-                        if write_succeeded:
-                            all_ticket_numbers.append(tn)
-                            last_success = (qr_d, td)
-                            if first_success is None:
-                                first_success = (qr_d, td)
-                            if detected_type:
-                                types_seen.add(detected_type)
+                    if write_succeeded:
+                        all_ticket_numbers.append(tn)
+                        last_success = (qr_d, td)
+                        if first_success is None:
+                            first_success = (qr_d, td)
+                        if detected_type:
+                            types_seen.add(detected_type)
 
-                    # Upload one crop PDF per ticket regardless of job match.
-                    # Concrete PDFs → Ticket Scans/Concrete/; Rock → Ticket Scans/Rock/
-                    # Route into the type subfolder (e.g. "Rock") when the ticket
-                    # type was detected; fall back to the flat Ticket Scans root
-                    # when type detection was not configured.
+                    # Upload one crop PDF per ticket to the resolved job folder.
+                    # Rock PDFs   → Ticket Scans/Rock/[material]/
+                    # Concrete PDFs → Ticket Scans/Concrete/[supplier]/
+                    # Falls back to the type root when no material/supplier name
+                    # is available, and to the flat Ticket Scans root when type
+                    # detection was not configured.
                     if crop_img is not None:
                         _current_step = f"uploading ticket {tn} PDF to SharePoint"
                         try:
                             logging.info(
                                 f"{res['tag']} Uploading crop PDF to SharePoint "
-                                f"(ticket: {tn})..."
+                                f"(ticket: {tn}, job: {effective_job})..."
                             )
                             crop_pdf       = _pil_image_to_pdf_bytes(crop_img)
                             type_subfolder = detected_type.title() if detected_type else ""
+
+                            # Build material-level subfolder name
+                            if detected_type == "rock":
+                                raw_mat = (td.get("qr_sticker_text") or "").strip()
+                                if raw_mat:
+                                    mat_subfolder = _sanitize_sharepoint_folder_name(raw_mat)
+                                else:
+                                    mat_subfolder = ""
+                                    logging.info("No material name - uploading to root Rock folder")
+                            elif detected_type == "concrete":
+                                raw_mat = (td.get("supplier") or "").strip()
+                                if raw_mat:
+                                    mat_subfolder = _sanitize_sharepoint_folder_name(raw_mat)
+                                else:
+                                    mat_subfolder = ""
+                                    logging.info("No supplier name - uploading to root Concrete folder")
+                            else:
+                                mat_subfolder = ""
+
                             upload_to_sharepoint(
-                                client, crop_pdf, job, [tn],
+                                client, crop_pdf, effective_job, [tn],
                                 subfolder=type_subfolder,
+                                material_subfolder=mat_subfolder,
                             )
                         except Exception as sp_exc:
                             logging.warning(
@@ -4739,14 +4903,20 @@ def main() -> None:
     # Authenticate with Microsoft Graph API
     client = GraphClient()
 
-    # ── Download both Excel trackers from SharePoint ─────────────────────────
-    # Download both regardless of TICKET_TYPE so we always have fresh copies.
-    # Only abort when a file that is required for this run's type cannot be fetched.
+    # ── Download primary job Excel trackers from SharePoint ──────────────────
+    # Download the configured job's trackers upfront so _load_toc_materials()
+    # has a file to read, and to fail fast if the primary job files are missing.
+    # Other job trackers are downloaded lazily on first encounter during processing.
+    _need_rock     = (not _TICKET_TYPE or _TICKET_TYPE == "rock")
+    _need_concrete = (not _TICKET_TYPE or _TICKET_TYPE == "concrete")
+
     rock_ok     = _download_excel_file(client, _EXCEL_FILENAME,          EXCEL_FILE)
     concrete_ok = _download_excel_file(client, _EXCEL_FILENAME_CONCRETE, EXCEL_FILE_CONCRETE)
 
-    _need_rock     = (not _TICKET_TYPE or _TICKET_TYPE == "rock")
-    _need_concrete = (not _TICKET_TYPE or _TICKET_TYPE == "concrete")
+    # Mark primary-job files in the lazy-download cache so they are not
+    # re-downloaded when first encountered during ticket processing.
+    _excel_downloaded[(_SP_JOB_FOLDER, False)] = rock_ok
+    _excel_downloaded[(_SP_JOB_FOLDER, True)]  = concrete_ok
 
     if _need_rock and not rock_ok:
         logging.error(
@@ -4817,17 +4987,22 @@ def main() -> None:
             )
             _check_batch_outliers(rock_tickets)
 
-    # ── Upload both Excel trackers back to SharePoint ────────────────────────
-    for _sp_name, _local_path in [
-        (_EXCEL_FILENAME,          EXCEL_FILE),
-        (_EXCEL_FILENAME_CONCRETE, EXCEL_FILE_CONCRETE),
-    ]:
-        if not Path(_local_path).exists():
-            logging.info(f"Skipping upload of {_sp_name} — local file not present.")
+    # ── Upload all Excel trackers back to SharePoint ─────────────────────────
+    # Discover every ticket_tracker_*.xlsx in the temp directory — this covers
+    # the primary job and any additional jobs downloaded lazily during processing.
+    for _local_path in sorted(_LOCAL_TEMP_DIR.glob("ticket_tracker_*.xlsx")):
+        _sp_name = _local_path.name
+        # Extract job number from filename:
+        #   ticket_tracker_2601.xlsx          → job 2601, rock
+        #   ticket_tracker_2601_concrete.xlsx → job 2601, concrete
+        _m = re.match(r"ticket_tracker_(\w+?)(?:_concrete)?\.xlsx$", _sp_name)
+        if not _m:
             continue
+        _job_num   = _m.group(1)
+        _sp_folder = _resolve_sp_job_folder(client, _job_num)
         try:
-            _upload_excel_file(client, _sp_name, _local_path)
-            Path(_local_path).unlink(missing_ok=True)
+            _upload_excel_file(client, _sp_name, str(_local_path), job_folder=_sp_folder)
+            _local_path.unlink(missing_ok=True)
             logging.info(f"Deleted local temp copy: {_local_path}")
         except Exception as exc:
             logging.critical(
