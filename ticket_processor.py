@@ -348,8 +348,66 @@ def _keyword_matches(keyword: str, text: str, cutoff: float = 0.80) -> bool:
     return False
 
 
+def _identify_profile_with_ai(
+    image: "Image.Image",
+    candidates: list[TicketProfile],
+) -> "Optional[TicketProfile]":
+    """Ask Claude AI to identify which supplier profile matches the ticket image.
+
+    Called when OCR keyword detection fails.  Sends the image to Claude with a
+    list of candidate supplier names and asks it to pick one.  Returns the
+    matching TicketProfile or None.
+    """
+    if not ANTHROPIC_API_KEY:
+        return None
+
+    names_list = "\n".join(f"- {p.supplier_name}" for p in candidates)
+    prompt = (
+        "Look at this delivery ticket image. Which supplier issued this ticket? "
+        "The possible suppliers are:\n"
+        f"{names_list}\n\n"
+        "Reply with ONLY the exact supplier name from the list above. "
+        "If you cannot identify the supplier from the list, reply with 'unknown'."
+    )
+    try:
+        import base64, io as _io
+        _client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+        buf = _io.BytesIO()
+        image.save(buf, format="PNG")
+        b64 = base64.standard_b64encode(buf.getvalue()).decode()
+        response = _client.messages.create(
+            model=_AI_MODEL,
+            max_tokens=64,
+            messages=[{
+                "role": "user",
+                "content": [
+                    {
+                        "type": "image",
+                        "source": {"type": "base64", "media_type": "image/png", "data": b64},
+                    },
+                    {"type": "text", "text": prompt},
+                ],
+            }],
+        )
+        identified = response.content[0].text.strip()
+        logging.info(f"  AI profile detection: {identified!r}")
+        if identified.lower() == "unknown":
+            return None
+        for p in candidates:
+            if p.supplier_name.lower() == identified.lower():
+                return p
+        for p in candidates:
+            if identified.lower() in p.supplier_name.lower():
+                return p
+        logging.warning(f"  AI profile detection: no profile matched name {identified!r}")
+    except Exception as exc:
+        logging.warning(f"  AI profile detection failed: {exc}")
+    return None
+
+
 def detect_profile(
-    full_text: str, profiles: list[TicketProfile]
+    full_text: str, profiles: list[TicketProfile],
+    image: "Optional[Image.Image]" = None,
 ) -> Optional[TicketProfile]:
     """Identify which supplier profile matches the OCR text.
 
@@ -407,7 +465,17 @@ def detect_profile(
                         )
                         return profile
 
-    # No specific profile matched — return the fallback (may be None).
+    # No specific profile matched via keywords — try AI vision before falling back.
+    if image is not None and fallback is not None:
+        specific = [p for p in profiles if not p.is_fallback]
+        if specific:
+            ai_match = _identify_profile_with_ai(image, specific)
+            if ai_match:
+                logging.info(
+                    f"  Profile detected via AI vision: {ai_match.supplier_name!r}"
+                )
+                return ai_match
+
     return fallback
 
 
@@ -1693,8 +1761,8 @@ def extract_ticket_data_ocr(images: list, profiles: list[TicketProfile], subject
         for img in images
     )
 
-    # 2. Detect supplier profile from raw OCR text.
-    profile = detect_profile(raw_text, profiles)
+    # 2. Detect supplier profile from raw OCR text (AI vision fallback if needed).
+    profile = detect_profile(raw_text, profiles, image=images[0] if images else None)
     if not profile:
         # No profiles loaded at all (not even a fallback) — flag for review.
         company_name = next(

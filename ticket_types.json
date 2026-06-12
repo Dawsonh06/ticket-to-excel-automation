@@ -1,8 +1,8 @@
 {
   "rock": {
-    "keywords": ["quarry", "rip rap", "crushed", "aggregate",
+    "keywords": ["quarry", "rip rap", "riprap", "rip-rap", "crushed", "aggregate",
                  "gravel", "rock", "pit", "stone", "basalt",
-                 "tons", "teevin", "knife river", "bradley"],
+                 "tons", "teevin", "knife river", "bradley", "challis"],
     "target_folder": "Rock Tickets",
     "excel_file": "ticket_tracker_rock.xlsx"
   },

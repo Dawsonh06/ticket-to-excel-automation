@@ -3,8 +3,10 @@
   "ticket_type": "rock",
   "detection_keywords": [
     "CHALLIS", "Challis", "REDI-MIX", "Redi-Mix",
-    "challis redi", "CHALLIS REDI"
+    "challis redi", "CHALLIS REDI",
+    "Recalled ID#", "Recalled ID", "REDI MIX"
   ],
+  "detection_scan_lines": 50,
   "layout": {
     "company_name_line": 1,
     "ticket_number_extraction": {
