@@ -1369,13 +1369,14 @@ def _ai_scan_qr_from_image(
         if raw.startswith("```"):
             raw = re.sub(r"^```[a-z]*\n?", "", raw)
             raw = re.sub(r"\n?```$",        "", raw)
-        # Extract JSON object robustly — strip any trailing commentary Claude adds
+        # Extract JSON object robustly — raw_decode stops at the end of the
+        # first JSON value, ignoring any trailing commentary Claude adds.
         _start = raw.find("{")
-        _end   = raw.rfind("}")
-        if _start >= 0 and _end > _start:
-            raw = raw[_start : _end + 1]
         logging.info(f"  QR p{page_num} | AI QR detection raw response: {raw!r}")
-        ai_result = json.loads(raw)
+        if _start >= 0:
+            ai_result, _ = json.JSONDecoder().raw_decode(raw, _start)
+        else:
+            ai_result = json.loads(raw)
     except Exception as exc:
         logging.warning(f"  QR p{page_num} | AI vision error: {exc}")
         return None, None
@@ -3841,10 +3842,17 @@ def _upload_excel_file(
 # MULTI-JOB ROUTING HELPERS
 # ============================================================
 
+def _numeric_job_number(job_number: str) -> str:
+    """Extract the numeric prefix from a job folder name like '2601-Custer' → '2601'."""
+    m = re.match(r'^(\d+)', job_number)
+    return m.group(1) if m else job_number
+
+
 def _excel_local_path(job_number: str, is_concrete: bool = False) -> str:
     """Return the local temp path for a job's Excel tracker."""
+    num      = _numeric_job_number(job_number)
     suffix   = "_concrete" if is_concrete else ""
-    filename = f"ticket_tracker_{job_number}{suffix}.xlsx"
+    filename = f"ticket_tracker_{num}{suffix}.xlsx"
     return str(_LOCAL_TEMP_DIR / filename)
 
 
@@ -3917,10 +3925,11 @@ def _get_or_download_excel(
     if _excel_downloaded.get(cache_key) is False:
         return None  # already tried and failed this run
 
+    num = _numeric_job_number(job_number)
     sp_filename = (
-        f"ticket_tracker_{job_number}_concrete.xlsx"
+        f"ticket_tracker_{num}_concrete.xlsx"
         if is_concrete
-        else f"ticket_tracker_{job_number}.xlsx"
+        else f"ticket_tracker_{num}.xlsx"
     )
     ok = _download_excel_file(client, sp_filename, local_path, job_folder=job_number)
     _excel_downloaded[cache_key] = ok
