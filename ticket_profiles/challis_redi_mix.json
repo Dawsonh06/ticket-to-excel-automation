@@ -50,5 +50,8 @@
   },
   "confidence_checks": [
     "net_row_found"
-  ]
+  ],
+  "field_defaults": {
+    "facility": "Challis Redi-Mix"
+  }
 }

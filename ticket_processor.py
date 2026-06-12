@@ -174,6 +174,11 @@ class TicketProfile:
     is_fallback:                  bool           = False
     ticket_type:                  str            = ""
     detection_scan_lines:         int            = 3
+    field_defaults:               dict           = None
+
+    def __post_init__(self):
+        if self.field_defaults is None:
+            self.field_defaults = {}
 
 
 _REQUIRED_PROFILE_KEYS: dict[str, type] = {
@@ -255,6 +260,7 @@ def load_ticket_profiles() -> list[TicketProfile]:
             is_fallback                 = bool(data.get("is_fallback", False)),
             ticket_type                 = data.get("ticket_type", ""),
             detection_scan_lines        = int(data.get("detection_scan_lines", 3)),
+            field_defaults              = data.get("field_defaults", {}),
         )
         profiles.append(profile)
         logging.info(f"Loaded ticket profile: {profile.supplier_name!r} ({json_path.name})")
@@ -2028,7 +2034,13 @@ def extract_ticket_data_ocr(images: list, profiles: list[TicketProfile], subject
         else:
             ticket_data["helper_notes"] = _gen_note
 
-    # 7. Post-extraction check: warn on any required field that is still empty.
+    # 7. Apply profile-level field defaults for any field the AI left empty.
+    for _field, _default in profile.field_defaults.items():
+        if not ticket_data.get(_field) and _default:
+            ticket_data[_field] = _default
+            logging.info(f"  Applied field default: {_field}={_default!r}")
+
+    # 8. Post-extraction check: warn on any required field that is still empty.
     if profile.ticket_type == "concrete":
         required_fields = ["date", "ticket_number", "qty_delivered"]
     else:
