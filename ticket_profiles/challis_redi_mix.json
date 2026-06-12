@@ -49,7 +49,6 @@
     "Recailed ID#:":  "Recalled ID#:"
   },
   "confidence_checks": [
-    "supplier_name_in_text",
-    "net_tons_found"
+    "net_row_found"
   ]
 }

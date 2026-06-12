@@ -1369,6 +1369,11 @@ def _ai_scan_qr_from_image(
         if raw.startswith("```"):
             raw = re.sub(r"^```[a-z]*\n?", "", raw)
             raw = re.sub(r"\n?```$",        "", raw)
+        # Extract JSON object robustly — strip any trailing commentary Claude adds
+        _start = raw.find("{")
+        _end   = raw.rfind("}")
+        if _start >= 0 and _end > _start:
+            raw = raw[_start : _end + 1]
         logging.info(f"  QR p{page_num} | AI QR detection raw response: {raw!r}")
         ai_result = json.loads(raw)
     except Exception as exc:
