@@ -586,3 +586,43 @@ Error   : DUPLICATE TICKET: 16799 - Rock Tickets 16799, 17657 - 08/06/2025 (part
 Subject : Rock Tickets 16799, 17657 - 08/06/2025 (partial)
 Error   : DUPLICATE TICKET: 17657 - Rock Tickets 16799, 17657 - 08/06/2025 (partial) - 2026-04-20 16:23:06
 ------------------------------------------------------------
+[2026-06-11 15:32:32]
+Subject : US30BY Curb Ramps, Phase 2
+Error   : Attachment 'Sales Order QT CAS111756.pdf' [detecting ticket type]: NameError: name 'flag_email_review_required' is not defined
+Traceback (most recent call last):
+  File "C:\Users\dawson.h\Desktop\ticket-to-excel-automation\ticket_processor.py", line 4268, in process_email
+    flag_email_review_required(client, new_id, subject)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+NameError: name 'flag_email_review_required' is not defined
+
+------------------------------------------------------------
+[2026-06-11 15:32:35]
+Subject : I-84: Bridges Over North Spruce Street (La Grande)
+Error   : Attachment 'Barrier Price List - NW Precast 6.10.26.pdf' [detecting ticket type]: NameError: name 'flag_email_review_required' is not defined
+Traceback (most recent call last):
+  File "C:\Users\dawson.h\Desktop\ticket-to-excel-automation\ticket_processor.py", line 4268, in process_email
+    flag_email_review_required(client, new_id, subject)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+NameError: name 'flag_email_review_required' is not defined
+
+------------------------------------------------------------
+[2026-06-11 15:32:38]
+Subject : US30BY Curb Ramps Phase 2
+Error   : Attachment 'US30BY CURB RAMPS^J PHASE 2.pdf' [detecting ticket type]: NameError: name 'flag_email_review_required' is not defined
+Traceback (most recent call last):
+  File "C:\Users\dawson.h\Desktop\ticket-to-excel-automation\ticket_processor.py", line 4268, in process_email
+    flag_email_review_required(client, new_id, subject)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+NameError: name 'flag_email_review_required' is not defined
+
+------------------------------------------------------------
+[2026-06-11 15:32:41]
+Subject : I-84: BRIDGES OVER NORTH SPRUCE STREET (LA GRANDE)
+Error   : Attachment 'I-84 Bridges Over North Spruce Street (La Grande) Project.pdf' [detecting ticket type]: NameError: name 'flag_email_review_required' is not defined
+Traceback (most recent call last):
+  File "C:\Users\dawson.h\Desktop\ticket-to-excel-automation\ticket_processor.py", line 4268, in process_email
+    flag_email_review_required(client, new_id, subject)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+NameError: name 'flag_email_review_required' is not defined
+
+------------------------------------------------------------

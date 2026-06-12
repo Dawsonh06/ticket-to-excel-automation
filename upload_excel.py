@@ -40,6 +40,7 @@ AZURE_TENANT_ID     = os.getenv("AZURE_TENANT_ID")
 SHAREPOINT_HOST   = "vancouvermjhughes.sharepoint.com"
 SHAREPOINT_FOLDER = "MJHughes OPEN JOBS"
 JOB_NUMBER        = "2601"
+SP_JOB_FOLDER     = os.getenv("SHAREPOINT_JOB_FOLDER", JOB_NUMBER)
 EXCEL_FILENAME    = f"ticket_tracker_{JOB_NUMBER}.xlsx"
 GRAPH_BASE        = "https://graph.microsoft.com/v1.0"
 GRAPH_SCOPES      = ["https://graph.microsoft.com/.default"]
@@ -197,10 +198,10 @@ def main() -> None:
         sys.exit(1)
 
     # 2. Create the job subfolder if it does not exist
-    _ensure_folder(token, site_id, drive_id, SHAREPOINT_FOLDER, JOB_NUMBER)
+    _ensure_folder(token, site_id, drive_id, SHAREPOINT_FOLDER, SP_JOB_FOLDER)
 
     # 3. Skip upload if the file is already there
-    dest_path = f"{SHAREPOINT_FOLDER}/{JOB_NUMBER}/{EXCEL_FILENAME}"
+    dest_path = f"{SHAREPOINT_FOLDER}/{SP_JOB_FOLDER}/{EXCEL_FILENAME}"
     if _item_exists(token, site_id, drive_id, dest_path):
         logging.info(
             f"{EXCEL_FILENAME} already exists on SharePoint. Skipping upload."
@@ -213,7 +214,7 @@ def main() -> None:
 
     logging.info(
         f"Successfully uploaded {EXCEL_FILENAME} to SharePoint at "
-        f"/Shared Documents/{SHAREPOINT_FOLDER}/{JOB_NUMBER}/"
+        f"/Shared Documents/{SHAREPOINT_FOLDER}/{SP_JOB_FOLDER}/"
     )
 
 

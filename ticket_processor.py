@@ -1931,7 +1931,30 @@ def extract_ticket_data_ocr(images: list, profiles: list[TicketProfile], subject
                 "net_tons":      _ocr_net_tons(full_text, profile),
             })
 
-    # 6. Post-extraction check: warn on any required field that is still empty.
+    # 6. Generated ID: for profiles with no printed ticket number, build a unique
+    # identifier from date + net_tons per the profile's generated_id config and
+    # inject it as the ticket_number so duplicate detection and Excel entry work
+    # the same as for any other profile.
+    gen_id_cfg = profile.layout.get("generated_id")
+    if gen_id_cfg and not ticket_data.get("ticket_number"):
+        _date_raw = ticket_data.get("date", "")
+        _tons_raw = ticket_data.get("net_tons", "")
+        try:
+            _date_seg = datetime.strptime(_date_raw, "%m/%d/%Y").strftime("%m%d%Y")
+        except (ValueError, TypeError):
+            _date_seg = re.sub(r"[^0-9]", "", str(_date_raw))
+        _tons_seg    = str(_tons_raw) if _tons_raw else ""
+        _prefix      = gen_id_cfg.get("format", "GENERATED-{MMDDYYYY}-{net_tons}").split("{")[0]
+        generated_id = f"{_prefix}{_date_seg}-{_tons_seg}"
+        ticket_data["ticket_number"] = generated_id
+        logging.info(f"  Generated ticket ID (no printed number): {generated_id!r}")
+        _gen_note = "No ticket number - ID generated from date and tonnage"
+        if ticket_data.get("helper_notes"):
+            ticket_data["helper_notes"] = _gen_note + " | " + ticket_data["helper_notes"]
+        else:
+            ticket_data["helper_notes"] = _gen_note
+
+    # 7. Post-extraction check: warn on any required field that is still empty.
     if profile.ticket_type == "concrete":
         required_fields = ["date", "ticket_number", "qty_delivered"]
     else:
@@ -2485,6 +2508,10 @@ def _ocr_ticket_number(
     region_config = profile.layout.get("ticket_number_extraction", {})
     ticket_len    = region_config.get("ticket_number_length", 5)
     ticket_label  = region_config.get("ticket_number_label", "")
+
+    # ── method: none — profile has no printed ticket number ──────────────────
+    if region_config.get("method") == "none":
+        return ""
 
     # ── Strategy 1: label-based search ──────────────────────────────────────
     if ticket_label:
@@ -3240,8 +3267,10 @@ def write_to_excel(qr_data: dict, ticket_data: dict, notes: str = "", toc_materi
     sheet.cell(row=row_idx, column=_COL_MATERIAL).value    = ticket_data.get("material", "")
     sheet.cell(row=row_idx, column=_COL_TICKET_NUM).value  = ticket_data.get("ticket_number", "")
     sheet.cell(row=row_idx, column=_COL_QTY_TN).value      = ticket_data.get("net_tons", "")
-    if notes:
-        sheet.cell(row=row_idx, column=_COL_NOTES).value = notes
+    _td_notes      = ticket_data.get("helper_notes", "")
+    combined_notes = _append_note(_td_notes, notes) if notes else _td_notes
+    if combined_notes:
+        sheet.cell(row=row_idx, column=_COL_NOTES).value = combined_notes
 
     # Highlighting
     _orange = PatternFill(start_color="FFA500", end_color="FFA500", fill_type="solid")
@@ -4265,7 +4294,7 @@ def process_email(
                         f"  Unknown ticket type — moving to '{_review_folder_name('unknown')}' folder."
                     )
                     new_id = move_email_to_review_folder(client, email_id, ticket_type="unknown")
-                    flag_email_review_required(client, new_id, subject)
+                    flag_email_category(client, new_id)
                     mark_email_as_unread(client, new_id)
                     return {
                         "tickets":         [],

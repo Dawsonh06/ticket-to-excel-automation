@@ -1,0 +1,53 @@
+{
+  "supplier_name": "Challis Redi-Mix",
+  "ticket_type": "rock",
+  "detection_keywords": [
+    "CHALLIS", "Challis", "REDI-MIX", "Redi-Mix",
+    "challis redi", "CHALLIS REDI"
+  ],
+  "layout": {
+    "company_name_line": 1,
+    "ticket_number_extraction": {
+      "method": "none",
+      "description": "No printed ticket number exists on Challis Redi-Mix tickets. Do not use the Recalled ID#. ticket_number is always null. A unique identifier is generated after extraction using the format 'CHALLIS-[MMDDYYYY]-[net_tons]' (e.g. 'CHALLIS-06022026-11.04') and used for duplicate detection and Excel entry."
+    },
+    "generated_id": {
+      "format": "CHALLIS-{MMDDYYYY}-{net_tons}",
+      "example": "CHALLIS-06022026-11.04",
+      "fields": ["date", "net_tons"],
+      "use_for_duplicate_detection": true,
+      "use_as_excel_ticket_number": true
+    }
+  },
+  "labels": {
+    "facility": [],
+    "customer": ["Name:", "Name"],
+    "material": ["Commodity:", "Commodity"],
+    "net_row":  "Net"
+  },
+  "notes": {
+    "ticket_number": "No printed ticket number. Do not use the Recalled ID#. ticket_number is null. A unique identifier is generated from date and net_tons using the format 'CHALLIS-[MMDDYYYY]-[net_tons]' and used for duplicate detection and Excel entry.",
+    "date": "The printed date in the weigh-out section (typically '01/01/10') is a placeholder and must be ignored. The real date is handwritten and circled elsewhere on the ticket. Formats vary: '6-2-26', '6.2.2026', '06-02-2026'. Convert to MM/DD/YYYY.",
+    "supplier": "Always 'Challis Redi-Mix' for this profile.",
+    "facility": "Always 'Challis Redi-Mix' — there is no separate quarry/facility field on this ticket.",
+    "material": "From the 'Commodity:' field. Strip the customer name appended after the material (e.g. 'Rip Rap MJ Hughes' → 'Rip Rap').",
+    "net_tons": "Value after the 'Tons' label at the bottom of the weigh-out section. If any weight values are crossed out or have a line through them, ignore those values entirely and use only the clean uncrossed value.",
+    "helper_notes": "Always include 'No ticket number - ID generated from date and tonnage' in Helper Notes. If the ticket also includes a note such as 'no ticket' for additional witnessed loads, append that as well.",
+    "excel_columns": "A=Ticket Date, B=Logged Date, C=Facility (always 'Challis Redi-Mix'), D=Material, E=Ticket # (generated CHALLIS-[MMDDYYYY]-[net_tons] identifier), F=Net TN, G=Helper Notes, H=Human Notes (leave blank)"
+  },
+  "ai_extraction_prompt": "This is a Challis Redi-Mix rock ticket. There is no ticket number on Challis Redi-Mix tickets. Do not use the Recalled ID#. Return ticket_number as null. The printed date in the weigh-out is always wrong (placeholder 01/01/10) - find the real handwritten date which is circled or written separately on the ticket, formatted like 6-2-26 or 6.2.2026. If any weight values are crossed out, ignore them completely and only extract clean uncrossed values. Some tickets may have a note like 'no ticket' for additional witnessed loads - include this in Helper Notes.",
+  "weight_table": {
+    "columns": ["Gross", "Tare", "Net", "Tons"],
+    "tons_column_index": 3
+  },
+  "ocr_corrections": {
+    "REDI MIX":       "REDI-MIX",
+    "REDIMIX":        "REDI-MIX",
+    "Recailed":       "Recalled",
+    "Recailed ID#:":  "Recalled ID#:"
+  },
+  "confidence_checks": [
+    "supplier_name_in_text",
+    "net_tons_found"
+  ]
+}
