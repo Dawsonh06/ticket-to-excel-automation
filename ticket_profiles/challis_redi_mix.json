@@ -37,7 +37,7 @@
     "helper_notes": "Always include 'No ticket number - ID generated from date and tonnage' in Helper Notes. If the ticket also includes a note such as 'no ticket' for additional witnessed loads, append that as well.",
     "excel_columns": "A=Ticket Date, B=Logged Date, C=Facility (always 'Challis Redi-Mix'), D=Material, E=Ticket # (generated CHALLIS-[MMDDYYYY]-[net_tons] identifier), F=Net TN, G=Helper Notes, H=Human Notes (leave blank)"
   },
-  "ai_extraction_prompt": "This is a Challis Redi-Mix rock ticket. There is no ticket number on Challis Redi-Mix tickets. Do not use the Recalled ID#. Return ticket_number as null. The printed date in the weigh-out is always wrong (placeholder 01/01/10) - find the real handwritten date which is circled or written separately on the ticket, formatted like 6-2-26 or 6.2.2026. If any weight values are crossed out, ignore them completely and only extract clean uncrossed values. Some tickets may have a note like 'no ticket' for additional witnessed loads - include this in Helper Notes.",
+  "ai_extraction_prompt": "This is a Challis Redi-Mix rock ticket. There is no ticket number on Challis Redi-Mix tickets. Do not use the Recalled ID#. Return ticket_number as null. IMPORTANT: The date printed inside the Weigh-Out / weigh-out section (e.g. '01/01/10', '10:32 PM 01/01/10', or any date near the weight rows) is ALWAYS a wrong placeholder — NEVER use it. The real date is handwritten elsewhere on the ticket, often circled or written in a corner or at the bottom, in formats like '6-2-26', '6.2.2026', '06-02-2026', or '6/2/26'. Return the date in MM/DD/YYYY format. If any weight values are crossed out, ignore them completely and only extract clean uncrossed values. Some tickets may have a note like 'no ticket' for additional witnessed loads - include this in Helper Notes.",
   "weight_table": {
     "columns": ["Gross", "Tare", "Net", "Tons"],
     "tons_column_index": 3
@@ -48,9 +48,8 @@
     "Recailed":       "Recalled",
     "Recailed ID#:":  "Recalled ID#:"
   },
-  "confidence_checks": [
-    "net_row_found"
-  ],
+  "ai_only": true,
+  "confidence_checks": [],
   "field_defaults": {
     "facility": "Challis Redi-Mix"
   }

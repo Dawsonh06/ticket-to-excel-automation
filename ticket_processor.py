@@ -57,6 +57,17 @@ from PIL import Image, ImageDraw, ImageEnhance
 import pytesseract                   # OCR engine wrapper
 import cv2                             # image utility operations
 import numpy as np
+# Python 3.8+ on Windows no longer searches the pyzbar package directory
+# when loading libzbar-64.dll's dependency (libiconv.dll).  Register it
+# explicitly so the DLL chain resolves without modifying PATH.
+if hasattr(os, "add_dll_directory"):
+    import site as _site
+    for _sp in _site.getsitepackages():
+        _pyzbar_dir = Path(_sp) / "pyzbar"
+        if _pyzbar_dir.is_dir():
+            os.add_dll_directory(str(_pyzbar_dir))
+            break
+
 try:
     from pyzbar.pyzbar import decode as pyzbar_decode
     from pyzbar.pyzbar import ZBarSymbol
@@ -175,6 +186,7 @@ class TicketProfile:
     ticket_type:                  str            = ""
     detection_scan_lines:         int            = 3
     field_defaults:               dict           = None
+    ai_only:                      bool           = False
 
     def __post_init__(self):
         if self.field_defaults is None:
@@ -211,7 +223,8 @@ def validate_profile(data: dict, filepath: str) -> list[str]:
         if not data.get("is_fallback"):
             errors.append("'detection_keywords' must not be empty")
     if isinstance(data.get("confidence_checks"), list) and not data["confidence_checks"]:
-        errors.append("'confidence_checks' must not be empty")
+        if not data.get("ai_only"):
+            errors.append("'confidence_checks' must not be empty")
     return errors
 
 
@@ -261,6 +274,7 @@ def load_ticket_profiles() -> list[TicketProfile]:
             ticket_type                 = data.get("ticket_type", ""),
             detection_scan_lines        = int(data.get("detection_scan_lines", 3)),
             field_defaults              = data.get("field_defaults", {}),
+            ai_only                     = bool(data.get("ai_only", False)),
         )
         profiles.append(profile)
         logging.info(f"Loaded ticket profile: {profile.supplier_name!r} ({json_path.name})")
@@ -1083,44 +1097,72 @@ def preprocess_for_ocr(image: Image.Image) -> Image.Image:
 # ============================================================
 def _zxing_scan(image: "Image.Image", label: str, page_num: int) -> Optional[dict]:
     """
-    Try QR detection on *image* using pyzbar with two variants:
+    Try QR detection on *image* using pyzbar (primary) or zxingcpp (fallback).
+
+    Tries two variants per library:
       1. Original PIL image (colour)
       2. Grayscale
 
     Returns a parsed QR dict on the first match, or None.
     When OCR_DEBUG=1 every attempt is logged.
     """
-    if not PYZBAR_AVAILABLE:
+    if not PYZBAR_AVAILABLE and not ZXINGCPP_AVAILABLE:
         return None
 
     variants = [
-        ("original",   image),
-        ("grayscale",  image.convert("L")),
+        ("original",  image),
+        ("grayscale", image.convert("L")),
     ]
 
-    for var_name, img in variants:
-        results = pyzbar_decode(img, symbols=[ZBarSymbol.QRCODE])
-        for r in results:
-            text = r.data.decode("utf-8").strip()
-            if OCR_DEBUG:
-                logging.info(
-                    f"  QR p{page_num} | {label} [{var_name}]: found {text!r}"
-                )
-            if QR_PATTERN.search(text):
+    # ── pyzbar path ──────────────────────────────────────────────────────────
+    if PYZBAR_AVAILABLE:
+        for var_name, img in variants:
+            results = pyzbar_decode(img, symbols=[ZBarSymbol.QRCODE])
+            for r in results:
+                text = r.data.decode("utf-8").strip()
                 if OCR_DEBUG:
                     logging.info(
-                        f"  QR p{page_num} | {label} [{var_name}]: MATCH {text!r}"
+                        f"  QR p{page_num} | {label} [{var_name}]: found {text!r}"
                     )
-                return _parse_qr_string(text)
-            if OCR_DEBUG:
+                if QR_PATTERN.search(text):
+                    if OCR_DEBUG:
+                        logging.info(
+                            f"  QR p{page_num} | {label} [{var_name}]: MATCH {text!r}"
+                        )
+                    return _parse_qr_string(text)
+                if OCR_DEBUG:
+                    logging.info(
+                        f"  QR p{page_num} | {label} [{var_name}]: "
+                        "barcode found but pattern not matched"
+                    )
+            if OCR_DEBUG and not results:
                 logging.info(
-                    f"  QR p{page_num} | {label} [{var_name}]: "
-                    f"barcode found but pattern not matched"
+                    f"  QR p{page_num} | {label} [{var_name}]: no barcode detected"
                 )
-        if OCR_DEBUG and not results:
-            logging.info(
-                f"  QR p{page_num} | {label} [{var_name}]: no barcode detected"
-            )
+
+    # ── zxingcpp fallback path ────────────────────────────────────────────────
+    if ZXINGCPP_AVAILABLE:
+        for var_name, img in variants:
+            img_np = np.array(img)
+            results = zxingcpp.read_barcodes(img_np)
+            for r in results:
+                text = r.text.strip()
+                if OCR_DEBUG:
+                    logging.info(
+                        f"  QR p{page_num} | {label} zxing [{var_name}]: found {text!r}"
+                    )
+                if QR_PATTERN.search(text):
+                    if OCR_DEBUG:
+                        logging.info(
+                            f"  QR p{page_num} | {label} zxing [{var_name}]: MATCH {text!r}"
+                        )
+                    return _parse_qr_string(text)
+                if OCR_DEBUG:
+                    logging.info(
+                        f"  QR p{page_num} | {label} zxing [{var_name}]: "
+                        "barcode found but pattern not matched"
+                    )
+
     return None
 
 
@@ -1261,36 +1303,59 @@ def _scan_full_page_for_qr(
     are used only for OCR/AI extraction — QR detection stays on the full
     page so that codes near a crop boundary are not lost.
     """
-    if not PYZBAR_AVAILABLE:
+    if not PYZBAR_AVAILABLE and not ZXINGCPP_AVAILABLE:
         logging.warning(
-            f"  QR p{page_num} | Step 2: pyzbar not available — "
-            "install libzbar0 and the pyzbar package"
+            f"  QR p{page_num} | Step 2: neither pyzbar nor zxingcpp available"
         )
         return None, None
 
-    logging.info(f"  QR p{page_num} | Step 2: Attempting pyzbar full-page scan...")
     variants = [
         ("original",  page_image),
         ("grayscale", page_image.convert("L")),
     ]
-    for _var_name, img in variants:
-        results = pyzbar_decode(img, symbols=[ZBarSymbol.QRCODE])
-        for r in results:
-            text = r.data.decode("utf-8").strip()
-            if not QR_PATTERN.search(text):
-                logging.info(
-                    f"  QR p{page_num} | pyzbar [{_var_name}]: found {text!r} "
-                    "but pattern not matched"
+
+    # ── pyzbar path ───────────────────────────────────────────────────────────
+    if PYZBAR_AVAILABLE:
+        logging.info(f"  QR p{page_num} | Step 2: Attempting pyzbar full-page scan...")
+        for _var_name, img in variants:
+            results = pyzbar_decode(img, symbols=[ZBarSymbol.QRCODE])
+            for r in results:
+                text = r.data.decode("utf-8").strip()
+                if not QR_PATTERN.search(text):
+                    logging.info(
+                        f"  QR p{page_num} | pyzbar [{_var_name}]: found {text!r} "
+                        "but pattern not matched"
+                    )
+                    continue
+                polygon  = r.polygon
+                y_center = (
+                    sum(p.y for p in polygon) // len(polygon)
+                    if polygon
+                    else r.rect.top + r.rect.height // 2
                 )
-                continue
-            polygon  = r.polygon
-            y_center = (
-                sum(p.y for p in polygon) // len(polygon)
-                if polygon
-                else r.rect.top + r.rect.height // 2
-            )
-            return _parse_qr_string(text), y_center
-    logging.info(f"  QR p{page_num} | pyzbar full-page: no QR found")
+                return _parse_qr_string(text), y_center
+        logging.info(f"  QR p{page_num} | pyzbar full-page: no QR found")
+
+    # ── zxingcpp fallback path ────────────────────────────────────────────────
+    if ZXINGCPP_AVAILABLE:
+        logging.info(f"  QR p{page_num} | Step 2: Attempting zxingcpp full-page scan...")
+        for _var_name, img in variants:
+            img_np = np.array(img)
+            results = zxingcpp.read_barcodes(img_np)
+            for r in results:
+                text = r.text.strip()
+                if not QR_PATTERN.search(text):
+                    logging.info(
+                        f"  QR p{page_num} | zxing [{_var_name}]: found {text!r} "
+                        "but pattern not matched"
+                    )
+                    continue
+                pos = r.position
+                pts = [pos.top_left, pos.top_right, pos.bottom_right, pos.bottom_left]
+                y_center = sum(p.y for p in pts) // len(pts)
+                return _parse_qr_string(text), y_center
+        logging.info(f"  QR p{page_num} | zxingcpp full-page: no QR found")
+
     return None, None
 
 
@@ -1865,8 +1930,12 @@ def extract_ticket_data_ocr(images: list, profiles: list[TicketProfile], subject
             debug_img.save("ocr_debug.png")
             logging.info("OCR debug: preprocessed first page saved to ocr_debug.png")
 
-    # 4. Run profile confidence checks.
-    confidence_passed, failed_checks = _check_ocr_confidence(full_text, profile, images=images)
+    # 4. Run profile confidence checks (skipped for ai_only profiles).
+    if profile.ai_only:
+        confidence_passed, failed_checks = True, []
+        logging.info("  Skipping OCR confidence checks (ai_only profile — using pure AI extraction).")
+    else:
+        confidence_passed, failed_checks = _check_ocr_confidence(full_text, profile, images=images)
     if not confidence_passed:
         for check in failed_checks:
             logging.warning(f"  OCR confidence FAILED: {check}")
@@ -2019,9 +2088,15 @@ def extract_ticket_data_ocr(images: list, profiles: list[TicketProfile], subject
     if gen_id_cfg and not ticket_data.get("ticket_number"):
         _date_raw = ticket_data.get("date", "")
         _tons_raw = ticket_data.get("net_tons", "")
-        try:
-            _date_seg = datetime.strptime(_date_raw, "%m/%d/%Y").strftime("%m%d%Y")
-        except (ValueError, TypeError):
+        _date_seg = None
+        for _fmt in ("%m/%d/%Y", "%m/%d/%y", "%m-%d-%Y", "%m-%d-%y",
+                     "%-m/%-d/%Y", "%-m/%-d/%y"):
+            try:
+                _date_seg = datetime.strptime(_date_raw, _fmt).strftime("%m%d%Y")
+                break
+            except (ValueError, TypeError):
+                continue
+        if _date_seg is None:
             _date_seg = re.sub(r"[^0-9]", "", str(_date_raw))
         _tons_seg    = str(_tons_raw) if _tons_raw else ""
         _prefix      = gen_id_cfg.get("format", "GENERATED-{MMDDYYYY}-{net_tons}").split("{")[0]
@@ -4172,14 +4247,44 @@ def _crop_ticket_region(
     return image.crop((0, top, w, bottom))
 
 
+def _pdf_page_to_bytes(pdf_bytes: bytes, page_index: int) -> bytes:
+    """Extract one page from *pdf_bytes* as a new single-page PDF.
+
+    Uses PyMuPDF directly so the output is a native PDF page with no
+    image re-encoding.  This is the preferred path for full-page ticket
+    crops where the original scan bytes are available.
+    """
+    src = fitz.open(stream=pdf_bytes, filetype="pdf")
+    dst = fitz.open()
+    dst.insert_pdf(src, from_page=page_index, to_page=page_index)
+    result = dst.tobytes()
+    dst.close()
+    src.close()
+    return result
+
+
 def _pil_image_to_pdf_bytes(image: "Image.Image") -> bytes:
     """Encode a PIL Image as a single-page PDF and return the raw bytes.
 
-    PIL's built-in PDF writer is used (no extra dependencies).  The image is
-    converted to RGB first because PIL's PDF encoder requires that mode.
+    Uses PyMuPDF (fitz) via a PNG intermediate so the output is a valid,
+    consistently-encoded PDF regardless of the input image mode or size.
+    Falls back to PIL's built-in encoder if the fitz path raises.
     """
     if image.mode != "RGB":
         image = image.convert("RGB")
+    # Primary: fitz round-trip through PNG (reliable for cropped images)
+    try:
+        png_buf = io.BytesIO()
+        image.save(png_buf, format="PNG")
+        png_bytes = png_buf.getvalue()
+        img_doc = fitz.open(stream=png_bytes, filetype="png")
+        pdf_out = img_doc.convert_to_pdf()
+        img_doc.close()
+        if pdf_out:
+            return pdf_out
+    except Exception:
+        pass
+    # Fallback: PIL PDF encoder
     buf = io.BytesIO()
     image.save(buf, format="PDF")
     return buf.getvalue()
@@ -4524,6 +4629,9 @@ def process_email(
                     bot_pct = boundary["bottom_pct"]
                     tag     = f"  [p{page_num}/t{t_idx}]"
 
+                    _is_full_page = (
+                        len(boundaries) == 1 and top_pct <= 0 and bot_pct >= 100
+                    )
                     res: dict = {
                         "tag":           tag,
                         "qr_data":       None,
@@ -4534,10 +4642,12 @@ def process_email(
                         "failed":        False,
                         "fail_reason":   "",
                         "crop_img":      None,
+                        "is_full_page":  _is_full_page,
+                        "page_index":    page_num - 1,  # 0-based fitz index
                     }
 
                     # Single full-page ticket: skip the crop and use the full image
-                    if len(boundaries) == 1 and top_pct <= 0 and bot_pct >= 100:
+                    if _is_full_page:
                         crop_imgs = [page_image]
                         res["crop_img"] = page_image
                         logging.info(f"{tag} Single full-page ticket — no crop needed")
@@ -4734,21 +4844,12 @@ def process_email(
                     job      = qr_d["job_number"]
                     crop_img = res["crop_img"]
 
-                    # ── Retry skip: ticket already in Excel from a prior attempt ──
-                    # Do not write a duplicate Excel row or re-upload the PDF.
-                    # Count it as successfully done so the email can be marked read.
-                    if tn and tn in already_in_excel:
+                    _skip_excel_write = bool(tn and tn in already_in_excel)
+                    if _skip_excel_write:
                         logging.info(
-                            f"{res['tag']} Skipping ticket {tn} — already "
-                            "processed in a previous attempt"
+                            f"{res['tag']} Ticket {tn} already in Excel — "
+                            "skipping Excel write, still uploading PDF"
                         )
-                        all_ticket_numbers.append(tn)
-                        last_success = (qr_d, td)
-                        if first_success is None:
-                            first_success = (qr_d, td)
-                        if detected_type:
-                            types_seen.add(detected_type)
-                        continue   # skip Excel write AND PDF upload
 
                     # Resolve the effective SharePoint folder for this job.
                     # Falls back to _SP_JOB_FOLDER when the job folder doesn't
@@ -4763,7 +4864,9 @@ def process_email(
                     )
                     write_succeeded = True
 
-                    if job_excel_path is None:
+                    if _skip_excel_write:
+                        write_succeeded = True
+                    elif job_excel_path is None:
                         logging.warning(
                             f"{res['tag']} WARNING: Cannot fetch Excel for job "
                             f"{effective_job!r} — skipping Excel write."
@@ -4830,7 +4933,16 @@ def process_email(
                                 f"{res['tag']} Uploading crop PDF to SharePoint "
                                 f"(ticket: {tn}, job: {effective_job})..."
                             )
-                            crop_pdf       = _pil_image_to_pdf_bytes(crop_img)
+                            # Full-page tickets: extract the original PDF page
+                            # directly (no image re-encoding, preserves quality).
+                            # Cropped tickets (multiple per page): build a PDF
+                            # from the image crop via fitz.
+                            if res.get("is_full_page"):
+                                crop_pdf = _pdf_page_to_bytes(
+                                    pdf_bytes, res["page_index"]
+                                )
+                            else:
+                                crop_pdf = _pil_image_to_pdf_bytes(crop_img)
                             type_subfolder = detected_type.title() if detected_type else ""
 
                             # Build material-level subfolder name
