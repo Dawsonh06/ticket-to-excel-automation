@@ -42,6 +42,7 @@ import base64
 import difflib
 import logging
 import statistics
+import time
 import traceback
 from dataclasses import dataclass
 from datetime import datetime
@@ -128,6 +129,17 @@ MAILBOX           = os.getenv("MAILBOX_ADDRESS",       "help@mjhughes.com")
 SUMMARY_RECIPIENT = os.getenv("SUMMARY_EMAIL",         "dawson.h@mjhughes.com")
 _JOB_NUMBER       = os.getenv("JOB_NUMBER",           "2601")          # matches QR codes
 _SP_JOB_FOLDER    = os.getenv("SHAREPOINT_JOB_FOLDER", _JOB_NUMBER)    # actual SharePoint folder name
+
+# Additional job_number → SharePoint folder name mappings, for jobs beyond the
+# single default pair above. JSON object in .env, e.g.
+#   JOB_FOLDER_MAP={"2602":"2602-TrestleCreek"}
+# Checked before the exact-match/fallback logic in _resolve_sp_job_folder, so
+# these jobs never depend on a SharePoint folder literally named "<number>".
+_JOB_FOLDER_MAP: dict = {_JOB_NUMBER: _SP_JOB_FOLDER}
+try:
+    _JOB_FOLDER_MAP.update(json.loads(os.getenv("JOB_FOLDER_MAP", "{}")))
+except (json.JSONDecodeError, TypeError) as _exc:
+    logging.warning(f"Could not parse JOB_FOLDER_MAP from .env: {_exc}")
 
 _EXCEL_FILENAME          = os.getenv("EXCEL_FILE_ROCK",     f"ticket_tracker_{_JOB_NUMBER}.xlsx")
 _EXCEL_FILENAME_CONCRETE = os.getenv("EXCEL_FILE_CONCRETE", f"ticket_tracker_{_JOB_NUMBER}_concrete.xlsx")
@@ -591,6 +603,7 @@ class GraphClient:
 
     def __init__(self) -> None:
         self.access_token: str = ""
+        self._token_expiry: float = 0.0
         self._authenticate()
 
     def _authenticate(self) -> None:
@@ -612,12 +625,23 @@ class GraphClient:
             )
 
         self.access_token = result["access_token"]
+        # Re-authenticate 5 minutes before actual expiry so a long-running
+        # batch (large ticket backlogs can take well over an hour) never
+        # gets caught mid-request with a stale token.
+        self._token_expiry = time.time() + result.get("expires_in", 3600) - 300
         logging.info("Authenticated with Microsoft Graph API.")
+
+    def _ensure_fresh_token(self) -> None:
+        """Re-authenticate if the current access token is near expiry."""
+        if time.time() >= self._token_expiry:
+            logging.info("Access token nearing expiry — re-authenticating.")
+            self._authenticate()
 
     # ----------------------------------------------------------
     # Helper: standard JSON request headers
     # ----------------------------------------------------------
     def _json_headers(self) -> dict:
+        self._ensure_fresh_token()
         return {
             "Authorization":   f"Bearer {self.access_token}",
             "Content-Type":    "application/json",
@@ -644,6 +668,7 @@ class GraphClient:
 
     def put_binary(self, url: str, data: bytes, content_type: str) -> requests.Response:
         """PUT raw bytes (used for SharePoint file upload)."""
+        self._ensure_fresh_token()
         headers = {
             "Authorization": f"Bearer {self.access_token}",
             "Content-Type": content_type,
@@ -785,6 +810,43 @@ def flag_email_category(client: GraphClient, message_id: str) -> None:
     url = f"{GRAPH_BASE}/users/{MAILBOX}/messages/{message_id}"
     client.patch(url, json={"categories": ["REVIEW REQUIRED"]})
     logging.info(f"Flagged email {message_id} with category 'REVIEW REQUIRED'.")
+
+
+def add_review_note_to_email(
+    client: GraphClient, message_id: str, reasons: list[str]
+) -> None:
+    """Prepend a short note explaining the specific failure(s) to an email
+    flagged for review, so the reason is visible on the email itself rather
+    than only in the aggregate run-summary email.
+
+    Best-effort: failures here are logged and swallowed by the caller so a
+    body-formatting issue never blocks the category flag / subject rename /
+    move that actually drive the review workflow.
+    """
+    if not reasons:
+        return
+
+    url     = f"{GRAPH_BASE}/users/{MAILBOX}/messages/{message_id}"
+    current = client.get(f"{url}?$select=body").json()
+    body    = current.get("body", {})
+    content_type = body.get("contentType", "text")
+    original     = body.get("content", "")
+    reason_text  = "; ".join(reasons)
+
+    if content_type.lower() == "html":
+        note = (
+            '<div style="background:#fff3cd;border:1px solid #ffeeba;'
+            'padding:8px 12px;margin-bottom:12px;font-family:sans-serif;'
+            'font-size:13px;color:#856404;">'
+            f"<b>REVIEW REQUIRED:</b> {reason_text}"
+            "</div>"
+        )
+        new_content = note + original
+    else:
+        new_content = f"REVIEW REQUIRED: {reason_text}\n\n{original}"
+
+    client.patch(url, json={"body": {"contentType": content_type, "content": new_content}})
+    logging.info(f"Added review note to email {message_id}: {reason_text}")
 
 
 def _processed_folder_name(ticket_type: str) -> str:
@@ -1541,6 +1603,8 @@ def _run_confidence_check(
 
     if check_name == "net_row_found":
         net_label = profile.labels.get("net_row", "Net")
+        if isinstance(net_label, list):
+            net_label = net_label[0] if net_label else "Net"
         # Primary: case-insensitive word search for the configured label
         # (handles NET, net, Net).
         if re.search(rf'\b{re.escape(net_label)}\b', full_text, re.IGNORECASE):
@@ -2138,7 +2202,7 @@ class AmbiguousTabError(Exception):
 # ============================================================
 # AI FIELD EXTRACTION
 # ============================================================
-_AI_MODEL  = "claude-sonnet-4-6"
+_AI_MODEL  = "claude-sonnet-5"
 _AI_PROMPT = """\
 You are given both the original ticket image and raw OCR text extracted from it.
 Use both to extract fields — the image is the authoritative source for values
@@ -2951,6 +3015,8 @@ def _ocr_net_tons(text: str, profile: TicketProfile) -> str:
     correct number from the weight row (default: index 1 = second number).
     """
     net_label  = profile.labels.get("net_row", "Net")
+    if isinstance(net_label, list):
+        net_label = net_label[0] if net_label else "Net"
     tons_col   = profile.weight_table.get("tons_column_index", 1)  # 0-based
     net_escape = re.escape(net_label)
 
@@ -3973,19 +4039,20 @@ def _sp_job_folder_exists(client: GraphClient, job_number: str) -> bool:
         raise
 
 
-def _resolve_sp_job_folder(client: GraphClient, job_number: str) -> str:
+def _resolve_sp_job_folder(client: GraphClient, job_number: str) -> Optional[str]:
     """Return the SharePoint folder name to use for *job_number*.
 
-    If /MJHughes OPEN JOBS/{job_number} exists, returns *job_number*.
-    Otherwise falls back to *_SP_JOB_FOLDER* and logs a warning.
+    Checks _JOB_FOLDER_MAP first for an explicit mapping. Otherwise, if
+    /MJHughes OPEN JOBS/{job_number} exists, returns *job_number*.
+    Returns None when the job is not recognized by either path — callers
+    must treat that as an error and skip processing rather than silently
+    filing the ticket under an unrelated job.
     """
+    if job_number in _JOB_FOLDER_MAP:
+        return _JOB_FOLDER_MAP[job_number]
     if _sp_job_folder_exists(client, job_number):
         return job_number
-    logging.warning(
-        f"Job folder {job_number!r} not found in SharePoint — "
-        f"falling back to {_SP_JOB_FOLDER!r}"
-    )
-    return _SP_JOB_FOLDER
+    return None
 
 
 # Cache: (job_number, is_concrete) → True/False (download outcome).
@@ -4644,6 +4711,7 @@ def process_email(
                         "crop_img":      None,
                         "is_full_page":  _is_full_page,
                         "page_index":    page_num - 1,  # 0-based fitz index
+                        "effective_job": None,
                     }
 
                     # Single full-page ticket: skip the crop and use the full image
@@ -4697,6 +4765,27 @@ def process_email(
                         f"Location: {qr_data['location']}  "
                         f"Cost Code: {qr_data['cost_code']}"
                     )
+
+                    # Unrecognized job number — do not process this ticket at
+                    # all (no OCR/AI extraction, no Excel write, no PDF
+                    # upload). Checked here, before any expensive work, so an
+                    # unknown job can never be silently filed under the
+                    # wrong job's SharePoint folder/tracker.
+                    effective_job = _resolve_sp_job_folder(client, qr_data["job_number"])
+                    if effective_job is None:
+                        err = (
+                            f"UNKNOWN JOB NUMBER: {qr_data['job_number']!r} — not "
+                            "in JOB_FOLDER_MAP and no matching SharePoint folder "
+                            "found. Add it to JOB_FOLDER_MAP in .env to process "
+                            "this job."
+                        )
+                        logging.warning(f"{tag} {err}")
+                        log_error(subject, err)
+                        res["failed"]      = True
+                        res["fail_reason"] = err
+                        page_results.append(res)
+                        continue
+                    res["effective_job"] = effective_job
 
                     # OCR + AI extraction
                     _current_step = f"running OCR/AI extraction on page {page_num} ticket {t_idx}"
@@ -4851,10 +4940,9 @@ def process_email(
                             "skipping Excel write, still uploading PDF"
                         )
 
-                    # Resolve the effective SharePoint folder for this job.
-                    # Falls back to _SP_JOB_FOLDER when the job folder doesn't
-                    # exist in SharePoint yet (logged as a warning inside).
-                    effective_job = _resolve_sp_job_folder(client, job)
+                    # Job recognition already happened in Phase 1 — any ticket
+                    # with an unrecognized job number was filtered out there.
+                    effective_job = res["effective_job"]
                     _is_concrete  = (detected_type == "concrete")
                     _current_step = f"writing ticket {tn} to Excel"
 
@@ -4985,6 +5073,10 @@ def process_email(
                 except Exception as e:
                     logging.warning(f"  Category flag not applied: {e}")
                 try:
+                    add_review_note_to_email(client, email_id, review_reasons)
+                except Exception as e:
+                    logging.warning(f"  Review note not applied: {e}")
+                try:
                     rename_email_subject(
                         client, email_id,
                         f"REVIEW REQUIRED - {subject}",
@@ -5015,6 +5107,10 @@ def process_email(
                     flag_email_category(client, email_id)
                 except Exception as e:
                     logging.warning(f"  Category flag not applied: {e}")
+                try:
+                    add_review_note_to_email(client, email_id, review_reasons)
+                except Exception as e:
+                    logging.warning(f"  Review note not applied: {e}")
                 try:
                     rename_email_subject(
                         client, email_id, _partial_subject, current_subject=subject
@@ -5235,6 +5331,13 @@ def main() -> None:
             continue
         _job_num   = _m.group(1)
         _sp_folder = _resolve_sp_job_folder(client, _job_num)
+        if _sp_folder is None:
+            logging.critical(
+                f"CRITICAL: Unrecognized job number {_job_num!r} for local "
+                f"tracker {_sp_name} — not uploaded. Add it to JOB_FOLDER_MAP "
+                f"in .env, then re-run. Local copy left at {_local_path}."
+            )
+            continue
         try:
             _upload_excel_file(client, _sp_name, str(_local_path), job_folder=_sp_folder)
             _local_path.unlink(missing_ok=True)

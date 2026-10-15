@@ -1,0 +1,139 @@
+{
+  "supplier_name": "Peak Sand & Gravel, Inc.",
+  "detection_keywords": [
+    "Peak Sand & Gravel",
+    "Peak Sand and Gravel",
+    "PEAK SAND & GRAVEL",
+    "Sandpoint, ID 83864",
+    "208-255-2611"
+  ],
+  "detection_scan_lines": 5,
+  "ticket_type": "rock",
+  "layout": {
+    "company_name_line": 1,
+    "address_line": 2,
+    "city_state_phone_line": 3,
+    "ticket_number_extraction": {
+      "method": "region_ocr",
+      "description": "Ticket number appears in the upper-right area after the label 'TICKET'. Format is comma-separated digits (e.g. 2,204,486). Strip commas to get the numeric ticket number.",
+      "region": {
+        "x_start_pct": 0.55,
+        "y_start_pct": 0.0,
+        "x_end_pct": 1.0,
+        "y_end_pct": 0.2
+      },
+      "tesseract_config": "--oem 3 --psm 6",
+      "ticket_number_length": 7,
+      "post_processing": "strip_commas"
+    }
+  },
+  "labels": {
+    "ticket_number": [
+      "TICKET"
+    ],
+    "date": [
+      "DATE/TIME",
+      "Date/Time"
+    ],
+    "facility": [
+      "LOCATION",
+      "Location"
+    ],
+    "customer": [
+      "CUSTOMER",
+      "Customer"
+    ],
+    "material": [
+      "PRODUCT",
+      "Product",
+      "product",
+      "AGG BASE",
+      "Material"
+    ],
+    "quantity": [
+      "QTY",
+      "Qty",
+      "Qty Today"
+    ],
+    "unit": [
+      "UNIT",
+      "Unit",
+      "Ton"
+    ],
+    "net_row": [
+      "Net",
+      "NET"
+    ],
+    "gross_row": [
+      "Gross",
+      "GROSS"
+    ],
+    "tare_row": [
+      "Tare",
+      "TARE"
+    ],
+    "loads_today": [
+      "Loads Today"
+    ],
+    "qty_today": [
+      "Qty Today"
+    ],
+    "truck": [
+      "TRUCK:",
+      "Truck:"
+    ],
+    "trailer": [
+      "TRAILER:",
+      "Trailer:"
+    ],
+    "hauler": [
+      "HAULER",
+      "Hauler"
+    ],
+    "weighmaster": [
+      "WEIGHMASTER:",
+      "Weighmaster:"
+    ],
+    "last_tare": [
+      "Last Tare Date/Time"
+    ]
+  },
+  "weight_table": {
+    "columns": [
+      "Pounds",
+      "Tons"
+    ],
+    "tons_column_index": 1,
+    "rows": [
+      "Gross",
+      "Tare",
+      "Net"
+    ],
+    "net_tons_row": "Net"
+  },
+  "ocr_corrections": {
+    "2,204,486": "2204486",
+    "P_O.": "P.O.",
+    "Ree": "",
+    "AGG BASE GRADING D (23": "AGG BASE GRADING D (23)",
+    "Tors": "Tons",
+    "Ton$": "Tons",
+    "Gravel,": "Gravel,"
+  },
+  "confidence_checks": [
+    "supplier_name_in_text",
+    "ticket_number_matches_pattern",
+    "net_tons_present",
+    "date_present"
+  ],
+  "notes": {
+    "ticket_number": "Printed as comma-formatted integer (e.g. '2,204,486'). Remove commas before storing. Label 'TICKET' precedes the value on the same line in the upper-right quadrant.",
+    "material": "Material code (e.g. 7006) appears on the same line as DATE/TIME. Full material name (e.g. 'AGG BASE GRADING D (23)') appears on the following line. The closing parenthesis may be cut off by OCR.",
+    "customer": "Customer ID (e.g. 2995) appears on the first customer line; company name on the next line. Job/project name follows on subsequent lines.",
+    "facility": "Location number and pit name appear in the upper-right block, e.g. '2 / Kootenai Pit'.",
+    "net_tons": "Found in the weight table under 'Tons' column on the 'Net' row.",
+    "hauler": "Hauler number (e.g. 561) and name (e.g. 'Peak Sand & Gravel') appear in the HAULER column.",
+    "truck": "Truck number follows 'TRUCK:' label on its own line.",
+    "qr_sticker": "A QR code sticker with abbreviated material category (e.g. 'Agg Base') may appear in the PRICE/AMOUNT column area \u2014 treat as supplemental only."
+  }
+}
