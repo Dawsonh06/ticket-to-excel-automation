@@ -40,10 +40,12 @@ import re
 import json
 import base64
 import difflib
+import hashlib
 import logging
 import statistics
 import time
 import traceback
+from copy import copy
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -554,6 +556,19 @@ _CONCRETE_COL_TICKET_NUM  = 6   # F — 7-digit ticket number
 _CONCRETE_COL_NOTES       = 7   # G — helper notes (material description)
 _CONCRETE_WRITTEN_COLS    = [1, 2, 3, 4, 5, 6, 7]
 _CONCRETE_DATA_START_ROW  = 5
+
+# ── Master document numbers ─────────────────────────────────────────────────
+# Every scanned PDF attachment gets one running number (M-00001, M-00002, …).
+# Each ticket cut from it carries that number in its PDF filename and in the
+# "Master Doc #" column of the tracker; the original scan is saved as
+# Ticket Scans/Master Documents/{number}.pdf in each job folder it feeds.
+# The column is located by header text (added after the last header when
+# missing) because tab layouts differ slightly between trackers.
+_MASTER_DOC_HEADER       = "Master Doc #"
+_MASTER_DOC_PREFIX       = "M-"
+_MASTER_DOC_DIGITS       = 5
+_MASTER_DOC_FOLDER       = "Master Documents"
+_MASTER_DOC_COUNTER_FILE = "_master_doc_counter.json"   # in SHAREPOINT_FOLDER root
 
 _TOC_TAB_NAME = "TOC"   # never read or written to; skipped in all tab scans
 
@@ -3438,7 +3453,40 @@ def _next_data_row(
     return data_start_row
 
 
-def write_to_excel(qr_data: dict, ticket_data: dict, notes: str = "", toc_materials: Optional[dict] = None, excel_path: str = None) -> None:
+def _master_doc_column(sheet, header_row: int) -> int:
+    """Return the column holding "Master Doc #" on *sheet*, adding it if absent.
+
+    A new header goes one column past the last non-empty header cell and
+    copies that cell's style so it matches the existing header row.
+    """
+    last_col = 0
+    for col in range(1, sheet.max_column + 1):
+        val = sheet.cell(row=header_row, column=col).value
+        if val is None or str(val).strip() == "":
+            continue
+        if str(val).strip().lower() == _MASTER_DOC_HEADER.lower():
+            return col
+        last_col = col
+
+    new_col = last_col + 1
+    new_hdr = sheet.cell(row=header_row, column=new_col)
+    new_hdr.value = _MASTER_DOC_HEADER
+    if last_col:
+        src = sheet.cell(row=header_row, column=last_col)
+        new_hdr._style = copy(src._style)
+        src_letter = get_column_letter(last_col)
+        if src_letter in sheet.column_dimensions:
+            sheet.column_dimensions[get_column_letter(new_col)].width = (
+                sheet.column_dimensions[src_letter].width
+            )
+    logging.info(
+        f"Excel: added '{_MASTER_DOC_HEADER}' header to tab {sheet.title!r} "
+        f"column {get_column_letter(new_col)}."
+    )
+    return new_col
+
+
+def write_to_excel(qr_data: dict, ticket_data: dict, notes: str = "", toc_materials: Optional[dict] = None, excel_path: str = None, master_doc: str = "") -> None:
     """Write one ticket row into the rock Excel tracker for a job.
 
     - Opens the existing workbook (raises FileNotFoundError if absent).
@@ -3459,6 +3507,7 @@ def write_to_excel(qr_data: dict, ticket_data: dict, notes: str = "", toc_materi
         E (_COL_TICKET_NUM)  — 5-digit ticket number
         F (_COL_QTY_TN)      — net tons
         J (_COL_NOTES)       — helper notes / flags
+        "Master Doc #" col   — source scan number (see _master_doc_column)
 
     Highlighting:
         notes="DUPLICATE TICKET" → all written cells orange
@@ -3498,13 +3547,18 @@ def write_to_excel(qr_data: dict, ticket_data: dict, notes: str = "", toc_materi
     combined_notes = _append_note(_td_notes, notes) if notes else _td_notes
     if combined_notes:
         sheet.cell(row=row_idx, column=_COL_NOTES).value = combined_notes
+    written_cols = list(_WRITTEN_COLS)
+    if master_doc:
+        md_col = _master_doc_column(sheet, _DATA_START_ROW - 1)
+        sheet.cell(row=row_idx, column=md_col).value = master_doc
+        written_cols.append(md_col)
 
     # Highlighting
     _orange = PatternFill(start_color="FFA500", end_color="FFA500", fill_type="solid")
     _yellow = PatternFill(start_color="FFFF00", end_color="FFFF00", fill_type="solid")
 
     if "DUPLICATE" in notes:
-        for col in _WRITTEN_COLS:
+        for col in written_cols:
             sheet.cell(row=row_idx, column=col).fill = _orange
     else:
         # Yellow highlight for any required field that came back empty
@@ -3539,6 +3593,7 @@ def write_to_excel_concrete(
     notes: str = "",
     toc_materials: Optional[dict] = None,
     excel_path: str = None,
+    master_doc: str = "",
 ) -> None:
     """Write one concrete ticket row into the concrete Excel tracker for a job.
 
@@ -3554,6 +3609,7 @@ def write_to_excel_concrete(
         F (_CONCRETE_COL_TICKET_NUM)  — 7-digit ticket number
         G (_CONCRETE_COL_NOTES)       — helper notes (material description)
         H                             — left blank for human notes
+        "Master Doc #" col            — source scan number (see _master_doc_column)
 
     Tab matching: looks up the QR code in column B of the concrete TOC tab
     and writes to the tab whose title equals that TOC row number (e.g. "2").
@@ -3598,13 +3654,18 @@ def write_to_excel_concrete(
     sheet.cell(row=row_idx, column=_CONCRETE_COL_TICKET_NUM).value   = ticket_data.get("ticket_number", "")
     if combined_notes:
         sheet.cell(row=row_idx, column=_CONCRETE_COL_NOTES).value = combined_notes
+    written_cols = list(_CONCRETE_WRITTEN_COLS)
+    if master_doc:
+        md_col = _master_doc_column(sheet, _CONCRETE_DATA_START_ROW - 1)
+        sheet.cell(row=row_idx, column=md_col).value = master_doc
+        written_cols.append(md_col)
 
     # Highlighting
     _orange = PatternFill(start_color="FFA500", end_color="FFA500", fill_type="solid")
     _yellow = PatternFill(start_color="FFFF00", end_color="FFFF00", fill_type="solid")
 
     if "DUPLICATE" in notes:
-        for col in _CONCRETE_WRITTEN_COLS:
+        for col in written_cols:
             sheet.cell(row=row_idx, column=col).fill = _orange
     else:
         ticket_number = ticket_data.get("ticket_number", "N/A")
@@ -3741,6 +3802,7 @@ def upload_to_sharepoint(
     ticket_numbers: list[str],
     subfolder: str = "",
     material_subfolder: str = "",
+    master_doc: str = "",
 ) -> str:
     """Upload a ticket PDF to the job's Ticket Scans folder on SharePoint.
 
@@ -3758,11 +3820,14 @@ def upload_to_sharepoint(
     File naming convention: "Tickets, [TicketNumber1], [TicketNumber2].pdf"
     Single ticket example : Tickets, 16800.pdf
     Multi-ticket example  : Tickets, 16800, 16801, 16802.pdf
+    With *master_doc*     : M-00042, Tickets, 16800.pdf
 
     Returns:
         The SharePoint web URL of the uploaded file.
     """
     filename = "Tickets, " + ", ".join(ticket_numbers) + ".pdf"
+    if master_doc:
+        filename = f"{master_doc}, {filename}"
 
     site_id  = _sharepoint_site_id(client)
     drive_id = _sharepoint_drive_id(client, site_id)
@@ -3798,6 +3863,75 @@ def upload_to_sharepoint(
 
     logging.info(f"Uploaded PDF to SharePoint: {scans_path}/{filename}")
     return web_url
+
+
+def allocate_master_doc_number(client: GraphClient, pdf_bytes: bytes) -> str:
+    """Return the master document number for a scanned PDF (e.g. "M-00042").
+
+    State lives in SharePoint at /{SHAREPOINT_FOLDER}/_master_doc_counter.json
+    so numbering continues across runs and machines:
+        {"last_issued": 42, "documents": {"<sha256 of PDF>": "M-00042", ...}}
+
+    A PDF seen before (an email retried or reprocessed, or the same scan
+    resent) gets its original number back, so its rows and file names stay
+    consistent.  A new PDF gets last_issued + 1; the file is written back
+    before the number is returned, so a crash later in the run leaves a gap
+    rather than reusing a number.  A missing file starts the sequence at 1.
+    """
+    site_id  = _sharepoint_site_id(client)
+    drive_id = _sharepoint_drive_id(client, site_id)
+    url = (
+        f"{GRAPH_BASE}/sites/{site_id}/drives/{drive_id}"
+        f"/root:/{SHAREPOINT_FOLDER}/{_MASTER_DOC_COUNTER_FILE}:/content"
+    )
+    try:
+        state = client.get(url).json()
+    except requests.exceptions.HTTPError as exc:
+        if exc.response is None or exc.response.status_code != 404:
+            raise
+        state = {}
+
+    documents = state.get("documents", {})
+    pdf_hash  = hashlib.sha256(pdf_bytes).hexdigest()
+    if pdf_hash in documents:
+        master_doc = documents[pdf_hash]
+        logging.info(f"Reusing master document number {master_doc} (PDF processed before)")
+        return master_doc
+
+    number     = int(state.get("last_issued", 0)) + 1
+    master_doc = f"{_MASTER_DOC_PREFIX}{number:0{_MASTER_DOC_DIGITS}d}"
+    documents[pdf_hash] = master_doc
+    client.put_binary(
+        url,
+        json.dumps({"last_issued": number, "documents": documents}, indent=1).encode("utf-8"),
+        content_type="application/json",
+    )
+    logging.info(f"Allocated master document number {master_doc}")
+    return master_doc
+
+
+def upload_master_document(
+    client: GraphClient,
+    pdf_bytes: bytes,
+    job_number: str,
+    master_doc: str,
+) -> str:
+    """Upload the original scanned PDF to Ticket Scans/Master Documents/{master_doc}.pdf."""
+    site_id  = _sharepoint_site_id(client)
+    drive_id = _sharepoint_drive_id(client, site_id)
+    _ensure_job_folder_structure(client, site_id, drive_id, job_number)
+
+    folder_path = f"{SHAREPOINT_FOLDER}/{job_number}/Ticket Scans/{_MASTER_DOC_FOLDER}"
+    if _ensure_sharepoint_folder(client, site_id, drive_id, folder_path):
+        logging.info(f"Created subfolder: Ticket Scans/{_MASTER_DOC_FOLDER}")
+
+    upload_url = (
+        f"{GRAPH_BASE}/sites/{site_id}/drives/{drive_id}"
+        f"/root:/{folder_path}/{master_doc}.pdf:/content"
+    )
+    response = client.put_binary(upload_url, pdf_bytes, content_type="application/pdf")
+    logging.info(f"Uploaded master document to SharePoint: {folder_path}/{master_doc}.pdf")
+    return response.json().get("webUrl", "(unknown)")
 
 
 def _sharepoint_site_id(client: GraphClient) -> str:
@@ -4595,19 +4729,66 @@ def process_email(
             # If this email is being reprocessed after a partial failure, any
             # ticket whose number appears here will be skipped (no duplicate
             # Excel row, no duplicate PDF upload) and counted as already-done.
-            if detected_type == "concrete":
-                already_in_excel: frozenset = _read_existing_ticket_numbers(
-                    excel_path=EXCEL_FILE_CONCRETE,
-                    col_ticket_num=_CONCRETE_COL_TICKET_NUM,
-                    data_start_row=_CONCRETE_DATA_START_ROW,
-                )
-            else:
-                already_in_excel: frozenset = _read_existing_ticket_numbers()
-            if already_in_excel:
-                logging.info(
-                    f"  Retry snapshot: {len(already_in_excel)} ticket number(s) "
-                    "already in Excel — will skip if re-encountered."
-                )
+            # Snapshots are taken per job tracker, on the first ticket routed
+            # to that job, so tickets for non-default jobs are checked against
+            # their own workbook rather than the default job's.
+            _is_concrete_email = (detected_type == "concrete")
+            _job_snapshots: dict[str, frozenset] = {}
+
+            def _job_excel_args(job: str) -> Optional[dict]:
+                """Return _find_duplicate_ticket/_read_existing kwargs for *job*."""
+                path = _get_or_download_excel(client, job, is_concrete=_is_concrete_email)
+                if path is None:
+                    return None
+                if _is_concrete_email:
+                    return {
+                        "excel_path":     path,
+                        "col_ticket_num": _CONCRETE_COL_TICKET_NUM,
+                        "data_start_row": _CONCRETE_DATA_START_ROW,
+                    }
+                return {"excel_path": path}
+
+            def _already_in_excel(job: str) -> frozenset:
+                if job not in _job_snapshots:
+                    args = _job_excel_args(job)
+                    _job_snapshots[job] = (
+                        _read_existing_ticket_numbers(**args) if args else frozenset()
+                    )
+                    if _job_snapshots[job]:
+                        logging.info(
+                            f"  Retry snapshot ({job}): {len(_job_snapshots[job])} "
+                            "ticket number(s) already in Excel — will skip if re-encountered."
+                        )
+                return _job_snapshots[job]
+
+            # ── Master document number for this attachment ──
+            # Allocated on the first ticket that reaches Phase 3, so sorted,
+            # unknown-type and fully-failed scans don't consume a number.
+            # The original PDF is uploaded once per job that receives tickets.
+            _master_doc: Optional[str] = None
+            _master_uploaded_jobs: set[str] = set()
+
+            def _master_doc_for(job: str) -> str:
+                nonlocal _master_doc
+                if _master_doc is None:
+                    try:
+                        _master_doc = allocate_master_doc_number(client, pdf_bytes)
+                    except Exception as md_exc:
+                        logging.warning(
+                            f"  Could not allocate master document number "
+                            f"(tickets will be logged without one): {md_exc}"
+                        )
+                        _master_doc = ""
+                if _master_doc and job not in _master_uploaded_jobs:
+                    try:
+                        upload_master_document(client, pdf_bytes, job, _master_doc)
+                        _master_uploaded_jobs.add(job)
+                    except Exception as md_exc:
+                        logging.warning(
+                            f"  Master document {_master_doc} upload to {job!r} "
+                            f"failed (will retry on next ticket): {md_exc}"
+                        )
+                return _master_doc
 
             # ---- 3. Detect ticket boundaries per page; process each crop --------
             # all_ticket_numbers : ticket numbers from rows successfully written
@@ -4871,16 +5052,15 @@ def process_email(
                                 )
                     res["material_note"] = material_note
 
-                    # Duplicate ticket check — route to the correct workbook
-                    if detected_type == "concrete":
-                        duplicate_tab = _find_duplicate_ticket(
-                            ticket_number,
-                            excel_path=EXCEL_FILE_CONCRETE,
-                            col_ticket_num=_CONCRETE_COL_TICKET_NUM,
-                            data_start_row=_CONCRETE_DATA_START_ROW,
-                        )
-                    else:
-                        duplicate_tab = _find_duplicate_ticket(ticket_number)
+                    # Duplicate ticket check — against this ticket's own job tracker.
+                    # Taking the snapshot first guarantees it predates any rows
+                    # this email writes to that job.
+                    _already_in_excel(effective_job)
+                    _dup_args = _job_excel_args(effective_job)
+                    duplicate_tab = (
+                        _find_duplicate_ticket(ticket_number, **_dup_args)
+                        if _dup_args else None
+                    )
                     if duplicate_tab:
                         logging.warning(
                             f"{tag} DUPLICATE TICKET: {ticket_number!r} already "
@@ -4933,7 +5113,7 @@ def process_email(
                     job      = qr_d["job_number"]
                     crop_img = res["crop_img"]
 
-                    _skip_excel_write = bool(tn and tn in already_in_excel)
+                    _skip_excel_write = bool(tn and tn in _already_in_excel(res["effective_job"]))
                     if _skip_excel_write:
                         logging.info(
                             f"{res['tag']} Ticket {tn} already in Excel — "
@@ -4944,6 +5124,8 @@ def process_email(
                     # with an unrecognized job number was filtered out there.
                     effective_job = res["effective_job"]
                     _is_concrete  = (detected_type == "concrete")
+                    _current_step = f"assigning master document number for ticket {tn}"
+                    master_doc    = _master_doc_for(effective_job)
                     _current_step = f"writing ticket {tn} to Excel"
 
                     # Lazy-download this job's Excel tracker if not yet on disk.
@@ -4969,6 +5151,7 @@ def process_email(
                                     write_to_excel_concrete(
                                         qr_d, td, notes=_dup_notes,
                                         excel_path=job_excel_path,
+                                        master_doc=master_doc,
                                     )
                                 else:
                                     write_to_excel(
@@ -4976,6 +5159,7 @@ def process_email(
                                         notes=_dup_notes,
                                         toc_materials=toc_materials,
                                         excel_path=job_excel_path,
+                                        master_doc=master_doc,
                                     )
                                 any_review_needed = True
                                 duplicate_count  += 1
@@ -4986,6 +5170,7 @@ def process_email(
                                     write_to_excel_concrete(
                                         qr_d, td, notes=notes,
                                         excel_path=job_excel_path,
+                                        master_doc=master_doc,
                                     )
                                 else:
                                     write_to_excel(
@@ -4993,6 +5178,7 @@ def process_email(
                                         notes=notes,
                                         toc_materials=toc_materials,
                                         excel_path=job_excel_path,
+                                        master_doc=master_doc,
                                     )
                         except AmbiguousTabError as amb_exc:
                             logging.warning(str(amb_exc))
@@ -5055,6 +5241,7 @@ def process_email(
                                 client, crop_pdf, effective_job, [tn],
                                 subfolder=type_subfolder,
                                 material_subfolder=mat_subfolder,
+                                master_doc=master_doc,
                             )
                         except Exception as sp_exc:
                             logging.warning(
