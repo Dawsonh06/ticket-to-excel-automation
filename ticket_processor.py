@@ -527,10 +527,34 @@ def _log_unknown_supplier(company_name: str) -> None:
 #   YYYY   = location   (4 alphanumeric chars)
 #   CCCCCC = cost code part 1 (6 alphanumeric chars)
 #   CC     = cost code part 2 (2 alphanumeric chars)
+#
+# The (?<!\d\d-) guard stops this pattern matching the tail of a new-format
+# code (e.g. "2610-8990-999999-01" inside "01-2610-8990-999999-01").  Real
+# old-format codes are never preceded by "NN-", so they match exactly as before.
 QR_PATTERN = re.compile(
-    r'\b([A-Z0-9]{4})-([A-Z0-9]{4})-([A-Z0-9]{6})-([A-Z0-9]{2})\b',
+    r'(?<!\d\d-)\b([A-Z0-9]{4})-([A-Z0-9]{4})-([A-Z0-9]{6})-([A-Z0-9]{2})\b',
     re.IGNORECASE,
 )
+
+# ── New-format (type-prefixed) QR codes — job 2610 onward ───────────────────
+#   Main work areas: TT-JJJJ-AAAA-BBBBBB-GG   e.g. 01-2610-8990-999999-01
+#   Other Work:      TT-JJJJ-1111-111111      e.g. 01-2610-1111-111111
+#   TT = type prefix (which tracker), JJJJ = job, GG = work-area group.
+# Starts with 2 digits then a 4-digit job, so it never collides with the old
+# format (which starts with 4 characters).  Checked BEFORE QR_PATTERN.
+NEW_QR_PATTERN = re.compile(
+    r'(?<![A-Z0-9-])(\d{2})-(\d{4})-(\d{4})-(\d{6})(?:-(\d{2}))?(?![A-Z0-9])',
+    re.IGNORECASE,
+)
+NEW_QR_TYPE_PREFIXES = {"01": "rock", "02": "dump", "03": "trucking"}
+# SharePoint Ticket Scans subfolder per tracker kind
+NEW_QR_SCAN_FOLDERS  = {"rock": "Rock In", "dump": "Dump Out", "trucking": "Trucking"}
+_NF_HEADER_ROW       = 5   # column headers
+_NF_DATA_START_ROW   = 6   # first data row
+_NF_COL_TICKET_NUM   = 5   # E — Ticket # in all three new-format trackers
+_NF_OTHER_WORK_TAB   = "Other Work"
+_NF_TOC_KEYS         = ["tab", "qr", "code_name", "description",
+                        "account", "class", "unit", "bid_items"]
 
 # ── Excel column mapping for ticket_tracker_2601.xlsx ───────────────────────
 # Columns A-F and J are written by this script; G, H, I, K are human-filled.
@@ -1201,12 +1225,13 @@ def _zxing_scan(image: "Image.Image", label: str, page_num: int) -> Optional[dic
                     logging.info(
                         f"  QR p{page_num} | {label} [{var_name}]: found {text!r}"
                     )
-                if QR_PATTERN.search(text):
+                _parsed = _parse_any_qr(text)
+                if _parsed:
                     if OCR_DEBUG:
                         logging.info(
                             f"  QR p{page_num} | {label} [{var_name}]: MATCH {text!r}"
                         )
-                    return _parse_qr_string(text)
+                    return _parsed
                 if OCR_DEBUG:
                     logging.info(
                         f"  QR p{page_num} | {label} [{var_name}]: "
@@ -1228,12 +1253,13 @@ def _zxing_scan(image: "Image.Image", label: str, page_num: int) -> Optional[dic
                     logging.info(
                         f"  QR p{page_num} | {label} zxing [{var_name}]: found {text!r}"
                     )
-                if QR_PATTERN.search(text):
+                _parsed = _parse_any_qr(text)
+                if _parsed:
                     if OCR_DEBUG:
                         logging.info(
                             f"  QR p{page_num} | {label} zxing [{var_name}]: MATCH {text!r}"
                         )
-                    return _parse_qr_string(text)
+                    return _parsed
                 if OCR_DEBUG:
                     logging.info(
                         f"  QR p{page_num} | {label} zxing [{var_name}]: "
@@ -1320,12 +1346,12 @@ def extract_qr_code(images: list) -> Optional[dict]:
         # ── Step 5: OCR fallback ──────────────────────────────────────────
         logging.info(f"  QR p{page_num} | step 5: OCR text fallback on crop image")
         ocr_text = pytesseract.image_to_string(image, config="--psm 6 --oem 3")
-        match = QR_PATTERN.search(ocr_text)
-        if match:
+        _parsed = _parse_any_qr(ocr_text, whole_text_is_code=False)
+        if _parsed:
             logging.info(
-                f"  QR p{page_num} | QR found via OCR text: {match.group(0)!r}"
+                f"  QR p{page_num} | QR found via OCR text: {_parsed['raw']!r}"
             )
-            return _parse_qr_string(match.group(0))
+            return _parsed
         else:
             logging.info(
                 f"  QR p{page_num} | OCR fallback: pattern not found in crop OCR text"
@@ -1359,6 +1385,51 @@ def _parse_qr_string(raw: str) -> dict:
         "cost_code":   f"{cost_code_1}-{cost_code_2}",
         "raw":         raw,
     }
+
+
+def _parse_new_qr_match(match: "re.Match") -> dict:
+    """Build a qr_data dict for a NEW_QR_PATTERN match.
+
+    Carries the same keys as _parse_qr_string (so existing logging works) plus
+    format="new", type_prefix, tracker_kind (None for an invalid prefix) and
+    group.  "raw" is the normalised code text only.
+    """
+    prefix, job, seg_a, seg_b, group = match.groups()
+    group = group or ""
+    cost_code = f"{seg_a}-{seg_b}" + (f"-{group}" if group else "")
+    return {
+        "format":       "new",
+        "type_prefix":  prefix,
+        "tracker_kind": NEW_QR_TYPE_PREFIXES.get(prefix),
+        "job_number":   job,
+        "location":     seg_a,
+        "cost_code_1":  seg_b,
+        "cost_code_2":  group,
+        "group":        group,
+        "cost_code":    cost_code,
+        "raw":          match.group(0).upper(),
+    }
+
+
+def _parse_any_qr(text: str, whole_text_is_code: bool = True) -> Optional[dict]:
+    """Parse *text* as a new-format QR first, then as an old-format QR.
+
+    Old-format results are exactly what _parse_qr_string produced before
+    new-format support existed: *whole_text_is_code* mirrors the two existing
+    call styles — decoded barcode text is passed whole (True), while OCR
+    page text passes only the matched substring (False).
+
+    Returns None when neither pattern matches.
+    """
+    if not text:
+        return None
+    m = NEW_QR_PATTERN.search(text)
+    if m:
+        return _parse_new_qr_match(m)
+    m = QR_PATTERN.search(text)
+    if not m:
+        return None
+    return _parse_qr_string(text if whole_text_is_code else m.group(0))
 
 
 def _scan_full_page_for_qr(
@@ -1398,7 +1469,8 @@ def _scan_full_page_for_qr(
             results = pyzbar_decode(img, symbols=[ZBarSymbol.QRCODE])
             for r in results:
                 text = r.data.decode("utf-8").strip()
-                if not QR_PATTERN.search(text):
+                _parsed = _parse_any_qr(text)
+                if not _parsed:
                     logging.info(
                         f"  QR p{page_num} | pyzbar [{_var_name}]: found {text!r} "
                         "but pattern not matched"
@@ -1410,7 +1482,7 @@ def _scan_full_page_for_qr(
                     if polygon
                     else r.rect.top + r.rect.height // 2
                 )
-                return _parse_qr_string(text), y_center
+                return _parsed, y_center
         logging.info(f"  QR p{page_num} | pyzbar full-page: no QR found")
 
     # ── zxingcpp fallback path ────────────────────────────────────────────────
@@ -1421,7 +1493,8 @@ def _scan_full_page_for_qr(
             results = zxingcpp.read_barcodes(img_np)
             for r in results:
                 text = r.text.strip()
-                if not QR_PATTERN.search(text):
+                _parsed = _parse_any_qr(text)
+                if not _parsed:
                     logging.info(
                         f"  QR p{page_num} | zxing [{_var_name}]: found {text!r} "
                         "but pattern not matched"
@@ -1430,7 +1503,7 @@ def _scan_full_page_for_qr(
                 pos = r.position
                 pts = [pos.top_left, pos.top_right, pos.bottom_right, pos.bottom_left]
                 y_center = sum(p.y for p in pts) // len(pts)
-                return _parse_qr_string(text), y_center
+                return _parsed, y_center
         logging.info(f"  QR p{page_num} | zxingcpp full-page: no QR found")
 
     return None, None
@@ -1479,15 +1552,18 @@ def _ai_scan_qr_from_image(
         "The sticker contains a QR code image AND printed text. "
         "IMPORTANT: Even if you cannot decode the QR code image itself, "
         "read the printed text on the sticker label directly. "
-        "The text is printed in the format:\n"
-        "XXXX-XXXX-XXXXXX-XX\n"
-        "Example: 2601-0180-313713-99\n\n"
+        "The text is printed in one of these formats:\n"
+        "XXXX-XXXX-XXXXXX-XX      (example: 2601-0180-313713-99)\n"
+        "NN-XXXX-XXXX-XXXXXX-NN   (example: 01-2610-8990-999999-01)\n"
+        "NN-XXXX-XXXX-XXXXXX      (example: 01-2610-1111-111111)\n"
+        "Copy the full code exactly as printed, including any leading "
+        "2-digit prefix.\n\n"
         "Look carefully at all edges and corners of the ticket for this sticker. "
         "The text may be printed vertically (rotated 90 degrees) alongside the QR code.\n\n"
         'Return ONLY a JSON object:\n'
         '{\n'
         '  "qr_found": true or false,\n'
-        '  "qr_text": "the XXXX-XXXX-XXXXXX-XX text from the sticker, or null",\n'
+        '  "qr_text": "the full code text from the sticker, or null",\n'
         '  "qr_location": "top-right/top-left/bottom-right/bottom-left/left-side/right-side"\n'
         '}\n'
         "No other text."
@@ -1543,10 +1619,12 @@ def _ai_scan_qr_from_image(
         )
         return None, None
 
-    if not QR_PATTERN.search(qr_text):
+    _parsed = _parse_any_qr(qr_text)
+    if not _parsed:
         logging.warning(
             f"  QR p{page_num} | AI vision: qr_found=true but "
-            f"{qr_text!r} does not match expected pattern XXXX-XXXX-XXXXXX-XX "
+            f"{qr_text!r} does not match a known QR pattern "
+            "(XXXX-XXXX-XXXXXX-XX or NN-XXXX-XXXX-XXXXXX[-NN]) "
             "— treating as not found"
         )
         return None, None
@@ -1565,7 +1643,24 @@ def _ai_scan_qr_from_image(
         f"  [p{page_num}] QR found via AI vision: "
         f"'{qr_text}' at {location or 'unknown location'}"
     )
-    return _parse_qr_string(qr_text), y_est
+    return _parsed, y_est
+
+
+def _prescan_page_qr(
+    page_image: "Image.Image", page_num: int
+) -> "tuple[Optional[dict], Optional[int], Optional[str]]":
+    """Full-page QR scan: AI vision first, then pyzbar/zxing.
+
+    Same order the page loop has always used.  Returns
+    (qr_data, y_px, method) where method is "ai", "pyzbar" or None.
+    """
+    qr_data, y = _ai_scan_qr_from_image(page_image, page_num)
+    if qr_data:
+        return qr_data, y, "ai"
+    qr_data, y = _scan_full_page_for_qr(page_image, page_num)
+    if qr_data:
+        return qr_data, y, "pyzbar"
+    return None, None, None
 
 
 # ============================================================
@@ -4225,6 +4320,417 @@ def _get_or_download_excel(
 
 
 # ============================================================
+# NEW-FORMAT QR CODES (type-prefixed, job 2610 onward)
+# ============================================================
+# Everything in this section is used ONLY for QR codes matching
+# NEW_QR_PATTERN.  Old-format codes (2601, 2602) never reach it.
+#
+# Trackers: ticket_tracker_{job}_{rock|dump|trucking}.xlsx in the job folder.
+# TOC columns: Tab | Full QR Code | Code Name | Description | Account |
+#              Class | Unit | Bid Items Covered
+# Data tabs:   rows 1-4 header block, row 5 column headers, data from row 6.
+
+# Cache: job_number → SharePoint folder name (or None when not found).
+_sp_prefix_folder_cache: dict[str, Optional[str]] = {}
+
+
+def _find_job_folder_by_prefix(client: GraphClient, job_number: str) -> Optional[str]:
+    """Return the folder under MJHughes OPEN JOBS whose name starts with *job_number*.
+
+    "2610" matches "2610-BeavertonCreekTrail" but not "26100-…".  Returns None
+    (and logs a warning) when no folder or more than one folder matches.
+    Cached for the lifetime of the run.
+    """
+    if job_number in _sp_prefix_folder_cache:
+        return _sp_prefix_folder_cache[job_number]
+
+    site_id  = _sharepoint_site_id(client)
+    drive_id = _sharepoint_drive_id(client, site_id)
+    url = (
+        f"{GRAPH_BASE}/sites/{site_id}/drives/{drive_id}"
+        f"/root:/{SHAREPOINT_FOLDER}:/children?$select=name,folder&$top=999"
+    )
+    names: list[str] = []
+    while url:
+        data = client.get(url).json()
+        names.extend(i["name"] for i in data.get("value", []) if "folder" in i)
+        url = data.get("@odata.nextLink")
+
+    prefix_re = re.compile(rf"^{re.escape(job_number)}(?!\d)")
+    matches   = [n for n in names if prefix_re.match(n)]
+    if len(matches) == 1:
+        result = matches[0]
+        logging.info(f"Job {job_number}: SharePoint folder {result!r} (prefix match)")
+    else:
+        result = None
+        logging.warning(
+            f"Job {job_number}: expected exactly one folder starting with "
+            f"{job_number!r} under {SHAREPOINT_FOLDER!r}, found {matches or 'none'}"
+        )
+    _sp_prefix_folder_cache[job_number] = result
+    return result
+
+
+def _nf_tracker_filename(job_number: str, kind: str) -> str:
+    return f"ticket_tracker_{_numeric_job_number(job_number)}_{kind}.xlsx"
+
+
+# Cache: (job_folder, kind) → download outcome.
+_nf_downloaded: dict[tuple, bool] = {}
+
+
+def _nf_get_or_download_tracker(
+    client: GraphClient, job_folder: str, kind: str
+) -> Optional[str]:
+    """Return the local path of a new-format tracker, downloading it if needed."""
+    filename   = _nf_tracker_filename(job_folder, kind)
+    local_path = str(_LOCAL_TEMP_DIR / filename)
+    if Path(local_path).exists():
+        return local_path
+    key = (job_folder, kind)
+    if _nf_downloaded.get(key) is False:
+        return None
+    ok = _download_excel_file(client, filename, local_path, job_folder=job_folder)
+    _nf_downloaded[key] = ok
+    return local_path if ok else None
+
+
+def _nf_route(qr_data: dict, excel_path_for_kind) -> dict:
+    """Decide which tracker and tab a new-format QR code goes to.
+
+    *excel_path_for_kind* is a callable kind → local tracker path (or None).
+
+    Returns {"ok": True, "kind", "excel_path", "toc_row"} on success, or
+    {"ok": False, "reason"} when the ticket must be flagged for review:
+        • invalid type prefix
+        • tracker missing
+        • QR not in the tracker's TOC (exact match on Full QR Code)
+        • TOC row points at a tab that does not exist
+    Bid item numbers are never used for matching.
+    """
+    raw    = qr_data.get("raw", "")
+    job    = qr_data.get("job_number", "")
+    prefix = qr_data.get("type_prefix", "")
+    kind   = NEW_QR_TYPE_PREFIXES.get(prefix)
+    if kind is None:
+        return {
+            "ok": False,
+            "reason": (
+                f"Invalid type prefix {prefix!r} in QR {raw} "
+                f"(expected {', '.join(sorted(NEW_QR_TYPE_PREFIXES))})"
+            ),
+        }
+
+    excel_path = excel_path_for_kind(kind)
+    if excel_path is None:
+        return {
+            "ok": False,
+            "reason": f"{_nf_tracker_filename(job, kind)} not found for job {job}",
+        }
+
+    workbook = openpyxl.load_workbook(excel_path, read_only=True, data_only=True)
+    try:
+        if _TOC_TAB_NAME not in workbook.sheetnames:
+            return {"ok": False, "reason": f"No TOC tab in {Path(excel_path).name}"}
+        toc_row = None
+        for row in workbook[_TOC_TAB_NAME].iter_rows(min_row=2, values_only=True):
+            cell = row[1] if len(row) > 1 else None
+            if cell is not None and str(cell).strip().upper() == raw.strip().upper():
+                vals    = list(row) + [None] * len(_NF_TOC_KEYS)
+                toc_row = {
+                    k: ("" if v is None else str(v).strip())
+                    for k, v in zip(_NF_TOC_KEYS, vals)
+                }
+                break
+        if toc_row is None:
+            return {"ok": False, "reason": f"QR {raw} not found in {job} TOC"}
+        if toc_row["tab"] not in workbook.sheetnames:
+            return {
+                "ok": False,
+                "reason": (
+                    f"QR {raw} maps to tab {toc_row['tab']!r}, which does not "
+                    f"exist in {Path(excel_path).name}"
+                ),
+            }
+    finally:
+        workbook.close()
+
+    return {"ok": True, "kind": kind, "excel_path": excel_path, "toc_row": toc_row}
+
+
+_NF_AI_PROMPTS = {
+    "dump": """\
+This is a DUMP / DISPOSAL ticket: a truck delivered material TO a dump site.
+Extract these fields:
+  ticket_number — the ticket number, read from the image (digits only)
+  date          — ticket date, normalised to MM/DD/YYYY
+  company       — the dump site / disposal facility name (NOT MJ Hughes)
+  material      — material that was dumped (e.g. "Asphalt", "Mixed fill")
+  tons          — net tons on the ticket, number only, or null
+  cy            — cubic yards on the ticket, number only, or null
+""",
+    "trucking": """\
+This is a TRUCKING / HAULING ticket from a trucking subcontractor.
+Extract these fields:
+  ticket_number — the ticket number, read from the image (digits only)
+  date          — ticket date, normalised to MM/DD/YYYY
+  company       — the trucking company name (NOT MJ Hughes)
+  truck_number  — truck number / truck ID, or null
+  material      — material hauled, or null
+  loads         — number of loads, number only, or null
+  cy            — cubic yards, number only, or null
+  tons          — tons, number only, or null
+  hours         — billable hours, number only, or null
+""",
+}
+_NF_AI_RULES = """
+Rules:
+  • Read values from the image; the OCR text below may contain errors.
+  • Only fill tons / cy / loads / hours when that quantity is printed on the
+    ticket — never convert between units.
+  • Return null for anything you cannot find.
+  • Return ONLY a JSON object with exactly those keys — no markdown, no prose.
+
+OCR TEXT:
+{ocr_text}"""
+
+
+def _nf_image_block(image: "Image.Image") -> dict:
+    img = image.copy()
+    if max(img.size) > 1500:
+        ratio = 1500 / max(img.size)
+        img   = img.resize((int(img.size[0] * ratio), int(img.size[1] * ratio)), Image.LANCZOS)
+    buf = io.BytesIO()
+    img.convert("RGB").save(buf, format="JPEG", quality=85)
+    return {
+        "type": "image",
+        "source": {
+            "type": "base64", "media_type": "image/jpeg",
+            "data": base64.b64encode(buf.getvalue()).decode("ascii"),
+        },
+    }
+
+
+def _nf_parse_ai_json(text: str) -> dict:
+    text = text.strip()
+    if text.startswith("```"):
+        text = re.sub(r"^```[a-z]*\n?", "", text)
+        text = re.sub(r"\n?```$", "", text)
+    start = text.find("{")
+    obj, _ = json.JSONDecoder().raw_decode(text[start:] if start >= 0 else text)
+    return obj
+
+
+def extract_ticket_data_new_format(images: list, kind: str) -> dict:
+    """AI extraction for 2610 dump and trucking tickets (no supplier profiles).
+
+    Dump sites and trucking subs have no supplier profiles, so this skips
+    profile matching and auto-profile generation entirely.
+    Returns the same "_ocr_confidence_passed"/"_failed_checks" keys as
+    extract_ticket_data_ocr on failure.
+    """
+    ocr_text = "\n".join(
+        pytesseract.image_to_string(preprocess_for_ocr(img), config="--oem 3 --psm 6")
+        for img in images
+    )
+    prompt = _NF_AI_PROMPTS[kind] + _NF_AI_RULES.format(ocr_text=ocr_text)
+    try:
+        ai_client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+        response  = ai_client.messages.create(
+            model=_AI_MODEL,
+            max_tokens=512,
+            messages=[{"role": "user", "content": [
+                _nf_image_block(images[0]), {"type": "text", "text": prompt},
+            ]}],
+        )
+        raw = response.content[0].text
+        logging.info(f"  AI extraction ({kind}) result: {raw.strip()}")
+        data = _nf_parse_ai_json(raw)
+    except Exception as exc:
+        logging.warning(f"  AI extraction ({kind}) failed: {exc}")
+        return {
+            "_ocr_confidence_passed": False,
+            "_failed_checks": [f"AI extraction failed for {kind} ticket: {exc}"],
+        }
+
+    out = {}
+    for key in ("ticket_number", "date", "company", "material", "truck_number",
+                "loads", "cy", "tons", "hours"):
+        val = data.get(key)
+        out[key] = "" if val is None else str(val).strip()
+    out["ticket_number"] = re.sub(r"\D", "", out["ticket_number"])
+    out["_ocr_confidence_passed"] = True
+    return out
+
+
+def _nf_guess_bid_item(material: str, bid_items: str, kind: str) -> str:
+    """Return a short best-guess note for an Other Work ticket.
+
+    e.g. "Gabion rock - likely bid item 200 or 210".  Returns "" on failure;
+    the human always fills the Bid Item column.
+    """
+    if not bid_items:
+        return ""
+    prompt = (
+        f"A {kind} ticket was coded to 'Other Work'. Material on the ticket: "
+        f"{material or 'not stated'}.\n"
+        f"Possible bid items: {bid_items}\n\n"
+        "Reply with ONE short line in the form "
+        "'<material> - likely bid item <number> or <number>' "
+        "(one or two numbers, best guess). If nothing fits, reply "
+        "'<material> - bid item unclear'. No other text."
+    )
+    try:
+        ai_client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+        response  = ai_client.messages.create(
+            model=_AI_MODEL, max_tokens=60,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        return response.content[0].text.strip().splitlines()[0][:200]
+    except Exception as exc:
+        logging.warning(f"  Bid item guess failed: {exc}")
+        return ""
+
+
+def _nf_unit_key(unit: str) -> str:
+    """Normalise a TOC Unit value to "tons", "cy", or "" (no check)."""
+    u = (unit or "").strip().lower()
+    if u in ("ton", "tons", "tn", "tns"):
+        return "tons"
+    if u in ("cy", "cyd", "cubic yards", "yd3"):
+        return "cy"
+    return ""
+
+
+def _nf_number(value: str):
+    """Return *value* as a float when it is a plain number, else unchanged."""
+    try:
+        return float(str(value).replace(",", "").strip())
+    except (TypeError, ValueError):
+        return value
+
+
+def write_to_excel_new_format(
+    excel_path: str,
+    kind: str,
+    toc_row: dict,
+    ticket_data: dict,
+    notes: str = "",
+    master_doc: str = "",
+) -> int:
+    """Write one ticket row to a new-format tracker tab. Returns the row index.
+
+    Columns are found by header text in row 5, so the three trackers can have
+    different layouts.  Human columns (Bid Item, Human Notes) are never written.
+
+    Unit check (main work-area tabs only, not Other Work): when the ticket's
+    quantity is not in the TOC Unit (tons vs CY), the row is still written but
+    the quantity cell is yellow and a helper note explains why.
+    """
+    workbook = openpyxl.load_workbook(excel_path)
+    sheet    = workbook[toc_row["tab"]]
+    headers  = {}
+    for col in range(1, sheet.max_column + 1):
+        v = sheet.cell(row=_NF_HEADER_ROW, column=col).value
+        if v is not None and str(v).strip():
+            headers[str(v).strip().lower()] = col
+
+    row_idx = _next_data_row(
+        sheet, col_ticket_num=_NF_COL_TICKET_NUM, data_start_row=_NF_DATA_START_ROW
+    )
+    today = datetime.now().strftime("%m/%d/%Y")
+    company_header = {
+        "rock": "supplier/facility", "dump": "dump site", "trucking": "trucking company",
+    }[kind]
+    values = {
+        "ticket date":    ticket_data.get("date", ""),
+        "logged date":    today,
+        company_header:   ticket_data.get("company", ""),
+        "material":       ticket_data.get("material", ""),
+        "truck #":        ticket_data.get("truck_number", ""),
+        "ticket #":       ticket_data.get("ticket_number", ""),
+        "tons":           _nf_number(ticket_data.get("tons", "")),
+        "cy":             _nf_number(ticket_data.get("cy", "")),
+        "loads":          _nf_number(ticket_data.get("loads", "")),
+        "hours":          _nf_number(ticket_data.get("hours", "")),
+    }
+    written_cols = []
+    for header, value in values.items():
+        col = headers.get(header)
+        if col is None:
+            continue
+        if value not in ("", None):
+            sheet.cell(row=row_idx, column=col).value = value
+        written_cols.append(col)
+
+    _yellow = PatternFill(start_color="FFFF00", end_color="FFFF00", fill_type="solid")
+    _orange = PatternFill(start_color="FFA500", end_color="FFA500", fill_type="solid")
+
+    # ── Unit check ──
+    helper_parts  = []
+    yellow_cols   = set()
+    is_other_work = toc_row["tab"].strip().lower() == _NF_OTHER_WORK_TAB.lower()
+    expected      = _nf_unit_key(toc_row.get("unit", ""))
+    if is_other_work and ticket_data.get("bid_item_guess"):
+        helper_parts.append(ticket_data["bid_item_guess"])
+    if expected and not is_other_work:
+        has = {q: bool(str(ticket_data.get(q, "") or "").strip())
+               for q in ("tons", "cy", "loads", "hours")}
+        if not has[expected]:
+            found = [q for q in ("tons", "cy", "loads", "hours") if has[q]]
+            if found:
+                for q in found:
+                    if headers.get(q):
+                        yellow_cols.add(headers[q])
+                label = {"tons": "tons", "cy": "CY", "loads": "loads", "hours": "hours"}
+                helper_parts.append(
+                    f"UNIT CHECK: ticket shows {'/'.join(label[q] for q in found)}, "
+                    f"code map unit is {label[expected]}"
+                )
+
+    if notes:
+        helper_parts.append(notes)
+    helper_text = " | ".join(p for p in helper_parts if p)
+    notes_col   = headers.get("helper notes")
+    if helper_text and notes_col:
+        sheet.cell(row=row_idx, column=notes_col).value = helper_text
+    if notes_col:
+        written_cols.append(notes_col)
+
+    if master_doc:
+        md_col = _master_doc_column(sheet, _NF_HEADER_ROW)
+        sheet.cell(row=row_idx, column=md_col).value = master_doc
+        written_cols.append(md_col)
+
+    # ── Highlighting ──
+    ticket_number = ticket_data.get("ticket_number", "N/A")
+    if "DUPLICATE" in notes:
+        for col in written_cols:
+            sheet.cell(row=row_idx, column=col).fill = _orange
+    else:
+        for header in ("ticket date", company_header, "ticket #"):
+            col = headers.get(header)
+            if col and not sheet.cell(row=row_idx, column=col).value:
+                sheet.cell(row=row_idx, column=col).fill = _yellow
+                logging.warning(f"  WARNING: Empty field '{header}' for ticket {ticket_number}")
+                log_error(f"ticket {ticket_number}", f"Empty field: {header}")
+        qty_cols = [headers[q] for q in ("tons", "cy", "loads", "hours") if headers.get(q)]
+        if qty_cols and not any(sheet.cell(row=row_idx, column=c).value for c in qty_cols):
+            target = headers.get(expected) or qty_cols[0]
+            yellow_cols.add(target)
+            logging.warning(f"  WARNING: No quantity found for ticket {ticket_number}")
+        for col in yellow_cols:
+            sheet.cell(row=row_idx, column=col).fill = _yellow
+
+    workbook.save(excel_path)
+    logging.info(
+        f"Excel: wrote ticket {ticket_number} to {Path(excel_path).name} "
+        f"tab {toc_row['tab']!r} row {row_idx}."
+    )
+    return row_idx
+
+
+# ============================================================
 # BATCH OUTLIER DETECTION
 # ============================================================
 def _check_batch_outliers(ticket_numbers: list[str]) -> None:
@@ -4677,8 +5183,26 @@ def process_email(
             # detected_type is initialized here so it is always defined when the
             # Phase 3 upload loop runs, even when ticket_types is empty.
             detected_type = ""
+
+            # ---- 2a. Page-1 QR pre-scan ----------------------------------------
+            # A new-format (type-prefixed) QR decides the ticket type itself, so
+            # keyword detection and the TICKET_TYPE filter are skipped for it.
+            # The result is cached and reused by the page loop below, so this
+            # does not add a QR scan for any email.
+            _current_step = "pre-scanning page 1 QR code"
+            _prescan_qr: dict[int, tuple] = {1: _prescan_page_qr(images[0], 1)}
+            _page1_qr = _prescan_qr[1][0]
+            _email_is_new_format = bool(_page1_qr and _page1_qr.get("format") == "new")
+            if _email_is_new_format:
+                detected_type = _page1_qr.get("tracker_kind") or ""
+                logging.info(
+                    f"  New-format QR {_page1_qr['raw']!r} on page 1 — ticket type "
+                    f"from prefix {_page1_qr['type_prefix']!r}: "
+                    f"{detected_type or 'INVALID'} (keyword detection skipped)"
+                )
+
             _current_step = "detecting ticket type"
-            if ticket_types:
+            if ticket_types and not _email_is_new_format:
                 type_ocr = pytesseract.image_to_string(
                     images[0], config="--oem 3 --psm 6"
                 )
@@ -4734,6 +5258,17 @@ def process_email(
             # their own workbook rather than the default job's.
             _is_concrete_email = (detected_type == "concrete")
             _job_snapshots: dict[str, frozenset] = {}
+
+            # New-format (2610) trackers: retry snapshot per tracker file path,
+            # and ticket numbers written to them (kept out of rock outlier checks).
+            _nf_snapshots: dict[str, frozenset] = {}
+            _nf_written:   list[str]            = []
+
+            def _nf_fail(res: dict, tag: str, reason: str) -> None:
+                logging.warning(f"{tag} REVIEW REQUIRED: {reason}")
+                log_error(subject, f"REVIEW REQUIRED: {reason}")
+                res["failed"]      = True
+                res["fail_reason"] = reason
 
             def _job_excel_args(job: str) -> Optional[dict]:
                 """Return _find_duplicate_ticket/_read_existing kwargs for *job*."""
@@ -4810,10 +5345,13 @@ def process_email(
                 # any cropping ensures codes near a crop boundary are not lost.
                 # The result is passed into both the duplicate-copy filter and
                 # the per-ticket QR step below.
-                page_qr_data, page_qr_y = _ai_scan_qr_from_image(
-                    page_image, page_num
-                )
-                if page_qr_data:
+                if page_num in _prescan_qr:
+                    page_qr_data, page_qr_y, _qr_method = _prescan_qr.pop(page_num)
+                else:
+                    page_qr_data, page_qr_y, _qr_method = _prescan_page_qr(
+                        page_image, page_num
+                    )
+                if page_qr_data and _qr_method == "ai":
                     logging.info(
                         f"  [p{page_num}] QR found via AI vision: "
                         f"'{page_qr_data['raw']}' "
@@ -4821,9 +5359,6 @@ def process_email(
                         f"page height {page_image.size[1]}px)"
                     )
                 else:
-                    page_qr_data, page_qr_y = _scan_full_page_for_qr(
-                        page_image, page_num
-                    )
                     if page_qr_data:
                         logging.info(
                             f"  [p{page_num}] QR found via pyzbar (AI missed it): "
@@ -4843,10 +5378,12 @@ def process_email(
                         _page_ocr_text = pytesseract.image_to_string(
                             page_image, config="--psm 6 --oem 3"
                         )
-                        _ocr_qr_match = QR_PATTERN.search(_page_ocr_text)
-                        if _ocr_qr_match:
-                            _ocr_qr_raw  = _ocr_qr_match.group(0)
-                            page_qr_data = _parse_qr_string(_ocr_qr_raw)
+                        _ocr_qr_parsed = _parse_any_qr(
+                            _page_ocr_text, whole_text_is_code=False
+                        )
+                        if _ocr_qr_parsed:
+                            _ocr_qr_raw  = _ocr_qr_parsed["raw"]
+                            page_qr_data = _ocr_qr_parsed
                             page_qr_y    = page_image.size[1] // 2  # center; unknown
                             logging.info(
                                 f"  [p{page_num}] QR found via OCR text: "
@@ -4946,6 +5483,100 @@ def process_email(
                         f"Location: {qr_data['location']}  "
                         f"Cost Code: {qr_data['cost_code']}"
                     )
+
+                    # ── New-format (type-prefixed) QR: separate 2610 path ──
+                    # Type prefix picks the tracker; exact TOC match picks the
+                    # tab.  Old-format codes skip this block entirely.
+                    if qr_data.get("format") == "new":
+                        _current_step = f"routing new-format ticket on page {page_num} ticket {t_idx}"
+                        nf_job = _find_job_folder_by_prefix(client, qr_data["job_number"])
+                        if nf_job is None:
+                            _nf_fail(res, tag, (
+                                f"UNKNOWN JOB NUMBER: no single folder starting with "
+                                f"{qr_data['job_number']!r} under {SHAREPOINT_FOLDER!r}"
+                            ))
+                            page_results.append(res)
+                            continue
+                        route = _nf_route(
+                            qr_data,
+                            lambda k, _j=nf_job: _nf_get_or_download_tracker(client, _j, k),
+                        )
+                        if not route["ok"]:
+                            _nf_fail(res, tag, route["reason"])
+                            page_results.append(res)
+                            continue
+                        res["effective_job"] = nf_job
+                        res["nf"]            = route
+                        nf_kind  = route["kind"]
+                        nf_toc   = route["toc_row"]
+                        logging.info(
+                            f"{tag} 2610 route → {nf_kind} tracker, tab {nf_toc['tab']!r} "
+                            f"({nf_toc['code_name'] or nf_toc['description']})"
+                        )
+
+                        _current_step = f"running {nf_kind} extraction on page {page_num} ticket {t_idx}"
+                        if nf_kind == "rock":
+                            ticket_data = extract_ticket_data_ocr(crop_imgs, profiles, subject=subject)
+                            if ticket_data.get("_no_profile_match"):
+                                _nf_fail(res, tag, (
+                                    f"UNKNOWN TICKET FORMAT: {ticket_data.get('_company_name', 'unknown')}. "
+                                    "No profile found. Please create a profile for this supplier."
+                                ))
+                                page_results.append(res)
+                                continue
+                            ticket_data["company"] = ticket_data.get("facility", "")
+                            ticket_data["tons"]    = ticket_data.get("net_tons", "")
+                        else:
+                            ticket_data = extract_ticket_data_new_format(crop_imgs, nf_kind)
+
+                        if not ticket_data.get("_ocr_confidence_passed", True):
+                            res["ticket_data"] = ticket_data
+                            _nf_fail(res, tag, "; ".join(
+                                ticket_data.get("_failed_checks", [])) or "OCR confidence failed")
+                            page_results.append(res)
+                            continue
+
+                        if nf_toc["tab"].lower() == _NF_OTHER_WORK_TAB.lower():
+                            ticket_data["bid_item_guess"] = _nf_guess_bid_item(
+                                ticket_data.get("material", ""), nf_toc["bid_items"], nf_kind
+                            )
+                        res["ticket_data"] = ticket_data
+                        tn_nf = ticket_data.get("ticket_number", "")
+                        logging.info(
+                            f"{tag} OCR → Ticket: {tn_nf or 'N/A'}  "
+                            f"Date: {ticket_data.get('date', 'N/A')}  "
+                            f"Company: {ticket_data.get('company', 'N/A')}  "
+                            f"Tons: {ticket_data.get('tons') or '-'}  "
+                            f"CY: {ticket_data.get('cy') or '-'}"
+                        )
+
+                        # Retry snapshot + duplicate check against this tracker
+                        nf_path = route["excel_path"]
+                        if nf_path not in _nf_snapshots:
+                            _nf_snapshots[nf_path] = _read_existing_ticket_numbers(
+                                excel_path=nf_path,
+                                col_ticket_num=_NF_COL_TICKET_NUM,
+                                data_start_row=_NF_DATA_START_ROW,
+                            )
+                        dup_tab = _find_duplicate_ticket(
+                            tn_nf, excel_path=nf_path,
+                            col_ticket_num=_NF_COL_TICKET_NUM,
+                            data_start_row=_NF_DATA_START_ROW,
+                        )
+                        if dup_tab:
+                            logging.warning(
+                                f"{tag} DUPLICATE TICKET: {tn_nf!r} already in "
+                                f"{Path(nf_path).name} tab '{dup_tab}'"
+                            )
+                            log_error(
+                                subject,
+                                f"DUPLICATE TICKET: {tn_nf} - {subject} - "
+                                + datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                            )
+                            res["is_duplicate"]  = True
+                            res["duplicate_tab"] = dup_tab
+                        page_results.append(res)
+                        continue
 
                     # Unrecognized job number — do not process this ticket at
                     # all (no OCR/AI extraction, no Excel write, no PDF
@@ -5102,6 +5733,11 @@ def process_email(
                         f"Page {page_num}: {bad_count} of {total_count} "
                         "ticket(s) missing ticket number"
                     )
+                    # New-format tickets: include the specific reason
+                    # (invalid type prefix, QR not in TOC, …).
+                    for r in failed_on_page:
+                        if (r.get("qr_data") or {}).get("format") == "new":
+                            review_reasons.append(r["fail_reason"])
                     continue   # skip Phase 3 — no Excel writes, no PDF upload
 
                 # ── Phase 3: All tickets have ticket numbers — write and upload ──
@@ -5112,6 +5748,59 @@ def process_email(
                     notes    = res["material_note"]
                     job      = qr_d["job_number"]
                     crop_img = res["crop_img"]
+
+                    # ── New-format (2610) write + upload ──
+                    if res.get("nf"):
+                        nf            = res["nf"]
+                        nf_kind       = nf["kind"]
+                        nf_tab        = nf["toc_row"]["tab"]
+                        effective_job = res["effective_job"]
+                        _current_step = f"assigning master document number for ticket {tn}"
+                        master_doc    = _master_doc_for(effective_job)
+                        _current_step = f"writing ticket {tn} to {nf_kind} tracker"
+                        if tn and tn in _nf_snapshots.get(nf["excel_path"], frozenset()):
+                            logging.info(
+                                f"{res['tag']} Ticket {tn} already in "
+                                f"{Path(nf['excel_path']).name} — skipping Excel "
+                                "write, still uploading PDF"
+                            )
+                        else:
+                            nf_notes = "DUPLICATE TICKET" if res["is_duplicate"] else ""
+                            write_to_excel_new_format(
+                                nf["excel_path"], nf_kind, nf["toc_row"], td,
+                                notes=nf_notes, master_doc=master_doc,
+                            )
+                            if res["is_duplicate"]:
+                                any_review_needed = True
+                                duplicate_count  += 1
+                                review_reasons.append(f"Duplicate ticket: {tn}")
+                        all_ticket_numbers.append(tn)
+                        _nf_written.append(tn)
+                        last_success = (qr_d, td)
+                        if first_success is None:
+                            first_success = (qr_d, td)
+                        types_seen.add(nf_kind)
+
+                        if crop_img is not None:
+                            _current_step = f"uploading ticket {tn} PDF to SharePoint"
+                            try:
+                                crop_pdf = (
+                                    _pdf_page_to_bytes(pdf_bytes, res["page_index"])
+                                    if res.get("is_full_page")
+                                    else _pil_image_to_pdf_bytes(crop_img)
+                                )
+                                upload_to_sharepoint(
+                                    client, crop_pdf, effective_job, [tn],
+                                    subfolder=NEW_QR_SCAN_FOLDERS[nf_kind],
+                                    material_subfolder=nf_tab,
+                                    master_doc=master_doc,
+                                )
+                            except Exception as sp_exc:
+                                logging.warning(
+                                    f"{res['tag']} PDF upload failed (will continue): "
+                                    f"{sp_exc}"
+                                )
+                        continue
 
                     _skip_excel_write = bool(tn and tn in _already_in_excel(res["effective_job"]))
                     if _skip_excel_write:
@@ -5344,6 +6033,7 @@ def process_email(
                 "duplicate_count": duplicate_count,
                 "review_reasons":  review_reasons,
                 "detected_type":   detected_type,
+                "new_format_tickets": _nf_written,
             }
 
         except Exception as exc:
@@ -5461,7 +6151,8 @@ def main() -> None:
     review_count         = 0
     total_duplicates     = 0
     rock_tickets:        list[str]                     = []
-    flagged_items:       list[tuple[str, list[str]]]   = []
+    new_format_count:    int                           = 0
+    flagged_items:      list[tuple[str, list[str]]]   = []
     error_items:         list[dict]                    = []
 
     if not emails:
@@ -5488,8 +6179,16 @@ def main() -> None:
                     # Only accumulate rock tickets for batch outlier detection;
                     # concrete ticket numbers are 7-digit (different range) and
                     # cannot be mixed with 5-digit rock numbers.
+                    # New-format (2610) tickets are counted separately: dump
+                    # and trucking numbers would skew the rock outlier check.
+                    _nf_list = list(result.get("new_format_tickets", []))
+                    new_format_count += len(_nf_list)
                     if result.get("detected_type") != "concrete":
-                        rock_tickets.extend(result["tickets"])
+                        _rest = list(result["tickets"])
+                        for _t in _nf_list:
+                            if _t in _rest:
+                                _rest.remove(_t)
+                        rock_tickets.extend(_rest)
                 if result["review_needed"]:
                     review_count += 1
                     flagged_items.append(
@@ -5513,11 +6212,18 @@ def main() -> None:
         # Extract job number from filename:
         #   ticket_tracker_2601.xlsx          → job 2601, rock
         #   ticket_tracker_2601_concrete.xlsx → job 2601, concrete
-        _m = re.match(r"ticket_tracker_(\w+?)(?:_concrete)?\.xlsx$", _sp_name)
+        #   ticket_tracker_2610_rock.xlsx     → job 2610, new-format rock
+        #   (also _dump / _trucking — folder found by prefix, not JOB_FOLDER_MAP)
+        _m = re.match(
+            r"ticket_tracker_(\w+?)(?:_(concrete|rock|dump|trucking))?\.xlsx$", _sp_name
+        )
         if not _m:
             continue
         _job_num   = _m.group(1)
-        _sp_folder = _resolve_sp_job_folder(client, _job_num)
+        if _m.group(2) in NEW_QR_SCAN_FOLDERS:
+            _sp_folder = _find_job_folder_by_prefix(client, _job_num)
+        else:
+            _sp_folder = _resolve_sp_job_folder(client, _job_num)
         if _sp_folder is None:
             logging.critical(
                 f"CRITICAL: Unrecognized job number {_job_num!r} for local "
@@ -5538,7 +6244,7 @@ def main() -> None:
     # ── Send run summary email ────────────────────────────────────────────────
     send_run_summary_email(
         client,
-        processed_count  = len(rock_tickets),
+        processed_count  = len(rock_tickets) + new_format_count,
         review_count     = review_count,
         duplicate_count  = total_duplicates,
         error_count      = failures,
