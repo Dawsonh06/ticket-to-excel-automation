@@ -4,9 +4,9 @@ setup_2610_trackers.py
 Builds the three job 2610 (Beaverton Creek Trail) trackers for the
 new-format (type-prefixed) QR codes:
 
-    ticket_tracker_Permanent Material.xlsx  01-2610-…  tabs 10, 13, 16, Other Work
-    ticket_tracker_Dump Out.xlsx            02-2610-…  tabs 11, 14, 17, Other Work
-    ticket_tracker_Trucking.xlsx            03-2610-…  tabs 12, 15, 18, Other Work
+    ticket_tracker_Permanent Material.xlsx  01-2610-…  tabs 7, 8, 9, 10, 13, 16, Other Work
+    ticket_tracker_Dump Out.xlsx            02-2610-…  tabs 1, 3, 5, 11, 14, 17, Other Work
+    ticket_tracker_Trucking.xlsx            03-2610-…  tabs 2, 4, 6, 12, 15, 18, Other Work
 
 (file names come from NEW_QR_TRACKER_NAMES in ticket_processor.py)
 
@@ -52,6 +52,10 @@ BID_ITEMS = {
     "1320": "Treatment Trench Sta 47+81.6 to 55+18.7",
     "1330": "Treatment Trench Sta 69+48.4 to 77+88.3",
     "670": "Prefab Modular Wall (Wall 2)", "680": "Prefab Modular Wall (Wall 3)",
+    # Paid by Ticket (pay-quantity) items
+    "300": "Contaminated Soil Disposal", "380": "Clearing & Grubbing",
+    "390": "General Excavation", "400": "Stone Embankment",
+    "440": "Loose Riprap, Class 50", "700": "Aggregate Base",
 }
 
 STORM  = "350;480;490;500;510;530;540;550;560"
@@ -67,6 +71,12 @@ TRACKERS = {
         "columns": ["Ticket Date", "Logged Date", "Supplier/Facility", "Material",
                     "Ticket #", "Tons", "CY", "Helper Notes", "Human Notes"],
         "rows": [
+            ("7",  "BI0400-AGG", "01-2610-0400-999999",    "0400",           "tons",
+             "Aggregate by the ton", "400"),
+            ("8",  "BI0440-AGG", "01-2610-0440-999999",    "0440",           "tons",
+             "Aggregate by the ton", "440"),
+            ("9",  "BI0700-AGG", "01-2610-0700-999999",    "0700",           "tons",
+             "Aggregate by the ton", "700"),
             ("10", "STORM-AGG",  "01-2610-8990-999999-01", "8990-999999-01", "tons",
              "3/4in crushed gravel / aggregate", STORM + ";570"),
             ("13", "FRENCH-AGG", "01-2610-8990-999999-02", "8990-999999-02", "tons",
@@ -85,6 +95,12 @@ TRACKERS = {
         "columns": ["Ticket Date", "Logged Date", "Dump Site", "Material",
                     "Ticket #", "Tons", "CY", "Helper Notes", "Human Notes"],
         "rows": [
+            ("1",  "BI0300-DUMP", "02-2610-0300-999999",   "0300",           "tons",
+             "Contaminated soil disposal", "300"),
+            ("3",  "BI0380-DUMP", "02-2610-0380-999999",   "0380",           "CY",
+             "Dump fees", "380"),
+            ("5",  "BI0390-DUMP", "02-2610-0390-999999",   "0390",           "CY",
+             "Dump fees", "390"),
             ("11", "STORM-DUMP",  "02-2610-8990-999999-01", "8990-999999-01", "CY",
              "Dump fees", STORM),
             ("14", "FRENCH-DUMP", "02-2610-8990-999999-02", "8990-999999-02", "CY",
@@ -102,6 +118,12 @@ TRACKERS = {
         "columns": ["Ticket Date", "Logged Date", "Trucking Company", "Truck #",
                     "Ticket #", "Loads", "CY", "Tons", "Hours", "Helper Notes", "Human Notes"],
         "rows": [
+            ("2",  "BI0300-HAUL", "03-2610-0300-999999",   "0300",           "tons",
+             "Trucking sub", "300"),
+            ("4",  "BI0380-HAUL", "03-2610-0380-999999",   "0380",           "CY",
+             "Trucking sub", "380"),
+            ("6",  "BI0390-HAUL", "03-2610-0390-999999",   "0390",           "CY",
+             "Trucking sub", "390"),
             ("12", "STORM-HAUL",  "03-2610-8990-999999-01", "8990-999999-01", "CY",
              "Trucking sub / dump truck hauling", STORM + ";570;580;590"),
             ("15", "FRENCH-HAUL", "03-2610-8990-999999-02", "8990-999999-02", "CY",
@@ -117,7 +139,7 @@ TRACKERS = {
 }
 
 HUMAN_COLUMNS = {"Human Notes", "Bid Item"}
-TOC_HEADERS   = ["Tab", "Full QR Code", "Code Name", "Description",
+TOC_HEADERS   = ["Tab/Sticker #", "Full QR Code", "Code Name", "Description",
                  "Account", "Class", "Unit", "Bid Items Covered"]
 
 
@@ -190,7 +212,8 @@ def build_tracker(kind: str, path: str) -> None:
     for i, h in enumerate(TOC_HEADERS, start=1):
         c = toc.cell(row=1, column=i, value=h)
         c.font, c.fill, c.border = BOLD, GREY, BOX
-    for tab, code, qr, acct, unit, desc, bids in cfg["rows"]:
+    # Tabs in numeric order, Other Work last (TOC rows in the same order)
+    for tab, code, qr, acct, unit, desc, bids in sorted(cfg["rows"], key=lambda r: int(r[0])):
         bids_txt = bid_item_text(bids)
         toc.append([tab, qr, code, desc, acct, cfg["class"], unit, bids_txt])
         build_tab(wb, cfg, tab, qr, acct, unit, bids_txt, other_work=False)

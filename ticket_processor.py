@@ -555,6 +555,11 @@ _NF_HEADER_ROW       = 5   # column headers
 _NF_DATA_START_ROW   = 6   # first data row
 _NF_COL_TICKET_NUM   = 5   # E — Ticket # in all three new-format trackers
 _NF_OTHER_WORK_TAB   = "Other Work"
+# Pay-quantity ("Paid by Ticket") tabs: every row written to these gets
+# "Paid by ticket" in Helper Notes.  Duplicates are still detected ONLY by an
+# exact ticket-number match (never by tons/date) — see _find_duplicate_ticket.
+_NF_PAID_BY_TICKET_TABS = {str(n) for n in range(1, 10)}   # tabs 1-9
+_NF_PAID_BY_TICKET_NOTE = "Paid by ticket"
 _NF_TOC_KEYS         = ["tab", "qr", "code_name", "description",
                         "account", "class", "unit", "bid_items"]
 
@@ -4680,6 +4685,8 @@ def write_to_excel_new_format(
     yellow_cols   = set()
     is_other_work = toc_row["tab"].strip().lower() == _NF_OTHER_WORK_TAB.lower()
     expected      = _nf_unit_key(toc_row.get("unit", ""))
+    if toc_row["tab"].strip() in _NF_PAID_BY_TICKET_TABS:
+        helper_parts.append(_NF_PAID_BY_TICKET_NOTE)
     if is_other_work and ticket_data.get("bid_item_guess"):
         helper_parts.append(ticket_data["bid_item_guess"])
     if expected and not is_other_work:

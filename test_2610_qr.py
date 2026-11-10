@@ -56,6 +56,11 @@ CASES = [
     ("2601-0180-313713-99",    "unchanged 2601 behavior"),
     ("04-2610-8990-999999-01", "flagged, invalid type prefix"),
     ("01-2610-8990-999999-09", "flagged, not in TOC"),
+    # Paid by Ticket items (no group ending)
+    ("01-2610-0400-999999",    "rock tracker, tab 7"),
+    ("02-2610-0300-999999",    "dump tracker, tab 1"),
+    ("03-2610-0390-999999",    "trucking tracker, tab 6"),
+    ("01-2610-0300-999999",    "flagged, not in rock TOC"),
 ]
 EXPECT = [
     "ticket_tracker_Permanent Material.xlsx, tab '10'",
@@ -66,6 +71,10 @@ EXPECT = [
     "old format",
     "FLAGGED: Invalid type prefix",
     "FLAGGED: QR 01-2610-8990-999999-09 not found in 2610 TOC",
+    "ticket_tracker_Permanent Material.xlsx, tab '7'",
+    "ticket_tracker_Dump Out.xlsx, tab '1'",
+    "ticket_tracker_Trucking.xlsx, tab '6'",
+    "FLAGGED: QR 01-2610-0300-999999 not found in 2610 TOC",
 ]
 
 
@@ -143,6 +152,43 @@ def main():
         failures += not ok
         print(f"{'PASS' if ok else 'FAIL'}  rock Other Work row 6: Helper Notes {note!r}, "
               f"Bid Item left blank, Master Doc # {ws.cell(6, hdr['Master Doc #']).value}")
+
+        print("\n=== Paid by Ticket + duplicate rule ===")
+        dump2 = os.path.join(tmp, "paid_dump.xlsx")
+        shutil.copy(os.path.join(tracker_dir, "ticket_tracker_Dump Out.xlsx"), dump2)
+        r = tp._nf_route(tp._parse_any_qr("02-2610-0300-999999"), lambda k: dump2)
+        base = {"date": "11/10/2026", "company": "Waste Mgmt Hillsboro",
+                "material": "Contaminated soil", "tons": "18.20"}
+        tp.write_to_excel_new_format(dump2, "dump", r["toc_row"], dict(base, ticket_number="90001"))
+        ws  = openpyxl.load_workbook(dump2)["1"]
+        hdr = {c.value: c.column for c in ws[5]}
+        note = ws.cell(6, hdr["Helper Notes"]).value
+        ok = note == "Paid by ticket"
+        failures += not ok
+        print(f"{'PASS' if ok else 'FAIL'}  dump tab 1 row 6 Helper Notes: {note!r}")
+
+        # Same tons + date, different ticket number -> NOT a duplicate
+        dup = tp._find_duplicate_ticket("90002", excel_path=dump2,
+                                        col_ticket_num=tp._NF_COL_TICKET_NUM,
+                                        data_start_row=tp._NF_DATA_START_ROW)
+        ok = dup is None
+        failures += not ok
+        print(f"{'PASS' if ok else 'FAIL'}  same tons/date, ticket 90002 vs 90001 -> duplicate? {dup!r} (expected None)")
+        # Exact ticket number match -> duplicate
+        dup = tp._find_duplicate_ticket("90001", excel_path=dump2,
+                                        col_ticket_num=tp._NF_COL_TICKET_NUM,
+                                        data_start_row=tp._NF_DATA_START_ROW)
+        ok = dup == "1"
+        failures += not ok
+        print(f"{'PASS' if ok else 'FAIL'}  exact ticket 90001 again -> duplicate in tab {dup!r} (expected '1')")
+
+        # Non-paid tabs do not get the note
+        r = tp._nf_route(tp._parse_any_qr("02-2610-8990-999999-01"), lambda k: dump2)
+        tp.write_to_excel_new_format(dump2, "dump", r["toc_row"], dict(base, ticket_number="90003", tons="", cy="10"))
+        note = openpyxl.load_workbook(dump2)["11"].cell(6, hdr["Helper Notes"]).value
+        ok = note in (None, "")
+        failures += not ok
+        print(f"{'PASS' if ok else 'FAIL'}  dump tab 11 (not paid by ticket) Helper Notes: {note!r}")
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 
