@@ -3,7 +3,7 @@ test_2610_qr.py — offline checks for new-format (2610) QR routing.
 
     python test_2610_qr.py TRACKER_DIR [OLD_TRACKER ...]
 
-TRACKER_DIR holds ticket_tracker_2610_{rock,dump,trucking}.xlsx
+TRACKER_DIR holds ticket_tracker_{Permanent Material,Dump Out,Trucking}.xlsx
 (build them with setup_2610_trackers.py).  Any OLD_TRACKER files given
 (e.g. ticket_tracker_2602.xlsx) have every old-format QR code in them
 re-parsed to prove old-format parsing is unchanged.  No network calls.
@@ -58,11 +58,11 @@ CASES = [
     ("01-2610-8990-999999-09", "flagged, not in TOC"),
 ]
 EXPECT = [
-    "ticket_tracker_2610_rock.xlsx, tab '10'",
-    "ticket_tracker_2610_dump.xlsx, tab '14'",
-    "ticket_tracker_2610_trucking.xlsx, tab '18'",
-    "ticket_tracker_2610_rock.xlsx, tab 'Other Work'",
-    "ticket_tracker_2610_trucking.xlsx, tab 'Other Work'",
+    "ticket_tracker_Permanent Material.xlsx, tab '10'",
+    "ticket_tracker_Dump Out.xlsx, tab '14'",
+    "ticket_tracker_Trucking.xlsx, tab '18'",
+    "ticket_tracker_Permanent Material.xlsx, tab 'Other Work'",
+    "ticket_tracker_Trucking.xlsx, tab 'Other Work'",
     "old format",
     "FLAGGED: Invalid type prefix",
     "FLAGGED: QR 01-2610-8990-999999-09 not found in 2610 TOC",
@@ -111,7 +111,7 @@ def main():
     print("\n=== Write test (temp copies; nothing uploaded) ===")
     tmp = tempfile.mkdtemp()
     try:
-        dump = shutil.copy(os.path.join(tracker_dir, "ticket_tracker_2610_dump.xlsx"), tmp)
+        dump = shutil.copy(os.path.join(tracker_dir, "ticket_tracker_Dump Out.xlsx"), tmp)
         r = tp._nf_route(tp._parse_any_qr("02-2610-8990-999999-02"), lambda k: dump)
         # Dump tab 14 expects CY; this ticket only shows tons → yellow + note
         tp.write_to_excel_new_format(dump, "dump", r["toc_row"], {
@@ -128,7 +128,7 @@ def main():
               f"{ws.cell(6, hdr['Ticket #']).value}, Tons {ws.cell(6, hdr['Tons']).value} "
               f"(fill {tons_fill}), Helper Notes {note!r}")
 
-        rock = shutil.copy(os.path.join(tracker_dir, "ticket_tracker_2610_rock.xlsx"), tmp)
+        rock = shutil.copy(os.path.join(tracker_dir, "ticket_tracker_Permanent Material.xlsx"), tmp)
         r = tp._nf_route(tp._parse_any_qr("01-2610-1111-111111"), lambda k: rock)
         tp.write_to_excel_new_format(rock, "rock", r["toc_row"], {
             "date": "11/10/2026", "company": "Knife River", "material": "4-8in gabion rock",

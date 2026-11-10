@@ -549,6 +549,8 @@ NEW_QR_PATTERN = re.compile(
 NEW_QR_TYPE_PREFIXES = {"01": "rock", "02": "dump", "03": "trucking"}
 # SharePoint Ticket Scans subfolder per tracker kind
 NEW_QR_SCAN_FOLDERS  = {"rock": "Rock In", "dump": "Dump Out", "trucking": "Trucking"}
+# SharePoint workbook name per tracker kind: ticket_tracker_<name>.xlsx in the job folder
+NEW_QR_TRACKER_NAMES = {"rock": "Permanent Material", "dump": "Dump Out", "trucking": "Trucking"}
 _NF_HEADER_ROW       = 5   # column headers
 _NF_DATA_START_ROW   = 6   # first data row
 _NF_COL_TICKET_NUM   = 5   # E — Ticket # in all three new-format trackers
@@ -4372,6 +4374,13 @@ def _find_job_folder_by_prefix(client: GraphClient, job_number: str) -> Optional
 
 
 def _nf_tracker_filename(job_number: str, kind: str) -> str:
+    """SharePoint file name of a new-format tracker, e.g. "ticket_tracker_Dump Out.xlsx"."""
+    return f"ticket_tracker_{NEW_QR_TRACKER_NAMES[kind]}.xlsx"
+
+
+def _nf_local_filename(job_number: str, kind: str) -> str:
+    """Local temp file name — includes the job number so jobs never collide,
+    and is what the end-of-run upload loop parses (job + kind)."""
     return f"ticket_tracker_{_numeric_job_number(job_number)}_{kind}.xlsx"
 
 
@@ -4384,7 +4393,7 @@ def _nf_get_or_download_tracker(
 ) -> Optional[str]:
     """Return the local path of a new-format tracker, downloading it if needed."""
     filename   = _nf_tracker_filename(job_folder, kind)
-    local_path = str(_LOCAL_TEMP_DIR / filename)
+    local_path = str(_LOCAL_TEMP_DIR / _nf_local_filename(job_folder, kind))
     if Path(local_path).exists():
         return local_path
     key = (job_folder, kind)
@@ -6222,6 +6231,7 @@ def main() -> None:
         _job_num   = _m.group(1)
         if _m.group(2) in NEW_QR_SCAN_FOLDERS:
             _sp_folder = _find_job_folder_by_prefix(client, _job_num)
+            _sp_name   = _nf_tracker_filename(_job_num, _m.group(2))
         else:
             _sp_folder = _resolve_sp_job_folder(client, _job_num)
         if _sp_folder is None:

@@ -4,18 +4,20 @@ setup_2610_trackers.py
 Builds the three job 2610 (Beaverton Creek Trail) trackers for the
 new-format (type-prefixed) QR codes:
 
-    ticket_tracker_2610_rock.xlsx      01-2610-…  tabs 10, 13, 16, Other Work
-    ticket_tracker_2610_dump.xlsx      02-2610-…  tabs 11, 14, 17, Other Work
-    ticket_tracker_2610_trucking.xlsx  03-2610-…  tabs 12, 15, 18, Other Work
+    ticket_tracker_Permanent Material.xlsx  01-2610-…  tabs 10, 13, 16, Other Work
+    ticket_tracker_Dump Out.xlsx            02-2610-…  tabs 11, 14, 17, Other Work
+    ticket_tracker_Trucking.xlsx            03-2610-…  tabs 12, 15, 18, Other Work
+
+(file names come from NEW_QR_TRACKER_NAMES in ticket_processor.py)
 
 Usage:
     python setup_2610_trackers.py OUT_DIR            # build locally only
     python setup_2610_trackers.py OUT_DIR --upload   # build + replace on SharePoint
 
 --upload first downloads the current 2610 trackers and STOPS if any data tab
-has data in it.  It then uploads the three trackers, removes the old
-ticket_tracker_2610.xlsx (renamed to _rock), and creates the Dump/Trucking
-mail folders.  ticket_tracker_2610_concrete.xlsx is left alone.
+has data in it.  It then uploads the three trackers, removes superseded
+tracker files (ticket_tracker_2610.xlsx / _rock / _dump / _trucking), and
+creates the Dump/Trucking mail folders.  ticket_tracker_2610_concrete.xlsx is left alone.
 """
 
 import os
@@ -117,6 +119,12 @@ TRACKERS = {
 HUMAN_COLUMNS = {"Human Notes", "Bid Item"}
 TOC_HEADERS   = ["Tab", "Full QR Code", "Code Name", "Description",
                  "Account", "Class", "Unit", "Bid Items Covered"]
+
+
+def tracker_name(kind: str) -> str:
+    """SharePoint file name for a tracker — single source: ticket_processor."""
+    from ticket_processor import _nf_tracker_filename
+    return _nf_tracker_filename(JOB_NUMBER, kind)
 
 
 def bid_item_text(codes: str) -> str:
@@ -231,10 +239,11 @@ def upload(out_dir: str) -> None:
     # Safety check: refuse to replace any tracker whose data tabs hold data.
     check_dir = os.path.join(out_dir, "current_sharepoint")
     os.makedirs(check_dir, exist_ok=True)
-    old_layout = {"ticket_tracker_2610.xlsx": 9,            # old 2602-style layout
-                  "ticket_tracker_2610_dump.xlsx": 9,
-                  "ticket_tracker_2610_trucking.xlsx": 9,
-                  "ticket_tracker_2610_rock.xlsx": 6}
+    current_names = {tp._nf_tracker_filename(JOB_NUMBER, k) for k in TRACKERS}
+    superseded    = {"ticket_tracker_2610.xlsx", "ticket_tracker_2610_rock.xlsx",
+                     "ticket_tracker_2610_dump.xlsx", "ticket_tracker_2610_trucking.xlsx"}
+    old_layout = {n: 6 for n in current_names | superseded}
+    old_layout["ticket_tracker_2610.xlsx"] = 9               # old 2602-style layout
     for name, start in old_layout.items():
         if name not in existing:
             continue
@@ -251,15 +260,15 @@ def upload(out_dir: str) -> None:
         print(f"checked {name}: no data")
 
     for kind in TRACKERS:
-        name = f"ticket_tracker_{JOB_NUMBER}_{kind}.xlsx"
+        name = tracker_name(kind)
         tp._upload_excel_file(client, name, os.path.join(out_dir, name), job_folder=job)
         print(f"uploaded {name}")
 
-    if "ticket_tracker_2610.xlsx" in existing:
+    for old in sorted(superseded & existing):
         client._ensure_fresh_token()
-        r = requests.delete(f"{base}/ticket_tracker_2610.xlsx", headers=client._json_headers())
+        r = requests.delete(f"{base}/{old}", headers=client._json_headers())
         r.raise_for_status()
-        print("removed ticket_tracker_2610.xlsx (replaced by ticket_tracker_2610_rock.xlsx)")
+        print(f"removed superseded {old}")
 
     for t in ("dump", "trucking"):
         tp.get_or_create_processed_folder(client, t)
@@ -276,7 +285,7 @@ if __name__ == "__main__":
     out = sys.argv[1]
     os.makedirs(out, exist_ok=True)
     for kind in TRACKERS:
-        p = os.path.join(out, f"ticket_tracker_{JOB_NUMBER}_{kind}.xlsx")
+        p = os.path.join(out, tracker_name(kind))
         build_tracker(kind, p)
         print("built", p)
     if "--upload" in sys.argv:
